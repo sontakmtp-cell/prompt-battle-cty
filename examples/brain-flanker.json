@@ -1,0 +1,52 @@
+{
+  "apiVersion": "1.0.0",
+  "initialState": "approach",
+  "variables": [{ "name": "retreats", "initial": 0 }],
+  "states": [
+    {
+      "name": "approach",
+      "rules": [
+        {
+          "when": {
+            "op": "all",
+            "args": [
+              { "op": "compare", "cmp": "lt", "left": { "kind": "sensor", "name": "self.coreHpRatio" }, "right": { "kind": "constant", "value": 300 } },
+              { "op": "compare", "cmp": "lt", "left": { "kind": "variable", "name": "retreats" }, "right": { "kind": "constant", "value": 2 } }
+            ]
+          },
+          "action": { "move": { "mode": "awayFromEnemy", "power": 1000 }, "turn": { "mode": "faceEnemy", "power": 1000, "offset": 0 } },
+          "set": [{ "name": "retreats", "value": { "kind": "math", "op": "add", "left": { "kind": "variable", "name": "retreats" }, "right": { "kind": "constant", "value": 1 } } }],
+          "nextState": "retreat"
+        },
+        {
+          "when": { "op": "compare", "cmp": "lt", "left": { "kind": "sensor", "name": "enemy.distance" }, "right": { "kind": "constant", "value": 6000 } },
+          "action": { "move": { "mode": "orbitLeft", "power": 1000 }, "turn": { "mode": "faceEnemy", "power": 1000, "offset": 16 } },
+          "nextState": "flank"
+        },
+        { "when": { "op": "always" }, "action": { "move": { "mode": "towardEnemy", "power": 1000 }, "turn": { "mode": "faceEnemy", "power": 1000, "offset": 0 } } }
+      ]
+    },
+    {
+      "name": "flank",
+      "rules": [
+        {
+          "when": { "op": "compare", "cmp": "gte", "left": { "kind": "sensor", "name": "stateTicks" }, "right": { "kind": "constant", "value": 30 } },
+          "action": { "move": { "mode": "towardEnemy", "power": 1000 }, "turn": { "mode": "faceEnemy", "power": 1000, "offset": 0 } },
+          "nextState": "approach"
+        },
+        { "when": { "op": "always" }, "action": { "move": { "mode": "orbitLeft", "power": 1000 }, "turn": { "mode": "faceEnemy", "power": 1000, "offset": 16 } } }
+      ]
+    },
+    {
+      "name": "retreat",
+      "rules": [
+        {
+          "when": { "op": "compare", "cmp": "gte", "left": { "kind": "sensor", "name": "stateTicks" }, "right": { "kind": "constant", "value": 15 } },
+          "action": { "move": { "mode": "towardEnemy", "power": 1000 }, "turn": { "mode": "faceEnemy", "power": 1000, "offset": 0 } },
+          "nextState": "approach"
+        },
+        { "when": { "op": "always" }, "action": { "move": { "mode": "awayFromEnemy", "power": 1000 }, "turn": { "mode": "faceEnemy", "power": 1000, "offset": 0 } } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2466 @@
+{
+  "versions": {
+    "engine": "0.1.0",
+    "ruleset": "0.1.1",
+    "botSchema": "1.0.0",
+    "brainApi": "1.0.0",
+    "replay": "2.0.0",
+    "mcpApi": "0.0.0"
+  },
+  "node": "v22.23.1",
+  "platform": "win32",
+  "seedCount": 10,
+  "matches": 100,
+  "cooldown": 6,
+  "duration": {
+    "p10": 11.433333333333334,
+    "p50": 18,
+    "p90": 64.4
+  },
+  "wins": {
+    "spear": 10,
+    "shield": 29,
+    "flanker": 21,
+    "spinner": 40,
+    "glass-cannon": 0
+  },
+  "pairs": [
+    {
+      "a": "spear",
+      "b": "shield",
+      "games": 10,
+      "aWins": 0,
+      "bWins": 10,
+      "draws": 0,
+      "duration": {
+        "p10": 16.366666666666667,
+        "p50": 18,
+        "p90": 19.766666666666666
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "games": 10,
+      "aWins": 0,
+      "bWins": 10,
+      "draws": 0,
+      "duration": {
+        "p10": 11.2,
+        "p50": 13.333333333333334,
+        "p90": 17.766666666666666
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "games": 10,
+      "aWins": 0,
+      "bWins": 10,
+      "draws": 0,
+      "duration": {
+        "p10": 19.7,
+        "p50": 25.833333333333332,
+        "p90": 34.266666666666666
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "games": 10,
+      "aWins": 10,
+      "bWins": 0,
+      "draws": 0,
+      "duration": {
+        "p10": 11.366666666666667,
+        "p50": 13,
+        "p90": 14.533333333333333
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "games": 10,
+      "aWins": 9,
+      "bWins": 1,
+      "draws": 0,
+      "duration": {
+        "p10": 14.133333333333333,
+        "p50": 17.166666666666668,
+        "p90": 28.633333333333333
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "games": 10,
+      "aWins": 0,
+      "bWins": 10,
+      "draws": 0,
+      "duration": {
+        "p10": 63.03333333333333,
+        "p50": 66.76666666666667,
+        "p90": 69.03333333333333
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "games": 10,
+      "aWins": 10,
+      "bWins": 0,
+      "draws": 0,
+      "duration": {
+        "p10": 11.733333333333333,
+        "p50": 12.133333333333333,
+        "p90": 15.8
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "games": 10,
+      "aWins": 0,
+      "bWins": 10,
+      "draws": 0,
+      "duration": {
+        "p10": 46.1,
+        "p50": 55.96666666666667,
+        "p90": 68.86666666666666
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "games": 10,
+      "aWins": 10,
+      "bWins": 0,
+      "draws": 0,
+      "duration": {
+        "p10": 9.333333333333334,
+        "p50": 9.866666666666667,
+        "p90": 12.566666666666666
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "games": 10,
+      "aWins": 10,
+      "bWins": 0,
+      "draws": 0,
+      "duration": {
+        "p10": 21.133333333333333,
+        "p50": 22.666666666666668,
+        "p90": 24.8
+      }
+    }
+  ],
+  "checks": {
+    "median40to80": false,
+    "flanker40percent": true,
+    "flankerBeatsSpear10percent": true
+  },
+  "rows": [
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 0,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 16.366666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 2993,
+          "meanSpeed": 786,
+          "hitCount": 369,
+          "meanImpactRatio": 146
+        },
+        "B": {
+          "damageDealt": 3084,
+          "meanSpeed": 598,
+          "hitCount": 313,
+          "meanImpactRatio": 157
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 1,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 17.566666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 3100,
+          "meanSpeed": 531,
+          "hitCount": 316,
+          "meanImpactRatio": 134
+        },
+        "B": {
+          "damageDealt": 2800,
+          "meanSpeed": 712,
+          "hitCount": 346,
+          "meanImpactRatio": 143
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 2,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 18.1,
+      "stats": {
+        "A": {
+          "damageDealt": 3302,
+          "meanSpeed": 657,
+          "hitCount": 384,
+          "meanImpactRatio": 145
+        },
+        "B": {
+          "damageDealt": 3122,
+          "meanSpeed": 503,
+          "hitCount": 326,
+          "meanImpactRatio": 151
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 3,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 18.633333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 3007,
+          "meanSpeed": 856,
+          "hitCount": 297,
+          "meanImpactRatio": 222
+        },
+        "B": {
+          "damageDealt": 2830,
+          "meanSpeed": 1155,
+          "hitCount": 346,
+          "meanImpactRatio": 240
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 4,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 19.766666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 2913,
+          "meanSpeed": 1045,
+          "hitCount": 354,
+          "meanImpactRatio": 160
+        },
+        "B": {
+          "damageDealt": 3031,
+          "meanSpeed": 760,
+          "hitCount": 310,
+          "meanImpactRatio": 158
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 5,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 20.133333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 3208,
+          "meanSpeed": 471,
+          "hitCount": 344,
+          "meanImpactRatio": 150
+        },
+        "B": {
+          "damageDealt": 3503,
+          "meanSpeed": 611,
+          "hitCount": 391,
+          "meanImpactRatio": 142
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 6,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 18.1,
+      "stats": {
+        "A": {
+          "damageDealt": 2821,
+          "meanSpeed": 836,
+          "hitCount": 355,
+          "meanImpactRatio": 159
+        },
+        "B": {
+          "damageDealt": 3083,
+          "meanSpeed": 632,
+          "hitCount": 308,
+          "meanImpactRatio": 160
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 7,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 17.5,
+      "stats": {
+        "A": {
+          "damageDealt": 3136,
+          "meanSpeed": 768,
+          "hitCount": 321,
+          "meanImpactRatio": 158
+        },
+        "B": {
+          "damageDealt": 3177,
+          "meanSpeed": 1023,
+          "hitCount": 373,
+          "meanImpactRatio": 165
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 8,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 18,
+      "stats": {
+        "A": {
+          "damageDealt": 3445,
+          "meanSpeed": 759,
+          "hitCount": 396,
+          "meanImpactRatio": 136
+        },
+        "B": {
+          "damageDealt": 3138,
+          "meanSpeed": 587,
+          "hitCount": 329,
+          "meanImpactRatio": 146
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "shield",
+      "seed": 9,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 17.633333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 3067,
+          "meanSpeed": 639,
+          "hitCount": 308,
+          "meanImpactRatio": 186
+        },
+        "B": {
+          "damageDealt": 2865,
+          "meanSpeed": 856,
+          "hitCount": 355,
+          "meanImpactRatio": 181
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 0,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 13.366666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 3632,
+          "meanSpeed": 1670,
+          "hitCount": 234,
+          "meanImpactRatio": 208
+        },
+        "B": {
+          "damageDealt": 2473,
+          "meanSpeed": 1920,
+          "hitCount": 166,
+          "meanImpactRatio": 202
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 1,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 13.333333333333334,
+      "stats": {
+        "A": {
+          "damageDealt": 3016,
+          "meanSpeed": 1553,
+          "hitCount": 163,
+          "meanImpactRatio": 140
+        },
+        "B": {
+          "damageDealt": 2676,
+          "meanSpeed": 1505,
+          "hitCount": 201,
+          "meanImpactRatio": 172
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 2,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 17.9,
+      "stats": {
+        "A": {
+          "damageDealt": 3850,
+          "meanSpeed": 1720,
+          "hitCount": 266,
+          "meanImpactRatio": 207
+        },
+        "B": {
+          "damageDealt": 2204,
+          "meanSpeed": 1939,
+          "hitCount": 178,
+          "meanImpactRatio": 148
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 3,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 11.433333333333334,
+      "stats": {
+        "A": {
+          "damageDealt": 2725,
+          "meanSpeed": 1510,
+          "hitCount": 161,
+          "meanImpactRatio": 154
+        },
+        "B": {
+          "damageDealt": 3191,
+          "meanSpeed": 1236,
+          "hitCount": 210,
+          "meanImpactRatio": 191
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 4,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 12.2,
+      "stats": {
+        "A": {
+          "damageDealt": 3556,
+          "meanSpeed": 1501,
+          "hitCount": 256,
+          "meanImpactRatio": 201
+        },
+        "B": {
+          "damageDealt": 2335,
+          "meanSpeed": 1785,
+          "hitCount": 174,
+          "meanImpactRatio": 151
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 5,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 11.2,
+      "stats": {
+        "A": {
+          "damageDealt": 2680,
+          "meanSpeed": 1870,
+          "hitCount": 163,
+          "meanImpactRatio": 149
+        },
+        "B": {
+          "damageDealt": 3085,
+          "meanSpeed": 1740,
+          "hitCount": 201,
+          "meanImpactRatio": 195
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 6,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 17.766666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 3939,
+          "meanSpeed": 1235,
+          "hitCount": 275,
+          "meanImpactRatio": 184
+        },
+        "B": {
+          "damageDealt": 2217,
+          "meanSpeed": 1448,
+          "hitCount": 173,
+          "meanImpactRatio": 170
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 7,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 13.333333333333334,
+      "stats": {
+        "A": {
+          "damageDealt": 2722,
+          "meanSpeed": 1536,
+          "hitCount": 188,
+          "meanImpactRatio": 191
+        },
+        "B": {
+          "damageDealt": 3392,
+          "meanSpeed": 1408,
+          "hitCount": 261,
+          "meanImpactRatio": 228
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 8,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 14.3,
+      "stats": {
+        "A": {
+          "damageDealt": 3478,
+          "meanSpeed": 1675,
+          "hitCount": 247,
+          "meanImpactRatio": 199
+        },
+        "B": {
+          "damageDealt": 2389,
+          "meanSpeed": 1591,
+          "hitCount": 154,
+          "meanImpactRatio": 179
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "flanker",
+      "seed": 9,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 12.033333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 2692,
+          "meanSpeed": 1638,
+          "hitCount": 175,
+          "meanImpactRatio": 169
+        },
+        "B": {
+          "damageDealt": 3298,
+          "meanSpeed": 1519,
+          "hitCount": 233,
+          "meanImpactRatio": 200
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 0,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 36.266666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 4240,
+          "meanSpeed": 1519,
+          "hitCount": 323,
+          "meanImpactRatio": 180
+        },
+        "B": {
+          "damageDealt": 3322,
+          "meanSpeed": 413,
+          "hitCount": 281,
+          "meanImpactRatio": 85
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 1,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 19.7,
+      "stats": {
+        "A": {
+          "damageDealt": 2875,
+          "meanSpeed": 662,
+          "hitCount": 195,
+          "meanImpactRatio": 95
+        },
+        "B": {
+          "damageDealt": 3328,
+          "meanSpeed": 1278,
+          "hitCount": 235,
+          "meanImpactRatio": 263
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 2,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 23.666666666666668,
+      "stats": {
+        "A": {
+          "damageDealt": 3291,
+          "meanSpeed": 1432,
+          "hitCount": 252,
+          "meanImpactRatio": 239
+        },
+        "B": {
+          "damageDealt": 3000,
+          "meanSpeed": 548,
+          "hitCount": 200,
+          "meanImpactRatio": 91
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 3,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 33.766666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 2858,
+          "meanSpeed": 453,
+          "hitCount": 242,
+          "meanImpactRatio": 96
+        },
+        "B": {
+          "damageDealt": 3655,
+          "meanSpeed": 1196,
+          "hitCount": 286,
+          "meanImpactRatio": 185
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 4,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 34.266666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 4096,
+          "meanSpeed": 1542,
+          "hitCount": 308,
+          "meanImpactRatio": 195
+        },
+        "B": {
+          "damageDealt": 3223,
+          "meanSpeed": 440,
+          "hitCount": 258,
+          "meanImpactRatio": 89
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 5,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 24.533333333333335,
+      "stats": {
+        "A": {
+          "damageDealt": 2554,
+          "meanSpeed": 524,
+          "hitCount": 183,
+          "meanImpactRatio": 112
+        },
+        "B": {
+          "damageDealt": 3125,
+          "meanSpeed": 1296,
+          "hitCount": 244,
+          "meanImpactRatio": 217
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 6,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 25.833333333333332,
+      "stats": {
+        "A": {
+          "damageDealt": 2849,
+          "meanSpeed": 1210,
+          "hitCount": 227,
+          "meanImpactRatio": 160
+        },
+        "B": {
+          "damageDealt": 2324,
+          "meanSpeed": 509,
+          "hitCount": 166,
+          "meanImpactRatio": 91
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 7,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 26.166666666666668,
+      "stats": {
+        "A": {
+          "damageDealt": 2266,
+          "meanSpeed": 476,
+          "hitCount": 168,
+          "meanImpactRatio": 92
+        },
+        "B": {
+          "damageDealt": 3038,
+          "meanSpeed": 1031,
+          "hitCount": 232,
+          "meanImpactRatio": 171
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 8,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 27.966666666666665,
+      "stats": {
+        "A": {
+          "damageDealt": 2905,
+          "meanSpeed": 1213,
+          "hitCount": 229,
+          "meanImpactRatio": 155
+        },
+        "B": {
+          "damageDealt": 2225,
+          "meanSpeed": 478,
+          "hitCount": 173,
+          "meanImpactRatio": 91
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "spinner",
+      "seed": 9,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 20,
+      "stats": {
+        "A": {
+          "damageDealt": 2848,
+          "meanSpeed": 620,
+          "hitCount": 212,
+          "meanImpactRatio": 99
+        },
+        "B": {
+          "damageDealt": 3502,
+          "meanSpeed": 1145,
+          "hitCount": 255,
+          "meanImpactRatio": 274
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 0,
+      "swapped": false,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 13.866666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 2472,
+          "meanSpeed": 991,
+          "hitCount": 206,
+          "meanImpactRatio": 204
+        },
+        "B": {
+          "damageDealt": 2209,
+          "meanSpeed": 1040,
+          "hitCount": 155,
+          "meanImpactRatio": 204
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 1,
+      "swapped": true,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 14.533333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 2439,
+          "meanSpeed": 1557,
+          "hitCount": 180,
+          "meanImpactRatio": 188
+        },
+        "B": {
+          "damageDealt": 3273,
+          "meanSpeed": 1440,
+          "hitCount": 240,
+          "meanImpactRatio": 193
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 2,
+      "swapped": false,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 13.166666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 2595,
+          "meanSpeed": 1192,
+          "hitCount": 210,
+          "meanImpactRatio": 172
+        },
+        "B": {
+          "damageDealt": 2236,
+          "meanSpeed": 1257,
+          "hitCount": 157,
+          "meanImpactRatio": 198
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 3,
+      "swapped": true,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 11.866666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 2439,
+          "meanSpeed": 1486,
+          "hitCount": 174,
+          "meanImpactRatio": 207
+        },
+        "B": {
+          "damageDealt": 2477,
+          "meanSpeed": 1382,
+          "hitCount": 183,
+          "meanImpactRatio": 201
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 4,
+      "swapped": false,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 14.133333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 3549,
+          "meanSpeed": 1537,
+          "hitCount": 269,
+          "meanImpactRatio": 208
+        },
+        "B": {
+          "damageDealt": 2787,
+          "meanSpeed": 1660,
+          "hitCount": 203,
+          "meanImpactRatio": 202
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 5,
+      "swapped": true,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 14.866666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 2464,
+          "meanSpeed": 1431,
+          "hitCount": 181,
+          "meanImpactRatio": 212
+        },
+        "B": {
+          "damageDealt": 3296,
+          "meanSpeed": 1324,
+          "hitCount": 246,
+          "meanImpactRatio": 213
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 6,
+      "swapped": false,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 11.366666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 2347,
+          "meanSpeed": 1291,
+          "hitCount": 172,
+          "meanImpactRatio": 240
+        },
+        "B": {
+          "damageDealt": 2331,
+          "meanSpeed": 1370,
+          "hitCount": 163,
+          "meanImpactRatio": 232
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 7,
+      "swapped": true,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 12.7,
+      "stats": {
+        "A": {
+          "damageDealt": 2753,
+          "meanSpeed": 1633,
+          "hitCount": 187,
+          "meanImpactRatio": 197
+        },
+        "B": {
+          "damageDealt": 2803,
+          "meanSpeed": 1508,
+          "hitCount": 225,
+          "meanImpactRatio": 190
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 8,
+      "swapped": false,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 11.5,
+      "stats": {
+        "A": {
+          "damageDealt": 2245,
+          "meanSpeed": 2070,
+          "hitCount": 159,
+          "meanImpactRatio": 294
+        },
+        "B": {
+          "damageDealt": 1979,
+          "meanSpeed": 2253,
+          "hitCount": 139,
+          "meanImpactRatio": 291
+        }
+      }
+    },
+    {
+      "a": "spear",
+      "b": "glass-cannon",
+      "seed": 9,
+      "swapped": true,
+      "winner": "spear",
+      "reason": "core",
+      "seconds": 13,
+      "stats": {
+        "A": {
+          "damageDealt": 2409,
+          "meanSpeed": 833,
+          "hitCount": 181,
+          "meanImpactRatio": 170
+        },
+        "B": {
+          "damageDealt": 2345,
+          "meanSpeed": 1556,
+          "hitCount": 165,
+          "meanImpactRatio": 205
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 0,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 16.333333333333332,
+      "stats": {
+        "A": {
+          "damageDealt": 4020,
+          "meanSpeed": 1163,
+          "hitCount": 313,
+          "meanImpactRatio": 185
+        },
+        "B": {
+          "damageDealt": 4888,
+          "meanSpeed": 1649,
+          "hitCount": 298,
+          "meanImpactRatio": 163
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 1,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 14.133333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 4799,
+          "meanSpeed": 1872,
+          "hitCount": 300,
+          "meanImpactRatio": 176
+        },
+        "B": {
+          "damageDealt": 4084,
+          "meanSpeed": 1240,
+          "hitCount": 323,
+          "meanImpactRatio": 218
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 2,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 47.93333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 4660,
+          "meanSpeed": 720,
+          "hitCount": 358,
+          "meanImpactRatio": 149
+        },
+        "B": {
+          "damageDealt": 4891,
+          "meanSpeed": 920,
+          "hitCount": 324,
+          "meanImpactRatio": 138
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 3,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 16.8,
+      "stats": {
+        "A": {
+          "damageDealt": 4667,
+          "meanSpeed": 1637,
+          "hitCount": 297,
+          "meanImpactRatio": 167
+        },
+        "B": {
+          "damageDealt": 3980,
+          "meanSpeed": 1322,
+          "hitCount": 318,
+          "meanImpactRatio": 183
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 4,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 18.966666666666665,
+      "stats": {
+        "A": {
+          "damageDealt": 4046,
+          "meanSpeed": 1003,
+          "hitCount": 327,
+          "meanImpactRatio": 161
+        },
+        "B": {
+          "damageDealt": 4817,
+          "meanSpeed": 1535,
+          "hitCount": 300,
+          "meanImpactRatio": 142
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 5,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 18.9,
+      "stats": {
+        "A": {
+          "damageDealt": 4724,
+          "meanSpeed": 1749,
+          "hitCount": 296,
+          "meanImpactRatio": 139
+        },
+        "B": {
+          "damageDealt": 4016,
+          "meanSpeed": 1204,
+          "hitCount": 303,
+          "meanImpactRatio": 173
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 6,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 19.233333333333334,
+      "stats": {
+        "A": {
+          "damageDealt": 4035,
+          "meanSpeed": 1010,
+          "hitCount": 327,
+          "meanImpactRatio": 139
+        },
+        "B": {
+          "damageDealt": 4798,
+          "meanSpeed": 1332,
+          "hitCount": 297,
+          "meanImpactRatio": 138
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 7,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 14.566666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 4936,
+          "meanSpeed": 1776,
+          "hitCount": 317,
+          "meanImpactRatio": 163
+        },
+        "B": {
+          "damageDealt": 3917,
+          "meanSpeed": 1331,
+          "hitCount": 295,
+          "meanImpactRatio": 178
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 8,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "incap",
+      "seconds": 28.633333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 4178,
+          "meanSpeed": 855,
+          "hitCount": 321,
+          "meanImpactRatio": 155
+        },
+        "B": {
+          "damageDealt": 4834,
+          "meanSpeed": 990,
+          "hitCount": 305,
+          "meanImpactRatio": 114
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "flanker",
+      "seed": 9,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 17.166666666666668,
+      "stats": {
+        "A": {
+          "damageDealt": 4766,
+          "meanSpeed": 1593,
+          "hitCount": 296,
+          "meanImpactRatio": 181
+        },
+        "B": {
+          "damageDealt": 3769,
+          "meanSpeed": 1251,
+          "hitCount": 307,
+          "meanImpactRatio": 179
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 0,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 72.86666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 4979,
+          "meanSpeed": 637,
+          "hitCount": 507,
+          "meanImpactRatio": 114
+        },
+        "B": {
+          "damageDealt": 5012,
+          "meanSpeed": 347,
+          "hitCount": 422,
+          "meanImpactRatio": 78
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 1,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 66.76666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 5223,
+          "meanSpeed": 344,
+          "hitCount": 378,
+          "meanImpactRatio": 76
+        },
+        "B": {
+          "damageDealt": 4350,
+          "meanSpeed": 609,
+          "hitCount": 507,
+          "meanImpactRatio": 134
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 2,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 69.03333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 4856,
+          "meanSpeed": 724,
+          "hitCount": 500,
+          "meanImpactRatio": 126
+        },
+        "B": {
+          "damageDealt": 4960,
+          "meanSpeed": 325,
+          "hitCount": 410,
+          "meanImpactRatio": 75
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 3,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 64.4,
+      "stats": {
+        "A": {
+          "damageDealt": 4951,
+          "meanSpeed": 324,
+          "hitCount": 380,
+          "meanImpactRatio": 77
+        },
+        "B": {
+          "damageDealt": 4543,
+          "meanSpeed": 668,
+          "hitCount": 505,
+          "meanImpactRatio": 122
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 4,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 63.666666666666664,
+      "stats": {
+        "A": {
+          "damageDealt": 4810,
+          "meanSpeed": 598,
+          "hitCount": 499,
+          "meanImpactRatio": 142
+        },
+        "B": {
+          "damageDealt": 5132,
+          "meanSpeed": 434,
+          "hitCount": 402,
+          "meanImpactRatio": 91
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 5,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 68.13333333333334,
+      "stats": {
+        "A": {
+          "damageDealt": 4918,
+          "meanSpeed": 330,
+          "hitCount": 391,
+          "meanImpactRatio": 87
+        },
+        "B": {
+          "damageDealt": 4892,
+          "meanSpeed": 599,
+          "hitCount": 530,
+          "meanImpactRatio": 116
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 6,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 68.36666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 4429,
+          "meanSpeed": 574,
+          "hitCount": 518,
+          "meanImpactRatio": 107
+        },
+        "B": {
+          "damageDealt": 5267,
+          "meanSpeed": 353,
+          "hitCount": 366,
+          "meanImpactRatio": 78
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 7,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 65.13333333333334,
+      "stats": {
+        "A": {
+          "damageDealt": 4973,
+          "meanSpeed": 391,
+          "hitCount": 412,
+          "meanImpactRatio": 82
+        },
+        "B": {
+          "damageDealt": 4826,
+          "meanSpeed": 979,
+          "hitCount": 506,
+          "meanImpactRatio": 133
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 8,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 63.03333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 4794,
+          "meanSpeed": 886,
+          "hitCount": 514,
+          "meanImpactRatio": 147
+        },
+        "B": {
+          "damageDealt": 5126,
+          "meanSpeed": 393,
+          "hitCount": 407,
+          "meanImpactRatio": 78
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "spinner",
+      "seed": 9,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 68.03333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 4975,
+          "meanSpeed": 341,
+          "hitCount": 403,
+          "meanImpactRatio": 78
+        },
+        "B": {
+          "damageDealt": 4636,
+          "meanSpeed": 674,
+          "hitCount": 489,
+          "meanImpactRatio": 138
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 0,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 16.6,
+      "stats": {
+        "A": {
+          "damageDealt": 2520,
+          "meanSpeed": 913,
+          "hitCount": 241,
+          "meanImpactRatio": 150
+        },
+        "B": {
+          "damageDealt": 1899,
+          "meanSpeed": 1293,
+          "hitCount": 211,
+          "meanImpactRatio": 164
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 1,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 15.2,
+      "stats": {
+        "A": {
+          "damageDealt": 2078,
+          "meanSpeed": 1196,
+          "hitCount": 236,
+          "meanImpactRatio": 166
+        },
+        "B": {
+          "damageDealt": 2438,
+          "meanSpeed": 815,
+          "hitCount": 230,
+          "meanImpactRatio": 159
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 2,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 14.566666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 2435,
+          "meanSpeed": 834,
+          "hitCount": 229,
+          "meanImpactRatio": 168
+        },
+        "B": {
+          "damageDealt": 2052,
+          "meanSpeed": 1239,
+          "hitCount": 231,
+          "meanImpactRatio": 172
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 3,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 12,
+      "stats": {
+        "A": {
+          "damageDealt": 2056,
+          "meanSpeed": 1003,
+          "hitCount": 227,
+          "meanImpactRatio": 178
+        },
+        "B": {
+          "damageDealt": 2394,
+          "meanSpeed": 715,
+          "hitCount": 219,
+          "meanImpactRatio": 194
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 4,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 15.8,
+      "stats": {
+        "A": {
+          "damageDealt": 2512,
+          "meanSpeed": 825,
+          "hitCount": 240,
+          "meanImpactRatio": 153
+        },
+        "B": {
+          "damageDealt": 2012,
+          "meanSpeed": 1199,
+          "hitCount": 227,
+          "meanImpactRatio": 169
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 5,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 15.3,
+      "stats": {
+        "A": {
+          "damageDealt": 1959,
+          "meanSpeed": 1148,
+          "hitCount": 222,
+          "meanImpactRatio": 161
+        },
+        "B": {
+          "damageDealt": 2542,
+          "meanSpeed": 816,
+          "hitCount": 243,
+          "meanImpactRatio": 140
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 6,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 12.033333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 2374,
+          "meanSpeed": 1014,
+          "hitCount": 216,
+          "meanImpactRatio": 275
+        },
+        "B": {
+          "damageDealt": 1945,
+          "meanSpeed": 1335,
+          "hitCount": 214,
+          "meanImpactRatio": 275
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 7,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 11.733333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 1915,
+          "meanSpeed": 1200,
+          "hitCount": 219,
+          "meanImpactRatio": 180
+        },
+        "B": {
+          "damageDealt": 2383,
+          "meanSpeed": 852,
+          "hitCount": 214,
+          "meanImpactRatio": 207
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 8,
+      "swapped": false,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 12.133333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 2508,
+          "meanSpeed": 812,
+          "hitCount": 236,
+          "meanImpactRatio": 180
+        },
+        "B": {
+          "damageDealt": 1883,
+          "meanSpeed": 1173,
+          "hitCount": 207,
+          "meanImpactRatio": 180
+        }
+      }
+    },
+    {
+      "a": "shield",
+      "b": "glass-cannon",
+      "seed": 9,
+      "swapped": true,
+      "winner": "shield",
+      "reason": "core",
+      "seconds": 11.8,
+      "stats": {
+        "A": {
+          "damageDealt": 2109,
+          "meanSpeed": 1014,
+          "hitCount": 234,
+          "meanImpactRatio": 151
+        },
+        "B": {
+          "damageDealt": 2402,
+          "meanSpeed": 734,
+          "hitCount": 217,
+          "meanImpactRatio": 168
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 0,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 56.2,
+      "stats": {
+        "A": {
+          "damageDealt": 4143,
+          "meanSpeed": 440,
+          "hitCount": 307,
+          "meanImpactRatio": 121
+        },
+        "B": {
+          "damageDealt": 3633,
+          "meanSpeed": 386,
+          "hitCount": 346,
+          "meanImpactRatio": 91
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 1,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 66.53333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 3543,
+          "meanSpeed": 395,
+          "hitCount": 336,
+          "meanImpactRatio": 87
+        },
+        "B": {
+          "damageDealt": 4213,
+          "meanSpeed": 482,
+          "hitCount": 295,
+          "meanImpactRatio": 143
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 2,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 54,
+      "stats": {
+        "A": {
+          "damageDealt": 4211,
+          "meanSpeed": 466,
+          "hitCount": 307,
+          "meanImpactRatio": 121
+        },
+        "B": {
+          "damageDealt": 3665,
+          "meanSpeed": 405,
+          "hitCount": 352,
+          "meanImpactRatio": 91
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 3,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 75.56666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 3717,
+          "meanSpeed": 375,
+          "hitCount": 312,
+          "meanImpactRatio": 84
+        },
+        "B": {
+          "damageDealt": 4222,
+          "meanSpeed": 462,
+          "hitCount": 297,
+          "meanImpactRatio": 122
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 4,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 54.9,
+      "stats": {
+        "A": {
+          "damageDealt": 4162,
+          "meanSpeed": 493,
+          "hitCount": 304,
+          "meanImpactRatio": 132
+        },
+        "B": {
+          "damageDealt": 3654,
+          "meanSpeed": 381,
+          "hitCount": 348,
+          "meanImpactRatio": 91
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 5,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 46.1,
+      "stats": {
+        "A": {
+          "damageDealt": 3547,
+          "meanSpeed": 446,
+          "hitCount": 263,
+          "meanImpactRatio": 89
+        },
+        "B": {
+          "damageDealt": 3861,
+          "meanSpeed": 486,
+          "hitCount": 291,
+          "meanImpactRatio": 120
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 6,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 58.3,
+      "stats": {
+        "A": {
+          "damageDealt": 4168,
+          "meanSpeed": 395,
+          "hitCount": 304,
+          "meanImpactRatio": 123
+        },
+        "B": {
+          "damageDealt": 3678,
+          "meanSpeed": 374,
+          "hitCount": 365,
+          "meanImpactRatio": 89
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 7,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 54.9,
+      "stats": {
+        "A": {
+          "damageDealt": 3647,
+          "meanSpeed": 375,
+          "hitCount": 346,
+          "meanImpactRatio": 89
+        },
+        "B": {
+          "damageDealt": 4247,
+          "meanSpeed": 418,
+          "hitCount": 307,
+          "meanImpactRatio": 119
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 8,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 55.96666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 4178,
+          "meanSpeed": 526,
+          "hitCount": 308,
+          "meanImpactRatio": 123
+        },
+        "B": {
+          "damageDealt": 3697,
+          "meanSpeed": 393,
+          "hitCount": 358,
+          "meanImpactRatio": 88
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "spinner",
+      "seed": 9,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "incap",
+      "seconds": 68.86666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 3697,
+          "meanSpeed": 355,
+          "hitCount": 361,
+          "meanImpactRatio": 86
+        },
+        "B": {
+          "damageDealt": 4199,
+          "meanSpeed": 402,
+          "hitCount": 305,
+          "meanImpactRatio": 123
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 0,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 9.333333333333334,
+      "stats": {
+        "A": {
+          "damageDealt": 1760,
+          "meanSpeed": 1907,
+          "hitCount": 115,
+          "meanImpactRatio": 282
+        },
+        "B": {
+          "damageDealt": 2792,
+          "meanSpeed": 1844,
+          "hitCount": 146,
+          "meanImpactRatio": 330
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 1,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 9.766666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 2700,
+          "meanSpeed": 1670,
+          "hitCount": 143,
+          "meanImpactRatio": 223
+        },
+        "B": {
+          "damageDealt": 1851,
+          "meanSpeed": 1685,
+          "hitCount": 124,
+          "meanImpactRatio": 209
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 2,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 12.566666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 1964,
+          "meanSpeed": 1671,
+          "hitCount": 156,
+          "meanImpactRatio": 221
+        },
+        "B": {
+          "damageDealt": 3760,
+          "meanSpeed": 1581,
+          "hitCount": 193,
+          "meanImpactRatio": 272
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 3,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 11.966666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 3681,
+          "meanSpeed": 1468,
+          "hitCount": 195,
+          "meanImpactRatio": 224
+        },
+        "B": {
+          "damageDealt": 1996,
+          "meanSpeed": 1512,
+          "hitCount": 161,
+          "meanImpactRatio": 167
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 4,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 11.166666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 2001,
+          "meanSpeed": 1557,
+          "hitCount": 151,
+          "meanImpactRatio": 204
+        },
+        "B": {
+          "damageDealt": 3529,
+          "meanSpeed": 1569,
+          "hitCount": 188,
+          "meanImpactRatio": 228
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 5,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 14.733333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 3811,
+          "meanSpeed": 1203,
+          "hitCount": 207,
+          "meanImpactRatio": 238
+        },
+        "B": {
+          "damageDealt": 1923,
+          "meanSpeed": 1193,
+          "hitCount": 161,
+          "meanImpactRatio": 165
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 6,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 9.833333333333334,
+      "stats": {
+        "A": {
+          "damageDealt": 1789,
+          "meanSpeed": 1769,
+          "hitCount": 120,
+          "meanImpactRatio": 186
+        },
+        "B": {
+          "damageDealt": 2896,
+          "meanSpeed": 1626,
+          "hitCount": 151,
+          "meanImpactRatio": 239
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 7,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 9.866666666666667,
+      "stats": {
+        "A": {
+          "damageDealt": 2815,
+          "meanSpeed": 1502,
+          "hitCount": 149,
+          "meanImpactRatio": 218
+        },
+        "B": {
+          "damageDealt": 1780,
+          "meanSpeed": 1715,
+          "hitCount": 118,
+          "meanImpactRatio": 170
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 8,
+      "swapped": false,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 9.733333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 1732,
+          "meanSpeed": 1786,
+          "hitCount": 119,
+          "meanImpactRatio": 209
+        },
+        "B": {
+          "damageDealt": 2876,
+          "meanSpeed": 1711,
+          "hitCount": 150,
+          "meanImpactRatio": 294
+        }
+      }
+    },
+    {
+      "a": "flanker",
+      "b": "glass-cannon",
+      "seed": 9,
+      "swapped": true,
+      "winner": "flanker",
+      "reason": "core",
+      "seconds": 11.066666666666666,
+      "stats": {
+        "A": {
+          "damageDealt": 3472,
+          "meanSpeed": 1671,
+          "hitCount": 179,
+          "meanImpactRatio": 225
+        },
+        "B": {
+          "damageDealt": 1982,
+          "meanSpeed": 1708,
+          "hitCount": 140,
+          "meanImpactRatio": 203
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 0,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 22.666666666666668,
+      "stats": {
+        "A": {
+          "damageDealt": 1904,
+          "meanSpeed": 578,
+          "hitCount": 147,
+          "meanImpactRatio": 102
+        },
+        "B": {
+          "damageDealt": 2861,
+          "meanSpeed": 1015,
+          "hitCount": 200,
+          "meanImpactRatio": 193
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 1,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 21.9,
+      "stats": {
+        "A": {
+          "damageDealt": 3518,
+          "meanSpeed": 1425,
+          "hitCount": 251,
+          "meanImpactRatio": 208
+        },
+        "B": {
+          "damageDealt": 2545,
+          "meanSpeed": 559,
+          "hitCount": 207,
+          "meanImpactRatio": 89
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 2,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 22.5,
+      "stats": {
+        "A": {
+          "damageDealt": 1908,
+          "meanSpeed": 561,
+          "hitCount": 148,
+          "meanImpactRatio": 98
+        },
+        "B": {
+          "damageDealt": 2960,
+          "meanSpeed": 1012,
+          "hitCount": 210,
+          "meanImpactRatio": 181
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 3,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 24.8,
+      "stats": {
+        "A": {
+          "damageDealt": 2699,
+          "meanSpeed": 935,
+          "hitCount": 196,
+          "meanImpactRatio": 178
+        },
+        "B": {
+          "damageDealt": 1925,
+          "meanSpeed": 534,
+          "hitCount": 151,
+          "meanImpactRatio": 104
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 4,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 22.7,
+      "stats": {
+        "A": {
+          "damageDealt": 2033,
+          "meanSpeed": 565,
+          "hitCount": 149,
+          "meanImpactRatio": 103
+        },
+        "B": {
+          "damageDealt": 2735,
+          "meanSpeed": 992,
+          "hitCount": 197,
+          "meanImpactRatio": 226
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 5,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 24.033333333333335,
+      "stats": {
+        "A": {
+          "damageDealt": 2938,
+          "meanSpeed": 729,
+          "hitCount": 215,
+          "meanImpactRatio": 157
+        },
+        "B": {
+          "damageDealt": 1849,
+          "meanSpeed": 525,
+          "hitCount": 141,
+          "meanImpactRatio": 110
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 6,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 21.133333333333333,
+      "stats": {
+        "A": {
+          "damageDealt": 1888,
+          "meanSpeed": 609,
+          "hitCount": 140,
+          "meanImpactRatio": 100
+        },
+        "B": {
+          "damageDealt": 2824,
+          "meanSpeed": 1122,
+          "hitCount": 199,
+          "meanImpactRatio": 215
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 7,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 23.9,
+      "stats": {
+        "A": {
+          "damageDealt": 2896,
+          "meanSpeed": 868,
+          "hitCount": 207,
+          "meanImpactRatio": 161
+        },
+        "B": {
+          "damageDealt": 1978,
+          "meanSpeed": 537,
+          "hitCount": 156,
+          "meanImpactRatio": 101
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 8,
+      "swapped": false,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 21.966666666666665,
+      "stats": {
+        "A": {
+          "damageDealt": 1874,
+          "meanSpeed": 558,
+          "hitCount": 141,
+          "meanImpactRatio": 96
+        },
+        "B": {
+          "damageDealt": 2796,
+          "meanSpeed": 853,
+          "hitCount": 200,
+          "meanImpactRatio": 156
+        }
+      }
+    },
+    {
+      "a": "spinner",
+      "b": "glass-cannon",
+      "seed": 9,
+      "swapped": true,
+      "winner": "spinner",
+      "reason": "core",
+      "seconds": 29.033333333333335,
+      "stats": {
+        "A": {
+          "damageDealt": 3393,
+          "meanSpeed": 834,
+          "hitCount": 238,
+          "meanImpactRatio": 197
+        },
+        "B": {
+          "damageDealt": 2330,
+          "meanSpeed": 515,
+          "hitCount": 195,
+          "meanImpactRatio": 94
+        }
+      }
+    }
+  ]
+}

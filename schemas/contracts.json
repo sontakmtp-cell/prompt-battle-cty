@@ -1,0 +1,1927 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://promptchien.local/schema/1/contracts.json",
+  "$defs": {
+    "IntExpression": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "constant"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            }
+          },
+          "required": [
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "sensor"
+            },
+            "name": {
+              "type": "string",
+              "enum": [
+                "tick",
+                "stateTicks",
+                "self.x",
+                "self.y",
+                "self.heading",
+                "self.coreHpRatio",
+                "self.combatCount",
+                "self.motorCount",
+                "self.loadFactor",
+                "self.speed",
+                "enemy.distance",
+                "enemy.bearing",
+                "enemy.heading",
+                "enemy.coreHpRatio",
+                "enemy.combatCount",
+                "enemy.motorCount",
+                "ring.radius",
+                "self.outsideRing"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "variable"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 48,
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "math"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "add",
+                "subtract",
+                "min",
+                "max"
+              ]
+            },
+            "left": {
+              "$ref": "#/$defs/IntExpression"
+            },
+            "right": {
+              "$ref": "#/$defs/IntExpression"
+            }
+          },
+          "required": [
+            "kind",
+            "op",
+            "left",
+            "right"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "always"
+            }
+          },
+          "required": [
+            "op"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "compare"
+            },
+            "cmp": {
+              "type": "string",
+              "enum": [
+                "eq",
+                "ne",
+                "lt",
+                "lte",
+                "gt",
+                "gte"
+              ]
+            },
+            "left": {
+              "$ref": "#/$defs/IntExpression"
+            },
+            "right": {
+              "$ref": "#/$defs/IntExpression"
+            }
+          },
+          "required": [
+            "op",
+            "cmp",
+            "left",
+            "right"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "enum": [
+                "all",
+                "any"
+              ]
+            },
+            "args": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Condition"
+              },
+              "minItems": 1,
+              "maxItems": 256
+            }
+          },
+          "required": [
+            "op",
+            "args"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "not"
+            },
+            "arg": {
+              "$ref": "#/$defs/Condition"
+            }
+          },
+          "required": [
+            "op",
+            "arg"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "BrainAction": {
+      "type": "object",
+      "properties": {
+        "move": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "stop",
+                "forward",
+                "backward",
+                "towardEnemy",
+                "awayFromEnemy",
+                "orbitLeft",
+                "orbitRight"
+              ]
+            },
+            "power": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "mode",
+            "power"
+          ],
+          "additionalProperties": false
+        },
+        "turn": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "hold",
+                "left",
+                "right",
+                "faceEnemy",
+                "faceAway"
+              ]
+            },
+            "power": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": -32,
+              "maximum": 31
+            }
+          },
+          "required": [
+            "mode",
+            "power",
+            "offset"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "move",
+        "turn"
+      ],
+      "additionalProperties": false
+    },
+    "BrainRule": {
+      "type": "object",
+      "properties": {
+        "when": {
+          "$ref": "#/$defs/Condition"
+        },
+        "action": {
+          "$ref": "#/$defs/BrainAction"
+        },
+        "set": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 48,
+                "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+              },
+              "value": {
+                "$ref": "#/$defs/IntExpression"
+              }
+            },
+            "required": [
+              "name",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 32
+        },
+        "nextState": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        }
+      },
+      "required": [
+        "when",
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "BrainProgram": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "const": "1.0.0"
+        },
+        "initialState": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 48,
+                "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+              },
+              "initial": {
+                "type": "integer",
+                "minimum": -2147483648,
+                "maximum": 2147483647
+              }
+            },
+            "required": [
+              "name",
+              "initial"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 32
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 48,
+                "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+              },
+              "rules": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/BrainRule"
+                },
+                "minItems": 1,
+                "maxItems": 256
+              }
+            },
+            "required": [
+              "name",
+              "rules"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 256
+        }
+      },
+      "required": [
+        "apiVersion",
+        "initialState",
+        "variables",
+        "states"
+      ],
+      "additionalProperties": false
+    },
+    "Triangle": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 48,
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "q": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "r": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "orientation": {
+              "type": "string",
+              "enum": [
+                "up",
+                "down"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "hammer",
+                "scissor",
+                "paper"
+              ]
+            },
+            "core": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "q",
+            "r",
+            "orientation",
+            "type",
+            "core"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 48,
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "q": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "r": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "orientation": {
+              "type": "string",
+              "enum": [
+                "up",
+                "down"
+              ]
+            },
+            "type": {
+              "const": "motor"
+            },
+            "core": {
+              "const": false
+            }
+          },
+          "required": [
+            "id",
+            "q",
+            "r",
+            "orientation",
+            "type",
+            "core"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "BotDefinition": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0.0"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "\\S"
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "triangles": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Triangle"
+              },
+              "minItems": 1,
+              "maxItems": 60,
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "core": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "core"
+                ]
+              },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          },
+          "required": [
+            "triangles"
+          ],
+          "additionalProperties": false
+        },
+        "brain": {
+          "$ref": "#/$defs/BrainProgram"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "name",
+        "body",
+        "brain"
+      ],
+      "additionalProperties": false
+    },
+    "BotPackage": {
+      "type": "object",
+      "properties": {
+        "packageHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "versions": {
+          "type": "object",
+          "properties": {
+            "engine": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "ruleset": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "botSchema": {
+              "const": "1.0.0"
+            },
+            "brainApi": {
+              "const": "1.0.0"
+            },
+            "replay": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "mcpApi": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            }
+          },
+          "required": [
+            "engine",
+            "ruleset",
+            "botSchema",
+            "brainApi",
+            "replay",
+            "mcpApi"
+          ],
+          "additionalProperties": false
+        },
+        "definition": {
+          "$ref": "#/$defs/BotDefinition"
+        }
+      },
+      "required": [
+        "packageHash",
+        "versions",
+        "definition"
+      ],
+      "additionalProperties": false
+    },
+    "Issue": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        },
+        "path": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      },
+      "required": [
+        "code",
+        "path",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "ValidationReport": {
+      "type": "object",
+      "properties": {
+        "packageHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "rulesetVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "engineVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "valid": {
+          "type": "boolean"
+        },
+        "checks": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "passed",
+                "failed"
+              ]
+            },
+            "geometry": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "passed",
+                "failed"
+              ]
+            },
+            "brain": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "passed",
+                "failed"
+              ]
+            },
+            "sandbox": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "passed",
+                "failed"
+              ]
+            }
+          },
+          "required": [
+            "schema",
+            "geometry",
+            "brain",
+            "sandbox"
+          ],
+          "additionalProperties": false
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Issue"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Issue"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        }
+      },
+      "required": [
+        "packageHash",
+        "rulesetVersion",
+        "engineVersion",
+        "valid",
+        "checks",
+        "errors",
+        "warnings"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "valid": {
+            "const": true
+          }
+        },
+        "required": [
+          "valid"
+        ]
+      },
+      "then": {
+        "properties": {
+          "checks": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "const": "passed"
+              },
+              "geometry": {
+                "const": "passed"
+              },
+              "brain": {
+                "const": "passed"
+              },
+              "sandbox": {
+                "const": "passed"
+              }
+            },
+            "required": [
+              "schema",
+              "geometry",
+              "brain",
+              "sandbox"
+            ],
+            "additionalProperties": false
+          },
+          "errors": {
+            "type": "array",
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    "SimulationJob": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "jobId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 48,
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "test",
+                "official"
+              ]
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "packageHashes": {
+              "type": "object",
+              "properties": {
+                "A": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "B": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "A",
+                "B"
+              ],
+              "additionalProperties": false
+            },
+            "engineVersion": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "rulesetVersion": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "queued",
+                "running"
+              ]
+            }
+          },
+          "required": [
+            "jobId",
+            "mode",
+            "seed",
+            "packageHashes",
+            "engineVersion",
+            "rulesetVersion",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "jobId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 48,
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "test",
+                "official"
+              ]
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "packageHashes": {
+              "type": "object",
+              "properties": {
+                "A": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "B": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "A",
+                "B"
+              ],
+              "additionalProperties": false
+            },
+            "engineVersion": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "rulesetVersion": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "status": {
+              "const": "completed"
+            },
+            "replayId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 48,
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            }
+          },
+          "required": [
+            "jobId",
+            "mode",
+            "seed",
+            "packageHashes",
+            "engineVersion",
+            "rulesetVersion",
+            "status",
+            "replayId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "jobId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 48,
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "test",
+                "official"
+              ]
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            "packageHashes": {
+              "type": "object",
+              "properties": {
+                "A": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "B": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "A",
+                "B"
+              ],
+              "additionalProperties": false
+            },
+            "engineVersion": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "rulesetVersion": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+            },
+            "status": {
+              "const": "failed"
+            },
+            "error": {
+              "$ref": "#/$defs/Issue"
+            }
+          },
+          "required": [
+            "jobId",
+            "mode",
+            "seed",
+            "packageHashes",
+            "engineVersion",
+            "rulesetVersion",
+            "status",
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "MatchResult": {
+      "type": "object",
+      "properties": {
+        "winner": {
+          "type": "string",
+          "enum": [
+            "A",
+            "B",
+            "draw"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "core",
+            "incap",
+            "timeout",
+            "brainBudget"
+          ]
+        },
+        "tick": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "scores": {
+          "type": "object",
+          "properties": {
+            "A": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            },
+            "B": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "A",
+            "B"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "winner",
+        "reason",
+        "tick",
+        "scores"
+      ],
+      "additionalProperties": false
+    },
+    "VfxEvent": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "hit"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "at": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "x",
+                "y"
+              ],
+              "additionalProperties": false
+            },
+            "normal": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "x",
+                "y"
+              ],
+              "additionalProperties": false
+            },
+            "attacker": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "pattern": "^[AB]:[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "defender": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "pattern": "^[AB]:[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "damage": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "advantage": {
+              "type": "string",
+              "enum": [
+                "adv",
+                "neutral",
+                "disadv"
+              ]
+            },
+            "impactMul": {
+              "type": "integer",
+              "minimum": 850,
+              "maximum": 1000
+            },
+            "orientMul": {
+              "type": "integer",
+              "minimum": 850,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "at",
+            "normal",
+            "attacker",
+            "defender",
+            "damage",
+            "advantage",
+            "impactMul",
+            "orientMul"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "destroy"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "at": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "x",
+                "y"
+              ],
+              "additionalProperties": false
+            },
+            "tri": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50,
+              "pattern": "^[AB]:[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "hammer",
+                "scissor",
+                "paper",
+                "motor"
+              ]
+            },
+            "team": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            },
+            "by": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 50,
+                  "pattern": "^[AB]:[A-Za-z][A-Za-z0-9_-]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "at",
+            "tri",
+            "type",
+            "team",
+            "by"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "detach"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "team": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            },
+            "tris": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50,
+                "pattern": "^[AB]:[A-Za-z][A-Za-z0-9_-]*$"
+              },
+              "minItems": 1,
+              "maxItems": 60,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "team",
+            "tris"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "motorLost"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "team": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            },
+            "side": {
+              "type": "string",
+              "enum": [
+                "left",
+                "right",
+                "center"
+              ]
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "team",
+            "side",
+            "count"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "overload"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "team": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            },
+            "loadFactor": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "team",
+            "loadFactor"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "coreHit"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "team": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            },
+            "hpRatio": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "team",
+            "hpRatio"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "coreDestroyed"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "team": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            },
+            "at": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                }
+              },
+              "required": [
+                "x",
+                "y"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "team",
+            "at"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "ringStart"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "radius": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 28300
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "radius"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "ringEnter"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "team": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "team"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "ringExit"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "team": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "team"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "matchEnd"
+            },
+            "tick": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3600
+            },
+            "winner": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B",
+                "draw"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "core",
+                "incap",
+                "timeout",
+                "brainBudget"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "tick",
+            "winner",
+            "reason"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Pose": {
+      "type": "object",
+      "properties": {
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "y": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "additionalProperties": false
+        },
+        "heading": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 63
+        }
+      },
+      "required": [
+        "position",
+        "heading"
+      ],
+      "additionalProperties": false
+    },
+    "TriangleSnapshot": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        },
+        "hp": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "maxHp": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "alive": {
+          "type": "boolean"
+        },
+        "damageReceived": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      },
+      "required": [
+        "id",
+        "hp",
+        "maxHp",
+        "alive",
+        "damageReceived"
+      ],
+      "additionalProperties": false
+    },
+    "BotSnapshot": {
+      "type": "object",
+      "properties": {
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "y": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "additionalProperties": false
+        },
+        "heading": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 63
+        },
+        "loadFactor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "triangles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TriangleSnapshot"
+          },
+          "minItems": 1,
+          "maxItems": 60
+        }
+      },
+      "required": [
+        "position",
+        "heading",
+        "loadFactor",
+        "triangles"
+      ],
+      "additionalProperties": false
+    },
+    "ReplayFrame": {
+      "type": "object",
+      "properties": {
+        "tick": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "bots": {
+          "type": "object",
+          "properties": {
+            "A": {
+              "type": "object",
+              "properties": {
+                "position": {
+                  "type": "object",
+                  "properties": {
+                    "x": {
+                      "type": "integer",
+                      "minimum": -2147483648,
+                      "maximum": 2147483647
+                    },
+                    "y": {
+                      "type": "integer",
+                      "minimum": -2147483648,
+                      "maximum": 2147483647
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y"
+                  ],
+                  "additionalProperties": false
+                },
+                "heading": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 63
+                },
+                "loadFactor": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "changes": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/TriangleSnapshot"
+                  },
+                  "minItems": 0,
+                  "maxItems": 60
+                }
+              },
+              "required": [
+                "position",
+                "heading",
+                "loadFactor",
+                "changes"
+              ],
+              "additionalProperties": false
+            },
+            "B": {
+              "type": "object",
+              "properties": {
+                "position": {
+                  "type": "object",
+                  "properties": {
+                    "x": {
+                      "type": "integer",
+                      "minimum": -2147483648,
+                      "maximum": 2147483647
+                    },
+                    "y": {
+                      "type": "integer",
+                      "minimum": -2147483648,
+                      "maximum": 2147483647
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y"
+                  ],
+                  "additionalProperties": false
+                },
+                "heading": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 63
+                },
+                "loadFactor": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2147483647
+                },
+                "changes": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/TriangleSnapshot"
+                  },
+                  "minItems": 0,
+                  "maxItems": 60
+                }
+              },
+              "required": [
+                "position",
+                "heading",
+                "loadFactor",
+                "changes"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "A",
+            "B"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "tick",
+        "bots"
+      ],
+      "additionalProperties": false
+    },
+    "ReplayCheckpoint": {
+      "type": "object",
+      "properties": {
+        "tick": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "bots": {
+          "type": "object",
+          "properties": {
+            "A": {
+              "$ref": "#/$defs/BotSnapshot"
+            },
+            "B": {
+              "$ref": "#/$defs/BotSnapshot"
+            }
+          },
+          "required": [
+            "A",
+            "B"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "tick",
+        "bots"
+      ],
+      "additionalProperties": false
+    },
+    "ReplayManifest": {
+      "type": "object",
+      "properties": {
+        "replayId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        },
+        "replayVersion": {
+          "const": "2.0.0"
+        },
+        "engineVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "rulesetVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "test",
+            "official"
+          ]
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "packages": {
+          "type": "object",
+          "properties": {
+            "A": {
+              "$ref": "#/$defs/BotPackage"
+            },
+            "B": {
+              "$ref": "#/$defs/BotPackage"
+            }
+          },
+          "required": [
+            "A",
+            "B"
+          ],
+          "additionalProperties": false
+        },
+        "tickRate": {
+          "const": 30
+        },
+        "totalTicks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "checkpointIntervalTicks": {
+          "const": 30
+        },
+        "dataHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "result": {
+          "$ref": "#/$defs/MatchResult"
+        }
+      },
+      "required": [
+        "replayId",
+        "replayVersion",
+        "engineVersion",
+        "rulesetVersion",
+        "mode",
+        "seed",
+        "packages",
+        "tickRate",
+        "totalTicks",
+        "checkpointIntervalTicks",
+        "dataHash",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "ReplayData": {
+      "type": "object",
+      "properties": {
+        "manifest": {
+          "$ref": "#/$defs/ReplayManifest"
+        },
+        "frames": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReplayFrame"
+          },
+          "minItems": 1,
+          "maxItems": 3601
+        },
+        "checkpoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReplayCheckpoint"
+          },
+          "minItems": 1,
+          "maxItems": 122
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VfxEvent"
+          },
+          "minItems": 0,
+          "maxItems": 1000000
+        }
+      },
+      "required": [
+        "manifest",
+        "frames",
+        "checkpoints",
+        "events"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

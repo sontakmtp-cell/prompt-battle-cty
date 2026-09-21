@@ -1,0 +1,13 @@
+{
+  "name": "@prompt-chien/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./geometry": { "types": "./dist/geometry/index.d.ts", "default": "./dist/geometry/index.js" },
+    "./brain": { "types": "./dist/brain/index.d.ts", "default": "./dist/brain/index.js" },
+    "./engine": { "types": "./dist/engine/index.d.ts", "default": "./dist/engine/index.js" },
+    "./replay": { "types": "./dist/replay/index.d.ts", "default": "./dist/replay/index.js" }
+  },
+  "dependencies": { "@prompt-chien/contracts": "workspace:*" }
+}

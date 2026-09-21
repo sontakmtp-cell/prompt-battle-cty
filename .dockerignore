@@ -1,0 +1,8 @@
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+.git
+.codex
+.env
+.env.*
+artifacts

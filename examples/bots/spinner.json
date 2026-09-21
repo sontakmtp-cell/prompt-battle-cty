@@ -1,0 +1,541 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "Spinner",
+  "body": {
+    "triangles": [
+      {
+        "id": "t00",
+        "q": -1,
+        "r": 0,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t01",
+        "q": -1,
+        "r": 0,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t02",
+        "q": 0,
+        "r": 0,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t03",
+        "q": 0,
+        "r": 0,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t04",
+        "q": 1,
+        "r": 0,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t05",
+        "q": 1,
+        "r": 0,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t06",
+        "q": -2,
+        "r": 1,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t07",
+        "q": -2,
+        "r": 1,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t08",
+        "q": -1,
+        "r": 1,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t09",
+        "q": -1,
+        "r": 1,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t10",
+        "q": 0,
+        "r": 1,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t11",
+        "q": 0,
+        "r": 1,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t12",
+        "q": 1,
+        "r": 1,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t13",
+        "q": 1,
+        "r": 1,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t14",
+        "q": 2,
+        "r": 1,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t15",
+        "q": 2,
+        "r": 1,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t16",
+        "q": -4,
+        "r": 2,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t17",
+        "q": -4,
+        "r": 2,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t18",
+        "q": -3,
+        "r": 2,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t19",
+        "q": -3,
+        "r": 2,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t20",
+        "q": -2,
+        "r": 2,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t21",
+        "q": -2,
+        "r": 2,
+        "orientation": "down",
+        "type": "paper",
+        "core": true
+      },
+      {
+        "id": "t22",
+        "q": -1,
+        "r": 2,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t23",
+        "q": -1,
+        "r": 2,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t24",
+        "q": 0,
+        "r": 2,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t25",
+        "q": 0,
+        "r": 2,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t26",
+        "q": 1,
+        "r": 2,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t27",
+        "q": 1,
+        "r": 2,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t28",
+        "q": 2,
+        "r": 2,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t29",
+        "q": 2,
+        "r": 2,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t30",
+        "q": -4,
+        "r": 3,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t31",
+        "q": -4,
+        "r": 3,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t32",
+        "q": -3,
+        "r": 3,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t33",
+        "q": -3,
+        "r": 3,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t34",
+        "q": -2,
+        "r": 3,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t35",
+        "q": -2,
+        "r": 3,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t36",
+        "q": -1,
+        "r": 3,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t37",
+        "q": -1,
+        "r": 3,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t38",
+        "q": 0,
+        "r": 3,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t39",
+        "q": 0,
+        "r": 3,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t40",
+        "q": 1,
+        "r": 3,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t41",
+        "q": 1,
+        "r": 3,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t42",
+        "q": 2,
+        "r": 3,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t43",
+        "q": 2,
+        "r": 3,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t44",
+        "q": -4,
+        "r": 4,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t45",
+        "q": -4,
+        "r": 4,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t46",
+        "q": -3,
+        "r": 4,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t47",
+        "q": -3,
+        "r": 4,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t48",
+        "q": -2,
+        "r": 4,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t49",
+        "q": -2,
+        "r": 4,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t50",
+        "q": -1,
+        "r": 4,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t51",
+        "q": -1,
+        "r": 4,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t52",
+        "q": 0,
+        "r": 4,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t53",
+        "q": 0,
+        "r": 4,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t54",
+        "q": -3,
+        "r": 5,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t55",
+        "q": -3,
+        "r": 5,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t56",
+        "q": -2,
+        "r": 5,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t57",
+        "q": -2,
+        "r": 5,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t58",
+        "q": -1,
+        "r": 5,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t59",
+        "q": -1,
+        "r": 5,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      }
+    ]
+  },
+  "brain": {
+    "apiVersion": "1.0.0",
+    "initialState": "fight",
+    "variables": [],
+    "states": [
+      {
+        "name": "fight",
+        "rules": [
+          {
+            "when": {
+              "op": "compare",
+              "cmp": "lt",
+              "left": {
+                "kind": "sensor",
+                "name": "enemy.distance"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 8500
+              }
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 850
+              },
+              "turn": {
+                "mode": "left",
+                "power": 1000,
+                "offset": 0
+              }
+            }
+          },
+          {
+            "when": {
+              "op": "always"
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

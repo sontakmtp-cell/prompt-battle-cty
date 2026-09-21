@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "Mẫu M0 — Tiếp cận",
+  "body": {
+    "triangles": [
+      { "id": "t0", "q": 0, "r": 0, "orientation": "up", "type": "paper", "core": true },
+      { "id": "t1", "q": 0, "r": 0, "orientation": "down", "type": "hammer", "core": false },
+      { "id": "t2", "q": 1, "r": 0, "orientation": "up", "type": "scissor", "core": false },
+      { "id": "t3", "q": 1, "r": 0, "orientation": "down", "type": "motor", "core": false },
+      { "id": "t4", "q": 0, "r": 1, "orientation": "up", "type": "motor", "core": false },
+      { "id": "t5", "q": 0, "r": 1, "orientation": "down", "type": "hammer", "core": false },
+      { "id": "t6", "q": 1, "r": 1, "orientation": "up", "type": "paper", "core": false },
+      { "id": "t7", "q": 1, "r": 1, "orientation": "down", "type": "scissor", "core": false }
+    ]
+  },
+  "brain": {
+    "apiVersion": "1.0.0",
+    "initialState": "approach",
+    "variables": [],
+    "states": [{
+      "name": "approach",
+      "rules": [{
+        "when": { "op": "always" },
+        "action": {
+          "move": { "mode": "towardEnemy", "power": 1000 },
+          "turn": { "mode": "faceEnemy", "power": 1000, "offset": 0 }
+        }
+      }]
+    }]
+  }
+}
