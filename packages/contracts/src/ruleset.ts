@@ -23,7 +23,9 @@ const ruleset = {
     // Index is the unsigned shortest angle (0..32), NOT the bot's absolute heading.
     orientLut: [1000, 999, 997, 994, 989, 982, 975, 966, 956,
       945, 933, 921, 907, 894, 879, 865, 850, ...Array<number>(47).fill(850)],
-    hitCooldownTicks: 12, hitCooldownScope: "perTriangleDefender",
+    hitCooldownTicks: 18, hitCooldownScope: "perTriangleDefender",
+    // Additional source recovery fades with movement power; turning alone is passive.
+    idleAttackTicks: 30,
   },
   diversity: { bonusPerType: 120, maxCombatTypes: 3, countMotor: false, applyTo: "maxHp", recalcOn: "structureChange" },
   monoculture: { warnAbove: 650, blockAbove: 800, blockEnabled: false },

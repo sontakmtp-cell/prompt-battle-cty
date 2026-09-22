@@ -12,14 +12,14 @@ export const TICK_PHASES = Object.freeze([
 
 export type MatchInput = { packages: Record<Team, BotPackage>; seed: number };
 export type TickOutput = { events: VfxEvent[]; result: MatchResult | null };
-export type LiveTriangle = LocalTriangle & TriangleSnapshot & { lastHit: number };
+export type LiveTriangle = LocalTriangle & TriangleSnapshot & { lastHit: number; lastAttack: number };
 export type Mobility = { load: number; speed: number; forward: number; reverse: number; left: number; right: number; drift: number };
 export type LiveBot = {
   team: Team; package: BotPackage; triangles: LiveTriangle[]; core: number;
   position: Vec2; velocity: Vec2; heading: number; memory: BrainMemory;
   initialLoad: number; initialMotors: number; initialCombat: number; initialCoreHp: number;
   mobility: Mobility; turnCarry: number; moveCarry: Vec2; incapTicks: number; ringCarry: number; outside: boolean;
-  damageDealt: number; speedSum: number; hitCount: number; impactSum: number;
+  damageDealt: number; speedSum: number; hitCount: number; impactSum: number; drivePower: number;
   rotations: Vec2[][][];
 };
 export type MatchState = { tick: number; seed: number; bots: Record<Team, LiveBot>; result: MatchResult | null };
@@ -93,7 +93,7 @@ export async function createMatch(input: MatchInput): Promise<MatchState> {
   const random = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return seed >>> 0; };
   const make = (team: Team): LiveBot => {
     const pkg = packages[team], geometry = analyzeGeometry(pkg.definition.body);
-    const triangles = geometry.triangles.map(t => ({ ...t, hp: 1, maxHp: 1, alive: true, damageReceived: 0, lastHit: -RULESET.damage.hitCooldownTicks }));
+    const triangles = geometry.triangles.map(t => ({ ...t, hp: 1, maxHp: 1, alive: true, damageReceived: 0, lastHit: -RULESET.damage.hitCooldownTicks, lastAttack: -RULESET.damage.idleAttackTicks }));
     const motors = triangles.filter(t => t.type === "motor").length;
     const bot: LiveBot = {
       team, package: pkg, triangles, core: triangles.findIndex(t => t.core),
@@ -102,7 +102,7 @@ export async function createMatch(input: MatchInput): Promise<MatchState> {
       initialLoad: Math.ceil(triangles.length * 1000 / (motors * RULESET.motor.pullPerMotor)), initialMotors: motors,
       initialCombat: triangles.length - motors, initialCoreHp: 0, mobility: {} as Mobility,
       turnCarry: 0, moveCarry: { x: 0, y: 0 }, incapTicks: 0, ringCarry: 0, outside: false,
-      damageDealt: 0, speedSum: 0, hitCount: 0, impactSum: 0,
+      damageDealt: 0, speedSum: 0, hitCount: 0, impactSum: 0, drivePower: 0,
       rotations: Array.from({ length: 64 }, (_, heading) => triangles.map(t => t.vertices.map(p => rotate(p, (heading + 48) % 64)))),
     };
     recomputeDiversity(bot, true); bot.initialCoreHp = core(bot).maxHp; bot.mobility = mobility(bot);
@@ -139,6 +139,7 @@ function moveIntent(bot: LiveBot, enemy: LiveBot, action: BrainAction): { positi
   const direction = { stop: bot.heading, forward: bot.heading, backward: bot.heading + 32, towardEnemy: bearing, awayFromEnemy: bearing + 32, orbitLeft: bearing + 16, orbitRight: bearing + 48 }[action.move.mode] % 64;
   const dependent = !["stop", "forward", "backward"].includes(action.move.mode);
   const power = action.move.mode === "stop" || (coincident && dependent) ? 0 : action.move.power;
+  bot.drivePower = bot.mobility.speed > 0 ? power : 0;
   const d = DIRECTIONS[direction]!;
   const speed = div(bot.mobility.speed * power, 1000);
   const target = { x: div(d.x * speed, 1000), y: div(d.y * speed, 1000) };
@@ -206,6 +207,8 @@ function applyContacts(state: MatchState, collisions: Collision[], events: VfxEv
     const source = team === "A" ? collision.a : collision.b, target = team === "A" ? collision.b : collision.a;
     const a = attacker.triangles[source]!, b = defender.triangles[target]!;
     if (!a.alive || !b.alive || a.type === "motor" || state.tick - b.lastHit < RULESET.damage.hitCooldownTicks) continue;
+    const recovery = Math.ceil(RULESET.damage.idleAttackTicks * (1000 - attacker.drivePower) / 1000);
+    if (state.tick - a.lastAttack < recovery) continue;
     const sign = team === "A" ? 1 : -1;
     const normal = { x: collision.normal.x * sign, y: collision.normal.y * sign };
     const approach = Math.max(0, div(attacker.velocity.x * normal.x + attacker.velocity.y * normal.y, 1000));
@@ -224,6 +227,7 @@ function applyContacts(state: MatchState, collisions: Collision[], events: VfxEv
     const a = attacker.triangles[hit.source]!, b = defender.triangles[hit.target]!;
     const damage = Math.min(b.hp, hit.damage);
     b.hp -= damage; b.damageReceived += damage; b.lastHit = state.tick;
+    a.lastAttack = state.tick;
     attacker.damageDealt += damage; attacker.hitCount++; attacker.impactSum += hit.r;
     const advantage = a.type !== "motor" && b.type !== "motor" && a.type !== b.type ? RULESET.damage.beats[a.type] === b.type ? "adv" : "disadv" : "neutral";
     events.push({ kind: "hit", tick: state.tick, at: hit.at, normal: hit.normal, attacker: `${hit.attacker}:${a.id}`, defender: `${other(hit.attacker)}:${b.id}`, damage, advantage, impactMul: hit.impact, orientMul: hit.orientation });

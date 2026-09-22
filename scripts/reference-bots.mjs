@@ -13,7 +13,7 @@ const designs = [
     always(action()),
   ] },
   { name: "Spinner", widths: [3,5,7,7,5,3], motors: 15, hammer: 15, paper: 15, rules: [
-    { when: compare("enemy.distance", "lt", 8500), action: action("towardEnemy", "left", 850) }, always(action()),
+    { when: { op: "all", args: [compare("enemy.distance", "lt", 8500), compare("tick", "gte", 150)] }, action: action("towardEnemy", "left", 850) }, always(action()),
   ] },
   { name: "Glass Cannon", widths: [8,7,6,5,3,1], motors: 30, hammer: 24, paper: 2, rules: [always(action())] },
 ];

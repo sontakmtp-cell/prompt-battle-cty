@@ -1,8 +1,11 @@
 # PROMPT CHIẾN — THIẾT KẾ CÂN BẰNG CHIẾN ĐẤU
 
-**Trạng thái:** Đề xuất cho M1, số liệu phải qua mô phỏng để chốt  
+**Trạng thái:** Đã đo tại M1; Gate kỹ thuật đạt, cân bằng còn các tiêu chí chưa đạt — xem [M1.md](M1.md).
+
 **Mục tiêu:** Chỉ số công–thủ–máu rõ ràng cho 4 loại tam giác, và **chặn đứng chiến thuật bot thuần một loại**.  
 **Đã qua rà soát lỗ hổng đợt 2** — 6 lỗi chặn đường + 4 lỗ hổng cân bằng đã sửa, 8 bài test mới thêm vào mục 10. Nhật ký đầy đủ ở `ra_soat_can_bang.md`.
+
+**Hiệu chỉnh M1, ruleset 0.1.3:** giữ HP/sát thương/RPS; cooldown phòng thủ tăng **6 → 18 nhịp** sau đo thời lượng. Va chạm dùng vận tốc riêng của người đánh; reference speed 4000 cho `r = 1,00`. Theo lựa chọn của Khầy, nguồn tấn công có thêm hồi phục `ceil(30 × (1000 − power di chuyển) / 1000)` nhịp: đứng yên hoặc hết Motor dùng power 0; đi power 1000 không có phần hồi phục thêm. Bài đo 100 seed cho bot đứng yên gây **71,49%** sát thương bên lao vào. Các ví dụ phân tích "cooldown 6" bên dưới là số khởi đầu trước hiệu chỉnh, không phải luật runtime hiện tại.
 
 ---
 
@@ -576,11 +579,11 @@ Nghĩa là bảng "số nhát để hạ" ở mục 4 — vốn ghi "Búa cần 
 **Cách chặn — đã chốt:**
 
 ```text
-HIT_COOLDOWN_TICKS = 6
+HIT_COOLDOWN_TICKS = 18  # M1: tăng từ 6 sau đo thời lượng
 HIT_COOLDOWN_SCOPE = PER_TRIANGLE_DEFENDER
 ```
 
-> **Mỗi tam giác phòng thủ chỉ nhận TỐI ĐA một hit mỗi 6 nhịp, bất kể nó đang chạm bao nhiêu tam giác địch.**
+> **Mỗi tam giác phòng thủ chỉ nhận TỐI ĐA một hit mỗi 18 nhịp, bất kể nó đang chạm bao nhiêu tam giác địch.**
 
 Nhờ vậy bảng ở mục 4 mới đúng, và không còn cảnh một tam giác chết trong 0,033 giây mà người xem không kịp hiểu chuyện gì.
 
@@ -643,10 +646,11 @@ MONO_WARN_THRESHOLD  = 650     # 1/1000: >65% → cảnh báo
 MONO_BLOCK_THRESHOLD = 800     # 1/1000: >80% → chặn (0 = tắt chặn)
 
 # ── Nhịp đánh ───────────────────────────────
-HIT_COOLDOWN_TICKS   = 6
+HIT_COOLDOWN_TICKS   = 18   # M1: khởi đầu 6, thử 12, chọn 18 sau đo
 HIT_COOLDOWN_SCOPE   = PER_TRIANGLE_DEFENDER
-# Mỗi tam giác phòng thủ nhận TỐI ĐA 1 hit mỗi 6 nhịp,
+# Mỗi tam giác phòng thủ nhận TỐI ĐA 1 hit mỗi 18 nhịp,
 # bất kể đang chạm bao nhiêu tam giác địch. Xem mục 8.4.
+IDLE_ATTACK_TICKS    = 30   # nguồn hồi phục ceil(30 * (1000 - powerDiChuyen) / 1000)
 
 # ── Core ────────────────────────────────────
 CORE_COUNT           = 1

@@ -6,4 +6,10 @@
 
 Các mẫu dùng để kiểm tra **định dạng và bộ lệnh**, chưa được chạy sandbox hoặc cân bằng bằng trận đấu. `packageHash`/`dataHash` toàn số 0 là chỗ giữ chỗ minh họa. Replay chỉ là mẫu cấu trúc rút gọn, thiếu chuỗi nhịp đầy đủ; không đưa vào Viewer hay dùng làm bằng chứng tái hiện trận.
 
-`ValidationReport.valid` của mẫu là `false`, `geometry` và `sandbox` vẫn `pending`. Năm bot đối kháng Spear/Shield/Flanker/Spinner/Glass Cannon và replay thật thuộc M1.
+`ValidationReport.valid` của catalog là `false`, `geometry` và `sandbox` vẫn `pending`.
+
+## Bot thực thi M1
+
+`bots/` chứa Spear, Shield, Flanker, Spinner và Glass Cannon. Đây là bản thiết kế có thể validate/simulate bằng CLI; `pnpm bots` tạo lại từ `scripts/reference-bots.mjs`. Mỗi bot có 60 tam giác. Spinner tiếp cận trong 5 giây đầu, sau đó mới xoay khi gần địch.
+
+Replay thực của lần nghiệm thu nằm trong `artifacts/m1/reference-match.json`; xem cách chạy và giới hạn cân bằng trong `Docs/M1.md`. Đừng dùng hash giữ chỗ của catalog để thay thế package khóa thật.

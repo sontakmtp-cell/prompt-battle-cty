@@ -1,0 +1,1515 @@
+{
+  "platform": "linux",
+  "node": "v22.23.1",
+  "versions": {
+    "engine": "0.1.1",
+    "ruleset": "0.1.3",
+    "botSchema": "1.0.0",
+    "brainApi": "1.0.0",
+    "replay": "2.0.0",
+    "mcpApi": "0.0.0"
+  },
+  "records": [
+    {
+      "seed": 0,
+      "a": "spear",
+      "b": "shield",
+      "hash": "128b6d87211a71b742826c90f990c5d0408abd6caa00cc3c9603b5e466f96047",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1348,
+        "scores": {
+          "A": 330,
+          "B": 924
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "a": "spear",
+      "b": "flanker",
+      "hash": "22544e09b07e2630fa8bca1d8313b6adb1cda0b8626c51eefa00eb5e73c12ad9",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 559,
+        "scores": {
+          "A": 345,
+          "B": 847
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "a": "spear",
+      "b": "spinner",
+      "hash": "cc9d3c8aba505af086619ec92fa6845a1646be92fa0025239b892a2b8ea074cb",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 2318,
+        "scores": {
+          "A": 350,
+          "B": 690
+        }
+      }
+    },
+    {
+      "seed": 3,
+      "a": "spear",
+      "b": "glass-cannon",
+      "hash": "c1d4b6d780023f2524492450ae023ac74842e85d45e1dfe85767a94aa0f55156",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 808,
+        "scores": {
+          "A": 902,
+          "B": 343
+        }
+      }
+    },
+    {
+      "seed": 4,
+      "a": "shield",
+      "b": "flanker",
+      "hash": "b1d099deace8998eb358ca66458c8a34346cdba778bb16e72e20b8725af0a847",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 954,
+        "scores": {
+          "A": 248,
+          "B": 747
+        }
+      }
+    },
+    {
+      "seed": 5,
+      "a": "shield",
+      "b": "spinner",
+      "hash": "808bdb0da3561838c720193c4e4d65f471563b77e06297397baa1e5291e50d9a",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 3110,
+        "scores": {
+          "A": 262,
+          "B": 784
+        }
+      }
+    },
+    {
+      "seed": 6,
+      "a": "shield",
+      "b": "glass-cannon",
+      "hash": "9b9747c6067b7f70e847a7399532688ac86e40d17b68330414b947e31db895f9",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 879,
+        "scores": {
+          "A": 964,
+          "B": 296
+        }
+      }
+    },
+    {
+      "seed": 7,
+      "a": "flanker",
+      "b": "spinner",
+      "hash": "31a129417e60830a285b9398a3aa3eeed1ab0f728791b5aa82ddd936699a5f64",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 3281,
+        "scores": {
+          "A": 350,
+          "B": 761
+        }
+      }
+    },
+    {
+      "seed": 8,
+      "a": "flanker",
+      "b": "glass-cannon",
+      "hash": "982a489d457ba1ea5a605eea7e86b05a9cddf8a7a629724b45df322e7129104e",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 708,
+        "scores": {
+          "A": 650,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 9,
+      "a": "spinner",
+      "b": "glass-cannon",
+      "hash": "86816139e9eada004ed4813d30c299bf0e0224d72c58658fdeb360cf21258e32",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1713,
+        "scores": {
+          "A": 686,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 10,
+      "a": "shield",
+      "b": "spear",
+      "hash": "36c54f0a920e46c583b3363c168453a0abdf590d915ac2acff7bb7f007eeab07",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1383,
+        "scores": {
+          "A": 877,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 11,
+      "a": "flanker",
+      "b": "spear",
+      "hash": "f609e4f17010aed5e3f3c8912bd19422c38dff1c8b66f242d9bb5d8335fbb0f8",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1432,
+        "scores": {
+          "A": 560,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 12,
+      "a": "spinner",
+      "b": "spear",
+      "hash": "b53ebedc233b3a35b6b26d60971aa850dbfb1df69a5cf63318b0a14d3db003d4",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1675,
+        "scores": {
+          "A": 737,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 13,
+      "a": "glass-cannon",
+      "b": "spear",
+      "hash": "12f02bdaa1db7440a60ffc6b2584c1960b22661964cd38fe3f6f8063261493ac",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1110,
+        "scores": {
+          "A": 273,
+          "B": 865
+        }
+      }
+    },
+    {
+      "seed": 14,
+      "a": "flanker",
+      "b": "shield",
+      "hash": "e50426c88cde0b0be645359f81c94db57ee9974f624b148f834f76054bc5561d",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1103,
+        "scores": {
+          "A": 607,
+          "B": 278
+        }
+      }
+    },
+    {
+      "seed": 15,
+      "a": "spinner",
+      "b": "shield",
+      "hash": "f3a3535154b9fb45a5a65e892a67d5daa7866ce4aa53e27fe35f1082f80552ca",
+      "result": {
+        "winner": "A",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 775,
+          "B": 769
+        }
+      }
+    },
+    {
+      "seed": 16,
+      "a": "glass-cannon",
+      "b": "shield",
+      "hash": "6480c031d290b163a383706844bca868e5d7adf153d56f7874e04d22aa8f8158",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 881,
+        "scores": {
+          "A": 277,
+          "B": 968
+        }
+      }
+    },
+    {
+      "seed": 17,
+      "a": "spinner",
+      "b": "flanker",
+      "hash": "c81e8bc2b1f2841afb63c36468d337146adb44529667b7ce6c8ce03a9f799398",
+      "result": {
+        "winner": "B",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 717,
+          "B": 768
+        }
+      }
+    },
+    {
+      "seed": 18,
+      "a": "glass-cannon",
+      "b": "flanker",
+      "hash": "d2a7d233274cd6525278df62aef51895d0df910542c4238c24ae89c0122abb46",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 704,
+        "scores": {
+          "A": 350,
+          "B": 584
+        }
+      }
+    },
+    {
+      "seed": 19,
+      "a": "glass-cannon",
+      "b": "spinner",
+      "hash": "39f69b34ef58b4df5ffc5f2b4b0af7852aa048775b804208f20f128555ca0652",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1815,
+        "scores": {
+          "A": 350,
+          "B": 705
+        }
+      }
+    },
+    {
+      "seed": 20,
+      "a": "spear",
+      "b": "shield",
+      "hash": "bcb99dbe504b6d6a14c6bd6c745cbcb606112224a3356981f819c97283f6b4e0",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1510,
+        "scores": {
+          "A": 350,
+          "B": 934
+        }
+      }
+    },
+    {
+      "seed": 21,
+      "a": "spear",
+      "b": "flanker",
+      "hash": "f132f396794e6209f204126b04c1dcbadfc3823ec47938790920bee05068a60d",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 775,
+        "scores": {
+          "A": 350,
+          "B": 669
+        }
+      }
+    },
+    {
+      "seed": 22,
+      "a": "spear",
+      "b": "spinner",
+      "hash": "cdb1a6e6401b38b721227fbcde0dc2ec297e7510e912df5de6a7eb455ae59a35",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 2189,
+        "scores": {
+          "A": 350,
+          "B": 717
+        }
+      }
+    },
+    {
+      "seed": 23,
+      "a": "spear",
+      "b": "glass-cannon",
+      "hash": "fd0b6b9aaf2e2c220ba013f8c518c4e4c71b3d441334351d0b9c1987cba29753",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 895,
+        "scores": {
+          "A": 847,
+          "B": 327
+        }
+      }
+    },
+    {
+      "seed": 24,
+      "a": "shield",
+      "b": "flanker",
+      "hash": "c56e11859d00c5abb08152a59275c8b309c2aeac242ab86ee7a38b95f4e2c0cf",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 949,
+        "scores": {
+          "A": 266,
+          "B": 639
+        }
+      }
+    },
+    {
+      "seed": 25,
+      "a": "shield",
+      "b": "spinner",
+      "hash": "584485bff2b17d731a6393f0fbf527074bff9fbbb8bdb6b4fd44012f265e5990",
+      "result": {
+        "winner": "B",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 730,
+          "B": 784
+        }
+      }
+    },
+    {
+      "seed": 26,
+      "a": "shield",
+      "b": "glass-cannon",
+      "hash": "4291fd04cc69b277ae166e4d126e4060ae7178d2222eab7ec06c511f628ce1b9",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 884,
+        "scores": {
+          "A": 968,
+          "B": 285
+        }
+      }
+    },
+    {
+      "seed": 27,
+      "a": "flanker",
+      "b": "spinner",
+      "hash": "e8e221a7341fd1986f1036a826d73de2648a40f216b3efa452d0e63c9140e581",
+      "result": {
+        "winner": "B",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 445,
+          "B": 719
+        }
+      }
+    },
+    {
+      "seed": 28,
+      "a": "flanker",
+      "b": "glass-cannon",
+      "hash": "917244571e6b980a3b2db7b7955fb1ed7f353dc328dff48c22774d6c84721597",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 709,
+        "scores": {
+          "A": 622,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 29,
+      "a": "spinner",
+      "b": "glass-cannon",
+      "hash": "685659072ba19e65a454aaefc590ece5e6894c006713e3864f12f3bab0ab8c12",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1654,
+        "scores": {
+          "A": 682,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 30,
+      "a": "shield",
+      "b": "spear",
+      "hash": "c31b897d0d02eda973c7b2bb0b99c353beb35d644493464cf4640790437ae4e6",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1382,
+        "scores": {
+          "A": 893,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 31,
+      "a": "flanker",
+      "b": "spear",
+      "hash": "e3ba4b4edb558d7ef99f85dea9f31758ed76501a63f1771adddf754d9809b1c4",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 569,
+        "scores": {
+          "A": 719,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 32,
+      "a": "spinner",
+      "b": "spear",
+      "hash": "2cde40bd1cb42703f3fdb2ed3ce47b1f0b78f4f68c7637137aaca8d120a05a19",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1713,
+        "scores": {
+          "A": 762,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 33,
+      "a": "glass-cannon",
+      "b": "spear",
+      "hash": "11459b44c2b4715504b8a84b63de69f11f1ae132c515c54c0a559fa98d5a5863",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 959,
+        "scores": {
+          "A": 303,
+          "B": 859
+        }
+      }
+    },
+    {
+      "seed": 34,
+      "a": "flanker",
+      "b": "shield",
+      "hash": "e949678838608c903277465b6865afa90604c5eba47b81c6ad486f8c08fb1ecd",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 914,
+        "scores": {
+          "A": 350,
+          "B": 676
+        }
+      }
+    },
+    {
+      "seed": 35,
+      "a": "spinner",
+      "b": "shield",
+      "hash": "667004c9fa4daf028698e38e894d2e44906227f92e3ef55dbbf3a375716f4373",
+      "result": {
+        "winner": "B",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 779,
+          "B": 783
+        }
+      }
+    },
+    {
+      "seed": 36,
+      "a": "glass-cannon",
+      "b": "shield",
+      "hash": "b824a6c21b9da849f995c2343a6448284d8ab1be71c82be784b02f604097157b",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 937,
+        "scores": {
+          "A": 272,
+          "B": 968
+        }
+      }
+    },
+    {
+      "seed": 37,
+      "a": "spinner",
+      "b": "flanker",
+      "hash": "2da806d1f8f2f498ea643a7e039f17225edc1e514c821566c6dc74fd210c4dcc",
+      "result": {
+        "winner": "A",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 766,
+          "B": 472
+        }
+      }
+    },
+    {
+      "seed": 38,
+      "a": "glass-cannon",
+      "b": "flanker",
+      "hash": "a4ffed77a6db83d9dc2f98bb9083eb4e5bf84099941aace94d06b8ee7da33166",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 629,
+        "scores": {
+          "A": 350,
+          "B": 672
+        }
+      }
+    },
+    {
+      "seed": 39,
+      "a": "glass-cannon",
+      "b": "spinner",
+      "hash": "f255a6be5e405601d6b44743ffdd0006d811541c7d4145a4428db8881f767312",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1804,
+        "scores": {
+          "A": 350,
+          "B": 729
+        }
+      }
+    },
+    {
+      "seed": 40,
+      "a": "spear",
+      "b": "shield",
+      "hash": "9e02eb042fb0173b2b19ea60820b21da4fbfa7e12eca0b1ea85e96485c272308",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1427,
+        "scores": {
+          "A": 350,
+          "B": 894
+        }
+      }
+    },
+    {
+      "seed": 41,
+      "a": "spear",
+      "b": "flanker",
+      "hash": "78164315689885c515b43a7f859be714e569668b8eb518c12cada9a939d53a5e",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 935,
+        "scores": {
+          "A": 350,
+          "B": 593
+        }
+      }
+    },
+    {
+      "seed": 42,
+      "a": "spear",
+      "b": "spinner",
+      "hash": "e4a4edb0c160f935e904f7fdc0c6fc66aa92e5c7ca6d13c35c1ecb2a884cc80f",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1980,
+        "scores": {
+          "A": 350,
+          "B": 709
+        }
+      }
+    },
+    {
+      "seed": 43,
+      "a": "spear",
+      "b": "glass-cannon",
+      "hash": "8f08861b62bdcac3af932e2cba346e12dd7a0fa077c58d7dcf956bb408c873a3",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 893,
+        "scores": {
+          "A": 859,
+          "B": 309
+        }
+      }
+    },
+    {
+      "seed": 44,
+      "a": "shield",
+      "b": "flanker",
+      "hash": "c97ec0b5d494900c37793f67baf8cc405adbf2d665ba71033d7e0f3c13f90b56",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1077,
+        "scores": {
+          "A": 257,
+          "B": 763
+        }
+      }
+    },
+    {
+      "seed": 45,
+      "a": "shield",
+      "b": "spinner",
+      "hash": "8de6dcef7a95ad0dba7f2eb536e336c4344bf48db8914c31976d625d0b85f11e",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 3169,
+        "scores": {
+          "A": 288,
+          "B": 775
+        }
+      }
+    },
+    {
+      "seed": 46,
+      "a": "shield",
+      "b": "glass-cannon",
+      "hash": "2a253e803d4d56e1cfdd5363fa01bbad5723de6cae729bf07a8e5ddefb531c8f",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 964,
+        "scores": {
+          "A": 960,
+          "B": 281
+        }
+      }
+    },
+    {
+      "seed": 47,
+      "a": "flanker",
+      "b": "spinner",
+      "hash": "df129b157beba40629f8544390586e9aec4d4f36461b4527382cfabdb0c5f018",
+      "result": {
+        "winner": "A",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 745,
+          "B": 731
+        }
+      }
+    },
+    {
+      "seed": 48,
+      "a": "flanker",
+      "b": "glass-cannon",
+      "hash": "fc2f689be8e74947a0401b8ca7896b74f6543d0f9d5fb6517df1e5d173cbc6fa",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 793,
+        "scores": {
+          "A": 560,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 49,
+      "a": "spinner",
+      "b": "glass-cannon",
+      "hash": "97d65805aeb1bb3fe4c42b99d5c829f2eef2474f73ddd98440663999db0dc9b2",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1532,
+        "scores": {
+          "A": 711,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 50,
+      "a": "shield",
+      "b": "spear",
+      "hash": "a1339c0d6fb90e7e9db7d63c6ac873a660ee9f40b8e0a3cc5662b41ab918e535",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1401,
+        "scores": {
+          "A": 906,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 51,
+      "a": "flanker",
+      "b": "spear",
+      "hash": "251fd7bc074d16873ba3481f4bac3cfca3f9db3772038af5561f40d5acb81931",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 516,
+        "scores": {
+          "A": 655,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 52,
+      "a": "spinner",
+      "b": "spear",
+      "hash": "81b7a6a16c19040831cb87371874d6164a75b809700a031fd3f7e3625e3d8484",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 2144,
+        "scores": {
+          "A": 729,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 53,
+      "a": "glass-cannon",
+      "b": "spear",
+      "hash": "f35b9f6cc6a773f42c23e1d04e6e770cb397b3a45df3da996ddc43595961b9b4",
+      "result": {
+        "winner": "B",
+        "reason": "incap",
+        "tick": 757,
+        "scores": {
+          "A": 400,
+          "B": 911
+        }
+      }
+    },
+    {
+      "seed": 54,
+      "a": "flanker",
+      "b": "shield",
+      "hash": "7256e012512f901c22c3d0a05c93d0003c6ed1af810bc67275f88f756c4dfe51",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1018,
+        "scores": {
+          "A": 350,
+          "B": 580
+        }
+      }
+    },
+    {
+      "seed": 55,
+      "a": "spinner",
+      "b": "shield",
+      "hash": "67dcce43fbb6916e1c0551ed26fe52b04590da7e2d168fb1414b0f18c2f1a1d1",
+      "result": {
+        "winner": "A",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 766,
+          "B": 743
+        }
+      }
+    },
+    {
+      "seed": 56,
+      "a": "glass-cannon",
+      "b": "shield",
+      "hash": "908026bd86e820ffe8d3ec34490fe6568bc6c77c7532fddc0196196c1a521464",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 882,
+        "scores": {
+          "A": 292,
+          "B": 964
+        }
+      }
+    },
+    {
+      "seed": 57,
+      "a": "spinner",
+      "b": "flanker",
+      "hash": "30c6482578825b0cbd8b5c48235bcbd44460ac4174b4c4474204457be26b4570",
+      "result": {
+        "winner": "B",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 747,
+          "B": 768
+        }
+      }
+    },
+    {
+      "seed": 58,
+      "a": "glass-cannon",
+      "b": "flanker",
+      "hash": "e5dc93d502b21a79994366ebe8deed98a254e6eb0637302f751805313cfb8aee",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 749,
+        "scores": {
+          "A": 350,
+          "B": 581
+        }
+      }
+    },
+    {
+      "seed": 59,
+      "a": "glass-cannon",
+      "b": "spinner",
+      "hash": "f53ddcd45f0ebe1b671058da9e495a27fa60c9b41cda7a602dc8bedc497e6171",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1837,
+        "scores": {
+          "A": 350,
+          "B": 737
+        }
+      }
+    },
+    {
+      "seed": 60,
+      "a": "spear",
+      "b": "shield",
+      "hash": "af61ff17fcbfba109e7e08cf57e7e5c02e6afb87be251f36aa6365b81933fc39",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1386,
+        "scores": {
+          "A": 348,
+          "B": 924
+        }
+      }
+    },
+    {
+      "seed": 61,
+      "a": "spear",
+      "b": "flanker",
+      "hash": "03806c2b73e64bf79f32c732b3d64b1112063a210db2016022da8ccb7582cf43",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 546,
+        "scores": {
+          "A": 337,
+          "B": 852
+        }
+      }
+    },
+    {
+      "seed": 62,
+      "a": "spear",
+      "b": "spinner",
+      "hash": "f6a590d31005cc219749c813b5b6b92919e17c6a88b8f473aed2b4bc0bf3d1db",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1687,
+        "scores": {
+          "A": 350,
+          "B": 713
+        }
+      }
+    },
+    {
+      "seed": 63,
+      "a": "spear",
+      "b": "glass-cannon",
+      "hash": "e43654ac7229252c0930110d9ef7da0eceeeb92e818942024e45efa1522d302c",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1064,
+        "scores": {
+          "A": 768,
+          "B": 268
+        }
+      }
+    },
+    {
+      "seed": 64,
+      "a": "shield",
+      "b": "flanker",
+      "hash": "fa0621d2431887475e4690c3c2f5cd78f2761ad297be673a881fdfd6c5787eed",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1170,
+        "scores": {
+          "A": 245,
+          "B": 767
+        }
+      }
+    },
+    {
+      "seed": 65,
+      "a": "shield",
+      "b": "spinner",
+      "hash": "96ddf6b0360b4e97f5076188451d2b0aa6191b4e98d4b47e58e69851a745caf3",
+      "result": {
+        "winner": "B",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 635,
+          "B": 762
+        }
+      }
+    },
+    {
+      "seed": 66,
+      "a": "shield",
+      "b": "glass-cannon",
+      "hash": "8ae6b9d884df39c5d08814ad1d96991cbd3dd15d27c507b7f7881f913b219d62",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1242,
+        "scores": {
+          "A": 955,
+          "B": 267
+        }
+      }
+    },
+    {
+      "seed": 67,
+      "a": "flanker",
+      "b": "spinner",
+      "hash": "80cc8d3eb60d87fbc444ea8f919fcb60e92d255567006673f6f9e5de0d73230f",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 2176,
+        "scores": {
+          "A": 350,
+          "B": 749
+        }
+      }
+    },
+    {
+      "seed": 68,
+      "a": "flanker",
+      "b": "glass-cannon",
+      "hash": "c70f0f0d05f07a9c88d00baacad0f960ee95573dd9d6397b2f373bbbac467bf2",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 848,
+        "scores": {
+          "A": 622,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 69,
+      "a": "spinner",
+      "b": "glass-cannon",
+      "hash": "23b0533d1b137524c9f094129cc83b34a4647f50647cf17b8a7f0e9c3a137c7b",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1625,
+        "scores": {
+          "A": 692,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 70,
+      "a": "shield",
+      "b": "spear",
+      "hash": "27b9204e92ba456d5400b9aa4e05b58ddf0fbc52ef5481945a210f1c5b4c7e86",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1342,
+        "scores": {
+          "A": 909,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 71,
+      "a": "flanker",
+      "b": "spear",
+      "hash": "074c436f535b411db5e3094c59651dc8cca46fef1e87a9300e73f01e0d37730f",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 980,
+        "scores": {
+          "A": 546,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 72,
+      "a": "spinner",
+      "b": "spear",
+      "hash": "3b7d6bd77d18de1fc10bd4bac2db79cb46151d8baed128835f80824044cec16f",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1910,
+        "scores": {
+          "A": 705,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 73,
+      "a": "glass-cannon",
+      "b": "spear",
+      "hash": "8a21ec26a84173710c6caa616400c17d2356740ea887d80a0a4f9443fdbf09aa",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 857,
+        "scores": {
+          "A": 341,
+          "B": 897
+        }
+      }
+    },
+    {
+      "seed": 74,
+      "a": "flanker",
+      "b": "shield",
+      "hash": "6c2d328cd78c0da32a4ed6751cf622d569ef98decfb9060bc6a2da000a775f9b",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1092,
+        "scores": {
+          "A": 749,
+          "B": 260
+        }
+      }
+    },
+    {
+      "seed": 75,
+      "a": "spinner",
+      "b": "shield",
+      "hash": "1448517af64a3eb48b22ad4529e4d19daafa93bd154095b008253c63952b1bef",
+      "result": {
+        "winner": "B",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 775,
+          "B": 784
+        }
+      }
+    },
+    {
+      "seed": 76,
+      "a": "glass-cannon",
+      "b": "shield",
+      "hash": "f12d00ac7197de5625341be32bd595ed4c56abc5974dfdccf4b8d58fb235db4a",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1211,
+        "scores": {
+          "A": 262,
+          "B": 960
+        }
+      }
+    },
+    {
+      "seed": 77,
+      "a": "spinner",
+      "b": "flanker",
+      "hash": "c11d86fdf81db48c8c4f8a4bef3929f7020f9eea25023a892d0da144f20b9497",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 2095,
+        "scores": {
+          "A": 793,
+          "B": 321
+        }
+      }
+    },
+    {
+      "seed": 78,
+      "a": "glass-cannon",
+      "b": "flanker",
+      "hash": "fd02978839a25a157c080c90172c7c06e7a3f10e30a7ad65c6f026ba439add67",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 782,
+        "scores": {
+          "A": 350,
+          "B": 635
+        }
+      }
+    },
+    {
+      "seed": 79,
+      "a": "glass-cannon",
+      "b": "spinner",
+      "hash": "154e3531af2a91e027a67ae157761bf50d953843af68c435e2f149568260d699",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1366,
+        "scores": {
+          "A": 350,
+          "B": 761
+        }
+      }
+    },
+    {
+      "seed": 80,
+      "a": "spear",
+      "b": "shield",
+      "hash": "720f853f4027b948cd74871f17bcea2d49caa527c2afeb150d73f3da1614763d",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1322,
+        "scores": {
+          "A": 329,
+          "B": 937
+        }
+      }
+    },
+    {
+      "seed": 81,
+      "a": "spear",
+      "b": "flanker",
+      "hash": "a0ea97e050b16543fe23276cb497b0d5c6253c53759998d2fdc598c8c7d1e7e5",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 691,
+        "scores": {
+          "A": 350,
+          "B": 730
+        }
+      }
+    },
+    {
+      "seed": 82,
+      "a": "spear",
+      "b": "spinner",
+      "hash": "2c87c0a08479ac5154507446e93b60e9ce9b8c63f95a2a4119387bf28b8cee74",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 2456,
+        "scores": {
+          "A": 350,
+          "B": 698
+        }
+      }
+    },
+    {
+      "seed": 83,
+      "a": "spear",
+      "b": "glass-cannon",
+      "hash": "af408e9ee9187bf822a19364f5fc7953be5b27a64deed39d680296108f6474af",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 862,
+        "scores": {
+          "A": 893,
+          "B": 334
+        }
+      }
+    },
+    {
+      "seed": 84,
+      "a": "shield",
+      "b": "flanker",
+      "hash": "f141c0003b20a78c1cf24184d3b28254e806d8e84670cec1e53c5a20604473e5",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 895,
+        "scores": {
+          "A": 273,
+          "B": 502
+        }
+      }
+    },
+    {
+      "seed": 85,
+      "a": "shield",
+      "b": "spinner",
+      "hash": "4e8ca71e112a7b71d4c64472564c76071867742183b4b4add45461e348987c8b",
+      "result": {
+        "winner": "A",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 771,
+          "B": 770
+        }
+      }
+    },
+    {
+      "seed": 86,
+      "a": "shield",
+      "b": "glass-cannon",
+      "hash": "f162a793e2e269c33c0de6fea921a47b7a44db02384b3157174eea28b1d3dfeb",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1125,
+        "scores": {
+          "A": 955,
+          "B": 261
+        }
+      }
+    },
+    {
+      "seed": 87,
+      "a": "flanker",
+      "b": "spinner",
+      "hash": "563727400b5e95604dc564506ec43e79ff8a479dd1db46741da870f7e69ffa62",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1917,
+        "scores": {
+          "A": 350,
+          "B": 755
+        }
+      }
+    },
+    {
+      "seed": 88,
+      "a": "flanker",
+      "b": "glass-cannon",
+      "hash": "2eb0e94dac03f3d9b23d82c9e422d7f3e9f3af2996361ef38a18a17aae486925",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 716,
+        "scores": {
+          "A": 623,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 89,
+      "a": "spinner",
+      "b": "glass-cannon",
+      "hash": "ede67f1555ed3ff86cf11c363b02a965b2e00658c9e7b3d9774e1e562a58ab2e",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1654,
+        "scores": {
+          "A": 672,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 90,
+      "a": "shield",
+      "b": "spear",
+      "hash": "997fe4325a57a4f28fef330cd39bb061c0153ba83c8a865b32d77fb31f3a60be",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 1457,
+        "scores": {
+          "A": 902,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 91,
+      "a": "flanker",
+      "b": "spear",
+      "hash": "8935c20b5a82b24e0457034ca204d0cf98ad26ad1ea06896dbc6272ed466b987",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 760,
+        "scores": {
+          "A": 668,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 92,
+      "a": "spinner",
+      "b": "spear",
+      "hash": "ef3f46b111d1385e55bbf39beb401e6c08030949b0ec757ac2a0ee9f1c4d7e9b",
+      "result": {
+        "winner": "A",
+        "reason": "core",
+        "tick": 2331,
+        "scores": {
+          "A": 695,
+          "B": 350
+        }
+      }
+    },
+    {
+      "seed": 93,
+      "a": "glass-cannon",
+      "b": "spear",
+      "hash": "4e0ee1a129f408af3edbb29f02ba01b32046ff6cbb6ecc0eb031865ac4aad3fb",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 794,
+        "scores": {
+          "A": 336,
+          "B": 911
+        }
+      }
+    },
+    {
+      "seed": 94,
+      "a": "flanker",
+      "b": "shield",
+      "hash": "2bbceb96e4da6ae86889433de757c74afaef433c724beeb61c7bd05d364a9612",
+      "result": {
+        "winner": "B",
+        "reason": "incap",
+        "tick": 1365,
+        "scores": {
+          "A": 420,
+          "B": 617
+        }
+      }
+    },
+    {
+      "seed": 95,
+      "a": "spinner",
+      "b": "shield",
+      "hash": "b83ee3e48f6d1f50345a5113f56e313875d048f6f3058c63307d4ef0f272b5f6",
+      "result": {
+        "winner": "A",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 788,
+          "B": 726
+        }
+      }
+    },
+    {
+      "seed": 96,
+      "a": "glass-cannon",
+      "b": "shield",
+      "hash": "145bba0d690ea5e32256cab81f1f8ea5c2cef915dc1359e1bf0cea9ce729c343",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 848,
+        "scores": {
+          "A": 286,
+          "B": 955
+        }
+      }
+    },
+    {
+      "seed": 97,
+      "a": "spinner",
+      "b": "flanker",
+      "hash": "868e3bbc00006b9a15976795a96c31742c1976d497bb3d1a78ecf7be03a5df13",
+      "result": {
+        "winner": "B",
+        "reason": "timeout",
+        "tick": 3600,
+        "scores": {
+          "A": 718,
+          "B": 768
+        }
+      }
+    },
+    {
+      "seed": 98,
+      "a": "glass-cannon",
+      "b": "flanker",
+      "hash": "9b32dea965fe678b4cf42b3397e0347b5c1fc2514b2b4cc285ce68d33a1ef0cc",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 832,
+        "scores": {
+          "A": 350,
+          "B": 639
+        }
+      }
+    },
+    {
+      "seed": 99,
+      "a": "glass-cannon",
+      "b": "spinner",
+      "hash": "f106c84708585267fc1ee79c214ca2ac68e8f1e25b665efea7ce4befbf6755f9",
+      "result": {
+        "winner": "B",
+        "reason": "core",
+        "tick": 1696,
+        "scores": {
+          "A": 350,
+          "B": 672
+        }
+      }
+    }
+  ],
+  "digest": "e559abe1856d87227a23ff9bbf21505f777343049029538284f1072faf44767c"
+}
