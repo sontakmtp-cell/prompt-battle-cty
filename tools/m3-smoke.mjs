@@ -139,7 +139,7 @@ assert(discover.supportedVersions.includes("2026-07-28"), "MCP modern discovery 
 const toolList = await mcp("tools/list");
 assert(toolList.tools.length === 10 && toolList.tools.every(tool => tool.inputSchema), "MCP tools/list is incomplete");
 const openGame = toolList.tools.find(tool => tool.name === "open_game");
-assert(openGame?._meta?.ui?.resourceUri === "ui://promptchien/game/v4.html", "open_game does not reference the game UI resource");
+assert(openGame?._meta?.ui?.resourceUri === "ui://promptchien/game/v6.html", "open_game does not reference the game UI resource");
 const listedResources = await mcp("resources/list");
 const botSchemaResource = listedResources.resources.find(resource => resource.uri.endsWith("/schema/bot.json"));
 assert(botSchemaResource, "MCP did not list the BotDefinition schema resource");

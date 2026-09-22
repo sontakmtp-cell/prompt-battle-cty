@@ -717,7 +717,17 @@ function loop(now: number): void {
   requestAnimationFrame(loop);
 }
 
+function syncResponsivePanels(): void {
+  const media = window.matchMedia("(max-width: 1199px)");
+  const apply = (): void => {
+    for (const panel of document.querySelectorAll<HTMLDetailsElement>("[data-responsive-panel]")) panel.open = !media.matches;
+  };
+  apply();
+  media.addEventListener("change", apply);
+}
+
 function bind(): void {
+  syncResponsivePanels();
   $<HTMLInputElement>("#player").value = app.meta.playerName;
   $<HTMLInputElement>("#player").addEventListener("change", () => {
     const name = $<HTMLInputElement>("#player").value.trim() || "Bạn";
@@ -775,6 +785,15 @@ function bind(): void {
   $<HTMLInputElement>("#seek").addEventListener("input", () => { app.playing = false; app.alpha = 0; app.tick = Number($<HTMLInputElement>("#seek").value); drawFrame(); });
   $<HTMLSelectElement>("#playback-speed").addEventListener("change", () => { app.speed = Number($<HTMLSelectElement>("#playback-speed").value); });
   $<HTMLInputElement>("#damage").addEventListener("change", () => { app.showDamage = $<HTMLInputElement>("#damage").checked; drawFrame(); });
+  const replayHudToggle = $<HTMLButtonElement>("#replay-hud-toggle");
+  const replayHud = [...document.querySelectorAll<HTMLElement>("[data-replay-hud]")];
+  const setReplayHud = (visible: boolean): void => {
+    for (const panel of replayHud) panel.hidden = !visible;
+    replayHudToggle.setAttribute("aria-expanded", String(visible));
+    replayHudToggle.textContent = visible ? "Ẩn HUD" : "Hiện HUD";
+  };
+  replayHudToggle.addEventListener("click", () => setReplayHud(replayHud.some(panel => panel.hidden)));
+  setReplayHud(false);
   const jsonModal = $<HTMLElement>("#json-modal");
   const jsonArea = $<HTMLTextAreaElement>("#json-textarea");
   const jsonFileInput = $<HTMLInputElement>("#json-file-input");

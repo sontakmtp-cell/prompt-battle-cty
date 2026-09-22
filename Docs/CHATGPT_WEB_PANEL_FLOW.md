@@ -26,9 +26,9 @@ Panel xuất hiện trong chat như một iframe/widget
 
    ```json
    {
-     "ui": { "resourceUri": "ui://promptchien/game/v4.html" },
-     "ui/resourceUri": "ui://promptchien/game/v4.html",
-     "openai/outputTemplate": "ui://promptchien/game/v4.html"
+     "ui": { "resourceUri": "ui://promptchien/game/v6.html" },
+     "ui/resourceUri": "ui://promptchien/game/v6.html",
+     "openai/outputTemplate": "ui://promptchien/game/v6.html"
    }
    ```
 
@@ -38,7 +38,7 @@ Panel xuất hiện trong chat như một iframe/widget
 
 ## Áp dụng trong project này
 
-- `open_game` → `ui://promptchien/game/v4.html`.
+- `open_game` → `ui://promptchien/game/v6.html`.
 - Template tải trực tiếp frontend từ `https://api.kythuatvang.com/panel/`; không lồng thêm iframe bên trong iframe của ChatGPT.
 - `render_replay` → `ui://promptchien/replay-viewer/v1.html`.
 - Muốn mở panel: nói trong ChatGPT **“mở game”** hoặc gọi `render_replay` sau khi có `replayId`.

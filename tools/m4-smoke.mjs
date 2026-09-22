@@ -86,7 +86,7 @@ const tools = await mcp("tools/list");
 assert(tools.ttlMs === 0 && tools.cacheScope === "private", "modern tools/list cache hints are missing");
 const gameTool = tools.tools.find(tool => tool.name === "open_game");
 const renderTool = tools.tools.find(tool => tool.name === "render_replay");
-assert(gameTool?._meta?.ui?.resourceUri === "ui://promptchien/game/v4.html", "open_game does not reference the game UI resource");
+assert(gameTool?._meta?.ui?.resourceUri === "ui://promptchien/game/v6.html", "open_game does not reference the game UI resource");
 assert(renderTool?._meta?.ui?.resourceUri === "ui://promptchien/replay-viewer/v1.html", "render_replay does not reference the UI resource");
 const listed = await mcp("resources/list");
 assert(listed.ttlMs === 0 && listed.cacheScope === "private", "modern resources/list cache hints are missing");

@@ -589,7 +589,7 @@ async function dispatchMcp(body, env, request, user) {
   }
   if (method === "resources/read") {
     const uri = body.params?.uri;
-    if ([M4_GAME_RESOURCE, "ui://promptchien/game/v2.html", "ui://promptchien/game/v3.html"].includes(uri)) return {
+    if ([M4_GAME_RESOURCE, "ui://promptchien/game/v2.html", "ui://promptchien/game/v3.html", "ui://promptchien/game/v4.html", "ui://promptchien/game/v5.html"].includes(uri)) return {
       contents: [{ uri, mimeType: M4_REPLAY_MIME, text: M4_GAME_WIDGET_HTML, _meta: M4_GAME_RESOURCE_META }],
       ttlMs: 0,
       cacheScope: "private",

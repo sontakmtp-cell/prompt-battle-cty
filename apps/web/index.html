@@ -51,10 +51,10 @@
 <body class="h-screen w-screen flex flex-col font-sans antialiased bg-[#F4F6F9] text-slate-800 overflow-hidden select-none">
 
   <!-- TOP APP HEADER -->
-  <header class="h-14 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-6 flex items-center justify-between z-30 shrink-0 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+  <header class="app-header h-14 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-6 flex items-center justify-between z-30 shrink-0 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
     <!-- Brand & Navigation -->
-    <div class="flex items-center gap-6">
-      <div class="flex items-center gap-3">
+    <div class="app-header__brand-nav flex items-center gap-6">
+      <div class="app-header__brand flex items-center gap-3">
         <!-- Geometric Logo Icon -->
         <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-slate-900 to-slate-700 flex items-center justify-center shadow-sm">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="text-white">
@@ -67,12 +67,12 @@
             <span class="font-extrabold tracking-tight text-slate-900 text-sm font-sans">PROMPT CHIẾN</span>
             <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-semibold border border-slate-200/60">v1.4.2</span>
           </div>
-          <p class="text-[10.5px] text-slate-400 font-medium tracking-tight">Design with AI. Fight with code.</p>
+          <p class="app-header__tagline text-[10.5px] text-slate-400 font-medium tracking-tight">Design with AI. Fight with code.</p>
         </div>
       </div>
 
       <!-- Navigation Tabs -->
-      <nav class="flex items-center gap-1.5 ml-4 pl-4 border-l border-slate-200">
+      <nav class="app-header__nav flex items-center gap-1.5 ml-4 pl-4 border-l border-slate-200">
         <button type="button" data-page="editor" aria-current="page" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-all">
           <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
           Tạo bot
@@ -90,8 +90,8 @@
     </div>
 
     <!-- Match Environment Mode, MCP Status & Player -->
-    <div class="flex items-center gap-3.5">
-      <div class="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[11px] font-mono text-slate-500">
+    <div class="app-header__meta flex items-center gap-3.5">
+      <div class="app-header__seed hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[11px] font-mono text-slate-500">
         <span class="text-slate-400">SEED</span>
         <span class="font-semibold text-slate-700" id="header-seed-val">#AUTO</span>
         <span class="text-slate-300">|</span>
@@ -99,16 +99,16 @@
         <span class="font-semibold text-emerald-600">30 FPS</span>
       </div>
 
-      <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-2xs">
+      <div class="app-header__status flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-2xs" aria-label="MCP Sẵn sàng">
         <span class="relative flex h-2 w-2">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
         </span>
-        <span class="text-xs font-mono font-medium text-emerald-700">MCP Sẵn sàng</span>
+        <span class="app-header__status-label text-xs font-mono font-medium text-emerald-700">MCP Sẵn sàng</span>
       </div>
 
       <!-- Player Nickname input -->
-      <label class="flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 hover:border-slate-300 shadow-2xs transition">
+      <label class="app-header__player flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 hover:border-slate-300 shadow-2xs transition">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400 shrink-0">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />
@@ -119,12 +119,12 @@
   </header>
 
   <!-- MAIN APP CONTAINER -->
-  <main class="relative flex-1 w-full overflow-hidden flex flex-col justify-between">
+  <main class="app-main relative flex-1 w-full overflow-hidden flex flex-col justify-between">
 
     <!-- PAGE 1: BOT EDITOR -->
-    <section id="editor" class="relative flex-1 w-full h-full flex flex-col md:flex-row overflow-hidden">
+    <section id="editor" class="app-editor relative flex-1 w-full h-full flex flex-col md:flex-row overflow-hidden">
       <!-- Left Dock: Tool Palette, Budget, Bot Name & Actions -->
-      <aside class="w-full md:w-80 bg-white/95 backdrop-blur-md border-r border-slate-200/80 p-4 flex flex-col gap-3.5 shrink-0 overflow-y-auto custom-scroll shadow-sm z-20">
+      <aside class="app-editor__controls w-full md:w-80 bg-white/95 backdrop-blur-md border-r border-slate-200/80 p-4 flex flex-col gap-3.5 shrink-0 overflow-y-auto custom-scroll shadow-sm z-20">
         <div>
           <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-1 block">Tên bot</label>
           <input id="bot-name" maxlength="80" required placeholder="Đặt tên cho bot..." class="w-full px-3 py-2 text-sm font-semibold rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 transition-colors outline-none">
@@ -174,7 +174,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="grid grid-cols-2 gap-2">
+        <div class="editor-primary-actions grid grid-cols-2 gap-2">
           <button type="button" id="validate" class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition shadow-sm flex items-center justify-center gap-1.5">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             Kiểm tra
@@ -183,6 +183,11 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Chạy thử
           </button>
+        </div>
+
+          <details class="editor-more responsive-panel" data-responsive-panel>
+            <summary>Thêm tùy chọn</summary>
+            <div class="editor-more__content space-y-3">
           <button type="button" id="reset" class="py-1.5 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition border border-slate-200/80">
             Hình mẫu
           </button>
@@ -197,7 +202,7 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Xuất JSON
           </button>
-        </div>
+            </div>
 
         <!-- Opponent & Seed selection -->
         <div class="pt-2 border-t border-slate-100 space-y-2">
@@ -216,10 +221,12 @@
           <p id="validate-summary" role="status" class="text-xs font-semibold text-slate-700"></p>
           <ul id="issues" class="space-y-1 text-xs font-medium max-h-32 overflow-y-auto custom-scroll"></ul>
         </div>
+            </div>
+          </details>
       </aside>
 
       <!-- Center Arena: Canvas -->
-      <div class="flex-1 relative bg-slate-950 bg-grid-cyber flex items-center justify-center p-4 overflow-hidden">
+      <div class="app-editor__arena flex-1 relative bg-slate-950 bg-grid-cyber flex items-center justify-center p-4 overflow-hidden">
         <!-- Reticles -->
         <div class="absolute inset-4 rounded-2xl border border-slate-800/80 pointer-events-none shadow-[inset_0_0_100px_rgba(0,0,0,0.85)]">
           <div class="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-cyan-500/50"></div>
@@ -238,14 +245,15 @@
       </div>
 
       <!-- Right Dock: AI Strategy Engine -->
-      <aside class="w-full md:w-72 bg-white/95 backdrop-blur-md border-l border-slate-200/80 p-4 flex flex-col gap-3.5 shrink-0 overflow-y-auto custom-scroll shadow-sm z-20">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+      <aside class="app-editor__strategy w-full md:w-72 bg-white/95 backdrop-blur-md border-l border-slate-200/80 p-4 flex flex-col gap-3.5 shrink-0 overflow-y-auto custom-scroll shadow-sm z-20">
+        <details class="editor-strategy-panel responsive-panel" data-responsive-panel>
+          <summary class="flex items-center justify-between pb-2 border-b border-slate-100">
           <div class="flex items-center gap-2">
             <div class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
             <span class="font-mono text-xs uppercase font-bold text-slate-800 tracking-wider">Chiến thuật AI</span>
           </div>
           <span class="font-mono text-[9px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100 font-semibold">BRAIN v1.0</span>
-        </div>
+          </summary>
 
         <div class="space-y-3">
           <div>
@@ -295,11 +303,12 @@
         <div class="mt-auto pt-3 border-t border-slate-100 text-[10.5px] text-slate-400 leading-relaxed font-sans">
           Mẹo: Chọn công cụ và bấm ô trên lưới. Đặt duy nhất một lõi lên Búa, Kéo hoặc Bao. Nhấn Kiểm tra trước khi nộp hoặc chạy thử.
         </div>
+        </details>
       </aside>
     </section>
 
     <!-- PAGE 2: BOT INSPECTOR -->
-    <section id="inspector" hidden class="relative flex-1 w-full p-6 overflow-y-auto custom-scroll">
+    <section id="inspector" hidden class="app-page app-inspector relative flex-1 w-full p-6 overflow-y-auto custom-scroll">
       <div class="max-w-5xl mx-auto space-y-6">
         <div class="flex items-center justify-between pb-3 border-b border-slate-200">
           <div>
@@ -311,7 +320,7 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="app-inspector__grid grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Geometric Properties Card -->
           <article class="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
             <div class="flex items-center justify-between">
@@ -369,7 +378,7 @@
     </section>
 
     <!-- PAGE 3: QUEUE & MATCHMAKING -->
-    <section id="queue" hidden class="relative flex-1 w-full p-6 overflow-y-auto custom-scroll">
+    <section id="queue" hidden class="app-page app-queue relative flex-1 w-full p-6 overflow-y-auto custom-scroll">
       <div class="max-w-4xl mx-auto space-y-5">
         <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -404,9 +413,9 @@
     </section>
 
     <!-- PAGE 4: BATTLE ARENA & REPLAY VIEWER -->
-    <section id="replay" hidden class="relative flex-1 w-full h-full flex flex-col justify-between overflow-hidden">
+    <section id="replay" hidden class="app-replay relative flex-1 w-full h-full flex flex-col justify-between overflow-hidden">
       <!-- Background Arena Layer -->
-      <div class="absolute inset-0 bg-slate-950 bg-grid-cyber overflow-hidden pointer-events-none">
+      <div class="replay__background absolute inset-0 bg-slate-950 bg-grid-cyber overflow-hidden pointer-events-none">
         <!-- Reticles & Arena Markings -->
         <div class="absolute inset-4 rounded-2xl border border-slate-800/80 pointer-events-none shadow-[inset_0_0_120px_rgba(0,0,0,0.85)]">
           <div class="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-cyan-500/50"></div>
@@ -424,17 +433,21 @@
       </div>
 
       <!-- Center Canvas Layer -->
-      <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div class="replay__canvas-layer absolute inset-0 flex items-center justify-center p-4">
         <canvas id="replay-canvas" width="760" height="760" aria-label="Sân đấu. Đội A bên trái, đội B bên phải." class="max-w-full max-h-full object-contain rounded-xl border border-slate-800/80 shadow-2xl shadow-black/80"></canvas>
       </div>
 
+      <button type="button" id="replay-hud-toggle" aria-expanded="false" aria-controls="replay-hud replay-panels replay-footer" class="replay__hud-toggle absolute top-3 right-3 z-40 min-h-10 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white text-xs font-semibold border border-slate-700 shadow-lg transition">
+        Hiện HUD
+      </button>
+
       <!-- FLOATING TOP HUD (HEALTH / CORE STATUS / MATCH CLOCK) -->
-      <div class="relative z-20 w-full px-8 pt-4 flex justify-between items-start pointer-events-none shrink-0">
+      <div id="replay-hud" data-replay-hud hidden class="replay__hud relative z-20 w-full px-8 pt-4 flex justify-between items-start pointer-events-none shrink-0">
         <!-- LEFT HUD: BOT A -->
-        <div id="hud-a" class="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-[0_4px_20px_-4px_rgba(225,29,72,0.12)] w-80"></div>
+        <div id="hud-a" class="replay__hud-card replay__hud-a pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-[0_4px_20px_-4px_rgba(225,29,72,0.12)] w-80"></div>
 
         <!-- CENTER HUD: MATCH CLOCK & STATUS -->
-        <div class="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-6 py-2 shadow-sm flex flex-col items-center">
+        <div class="replay__clock pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-6 py-2 shadow-sm flex flex-col items-center">
           <div class="flex items-center gap-1.5 mb-0.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">MÔ PHỎNG TRẬN ĐẤU</span>
@@ -443,20 +456,22 @@
         </div>
 
         <!-- RIGHT HUD: BOT B -->
-        <div id="hud-b" class="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-[0_4px_20px_-4px_rgba(37,99,235,0.12)] w-80"></div>
+        <div id="hud-b" class="replay__hud-card replay__hud-b pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-[0_4px_20px_-4px_rgba(37,99,235,0.12)] w-80"></div>
       </div>
 
       <!-- FLOATING SIDE PANELS (LEFT INSPECTOR & RIGHT EVENTS) -->
-      <div class="relative z-20 w-full px-8 flex justify-between items-center pointer-events-none my-auto">
+      <div id="replay-panels" data-replay-hud hidden class="replay__panels relative z-20 w-full px-8 flex justify-between items-center pointer-events-none my-auto">
         <!-- LEFT FLOATING PANEL: BOT INSPECTOR -->
-        <aside class="pointer-events-auto w-72 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-4 shadow-lg shadow-slate-200/50 flex flex-col gap-3">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <details class="replay__panel replay__panel--inspector responsive-panel pointer-events-auto w-72 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-4 shadow-lg shadow-slate-200/50 flex flex-col gap-3" data-responsive-panel>
+          <summary class="replay__panel-summary flex items-center justify-between pb-2 border-b border-slate-100">
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full bg-rose-500"></div>
               <span class="font-bold text-xs uppercase tracking-wider text-slate-700">Bot Inspector</span>
             </div>
             <span class="font-mono text-[10px] text-slate-400">ĐỘI A</span>
-          </div>
+          </summary>
+
+          <div class="replay__panel-body flex flex-col gap-3">
 
           <!-- Composition Breakdown -->
           <div class="space-y-1.5 text-xs font-medium" id="replay-bot-breakdown">
@@ -502,17 +517,20 @@
               Sửa bot
             </button>
           </div>
-        </aside>
+          </div>
+        </details>
 
         <!-- RIGHT FLOATING PANEL: MATCH EVENTS & DAMAGE HEATMAP -->
-        <aside class="pointer-events-auto w-72 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-4 shadow-lg shadow-slate-200/50 flex flex-col gap-3">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <details class="replay__panel replay__panel--events responsive-panel pointer-events-auto w-72 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-4 shadow-lg shadow-slate-200/50 flex flex-col gap-3" data-responsive-panel>
+          <summary class="replay__panel-summary flex items-center justify-between pb-2 border-b border-slate-100">
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-blue-500"></span>
               <span class="font-bold text-xs uppercase tracking-wider text-slate-700">Sự kiện trận đấu</span>
             </div>
             <span class="font-mono text-[10px] text-slate-400">LIVE FEED</span>
-          </div>
+          </summary>
+
+          <div class="replay__panel-body flex flex-col gap-3">
 
           <!-- Event Stream Log -->
           <ul id="event-log" class="space-y-1.5 font-mono text-[11px] custom-scroll max-h-44 overflow-y-auto pr-1"></ul>
@@ -539,14 +557,15 @@
           <div class="text-[10px] text-slate-400 text-center font-mono">
             Quy luật: Búa → Kéo → Bao (×2.0)
           </div>
-        </aside>
+          </div>
+        </details>
       </div>
 
       <!-- BOTTOM REPLAY TIMELINE & SCRUBBER BAR -->
-      <footer class="relative z-30 w-full px-8 pb-4">
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 px-5 py-2.5 shadow-lg shadow-slate-200/40 flex items-center justify-between gap-4">
+      <footer id="replay-footer" data-replay-hud hidden class="replay__footer relative z-30 w-full px-8 pb-4">
+        <div class="replay__controls bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 px-5 py-2.5 shadow-lg shadow-slate-200/40 flex items-center justify-between gap-4">
           <!-- Play / Pause & Steps -->
-          <div class="flex items-center gap-2 shrink-0">
+          <div class="replay__playback flex items-center gap-2 shrink-0">
             <button type="button" id="play" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-center transition shadow-xs text-xs font-semibold">
               Phát
             </button>
@@ -559,7 +578,7 @@
           </div>
 
           <!-- Center Timeline Scrubber -->
-          <div class="flex-1 relative flex flex-col justify-center">
+          <div class="replay__timeline flex-1 relative flex flex-col justify-center">
             <div class="relative w-full h-6 flex items-center group">
               <input id="seek" type="range" min="0" value="0" aria-label="Thanh thời gian" class="w-full cursor-pointer">
             </div>
@@ -573,7 +592,7 @@
           </div>
 
           <!-- Speed Controls -->
-          <div class="flex items-center gap-1 shrink-0">
+          <div class="replay__speed flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-mono text-slate-400">Tốc độ:</label>
             <select id="playback-speed" class="px-2 py-1 text-xs font-mono font-bold rounded-lg bg-slate-100 border border-slate-200 outline-none">
               <option value="0.5">0.5×</option>
@@ -584,7 +603,7 @@
           </div>
 
           <!-- Mode Toggle: Damage Map -->
-          <div class="flex items-center gap-2 shrink-0 border-l border-slate-200 pl-3">
+          <div class="replay__damage flex items-center gap-2 shrink-0 border-l border-slate-200 pl-3">
             <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 cursor-pointer">
               <input id="damage" type="checkbox" class="w-3.5 h-3.5 rounded accent-rose-600">
               <span>Bản đồ nhiệt</span>
@@ -593,7 +612,7 @@
         </div>
 
         <!-- Saved Replays Drawer / List -->
-        <div class="mt-2 p-3 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/80 flex items-center gap-3 overflow-x-auto custom-scroll">
+        <div class="replay__saved mt-2 p-3 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/80 flex items-center gap-3 overflow-x-auto custom-scroll">
           <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold shrink-0">Trận đã lưu:</span>
           <div id="replay-list" class="flex items-center gap-2"></div>
         </div>
@@ -604,7 +623,7 @@
 
   <!-- JSON IMPORT / EXPORT MODAL -->
   <div id="json-modal" hidden style="display: none;" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full p-6 flex flex-col gap-4">
+    <div class="json-modal__card bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-2xl w-full p-6 flex flex-col gap-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <div>
           <h3 class="font-extrabold text-base text-slate-900">Nhập / Xuất mã Bot JSON</h3>
@@ -624,7 +643,7 @@
 
       <textarea id="json-textarea" rows="12" spellcheck="false" placeholder="Dán mã JSON của bot vào đây..." class="w-full p-3 font-mono text-xs rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 outline-none custom-scroll resize-y"></textarea>
 
-      <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+      <div class="json-modal__actions flex items-center justify-between pt-2 border-t border-slate-100">
         <button type="button" id="json-copy-btn" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition border border-slate-200 flex items-center gap-1.5">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Sao chép JSON

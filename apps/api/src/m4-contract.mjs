@@ -1,5 +1,5 @@
 export const M4_REPLAY_RESOURCE = "ui://promptchien/replay-viewer/v1.html";
-export const M4_GAME_RESOURCE = "ui://promptchien/game/v4.html";
+export const M4_GAME_RESOURCE = "ui://promptchien/game/v6.html";
 export const M4_REPLAY_MIME = "text/html;profile=mcp-app";
 
 export const M4_REPLAY_RESOURCE_META = {
