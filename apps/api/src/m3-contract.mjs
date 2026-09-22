@@ -1,7 +1,8 @@
 import { RULESET, VERSIONS } from "@prompt-chien/contracts";
 import { CONTRACT_SCHEMA } from "@prompt-chien/contracts/schema";
 import { validateBot } from "@prompt-chien/application";
-import { M4_REPLAY_RESOURCE } from "./m4-contract.mjs";
+import { M4_GAME_RESOURCE, M4_REPLAY_RESOURCE } from "./m4-contract.mjs";
+import exampleBot from "../../../examples/bot-basic.json" with { type: "json" };
 
 export const MCP_PROTOCOL_VERSION = "2026-07-28";
 
@@ -11,18 +12,32 @@ const idempotency = { idempotencyKey: { type: "string", minLength: 8, maxLength:
 
 export const TOOL_DEFINITIONS = [
   {
+    name: "open_game",
+    title: "Open PROMPT Chien",
+    description: "Use this when the user wants to open the PROMPT Chien bot editor, inspector, sandbox or queue inside chat.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    _meta: {
+      ui: { resourceUri: M4_GAME_RESOURCE },
+      "ui/resourceUri": M4_GAME_RESOURCE,
+      "openai/outputTemplate": M4_GAME_RESOURCE,
+      "openai/toolInvocation/invoking": "Đang mở PROMPT Chiến…",
+      "openai/toolInvocation/invoked": "PROMPT Chiến đã sẵn sàng.",
+    },
+  },
+  {
     name: "get_rules",
-    description: "Read the current ruleset, schemas and the safe agent workflow.",
+    description: "Read the current ruleset, complete BotDefinition schema, a valid example bot and the safe agent workflow.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
   {
     name: "create_bot",
-    description: "Create an authenticated bot draft. The server stores JSON only; Brain code is never executed.",
+    description: "Create an authenticated bot draft, which may be invalid while being edited. Read the returned inspection for field-level errors. The server stores JSON only; Brain code is never executed.",
     inputSchema: { type: "object", required: ["bot"], properties: { bot, ...idempotency }, additionalProperties: false },
   },
   {
     name: "get_bot",
-    description: "Read one of the authenticated user's bot drafts and saved validated versions.",
+    description: "Read one of the authenticated user's bot drafts, or a reference bot by ID (spear, shield, flanker, spinner, glass-cannon, chim-ung-tien-phong).",
     inputSchema: { type: "object", required: ["botId"], properties: { botId: id }, additionalProperties: false },
   },
   {
@@ -72,32 +87,50 @@ PROMPT Chiến is a deterministic geometric bot battle. The server is authoritat
 
 ## Safe workflow
 
-1. Call get_rules.
-2. Call create_bot with a complete BotDefinition.
-3. Call validate_bot; fix every error and keep the returned revision.
-4. Call simulate_bot with a non-negative integer seed.
-5. Call get_replay to inspect the result.
-6. Call render_replay with that replayId when the host supports MCP Apps.
-7. Call edit_bot with the returned revision, then validate and simulate again.
-8. Call submit_bot only after validation passes.
+1. Call open_game when the user wants the visual editor, inspector, sandbox or queue inside chat.
+2. Call get_rules.
+3. Call create_bot with a complete BotDefinition.
+4. Call validate_bot; fix every error and keep the returned revision.
+5. Call simulate_bot with a non-negative integer seed.
+6. Call get_replay to inspect the result.
+7. Call render_replay with that replayId when the host supports MCP Apps.
+8. Call edit_bot with the returned revision, then validate and simulate again.
+9. Call submit_bot only after validation passes.
 
 Brain is declarative JSON: each rule returns one movement and one rotation action. It cannot run JavaScript, call a network, read the opponent Brain, or control an official match. Official matches use only Bot Package + Brain + Battle Engine + Ruleset + Seed.
 
 Machine-readable resources: /rules, /schema/bot.json, /schema/replay.json. MCP endpoint: /mcp using OAuth 2.1 Authorization Code + S256 PKCE.
 `;
 
+function referencedDefinitions(value, names = new Set()) {
+  if (!value || typeof value !== "object") return names;
+  if (typeof value.$ref === "string" && value.$ref.startsWith("#/$defs/")) names.add(value.$ref.slice(8));
+  for (const child of Object.values(value)) referencedDefinitions(child, names);
+  return names;
+}
+
 export function schemaFor(name) {
   const definition = name === "bot" ? "BotDefinition" : "ReplayData";
-  return { ...CONTRACT_SCHEMA, $id: `https://promptchien.local/schema/1/${name}.json`, $ref: `#/$defs/${definition}` };
+  const definitions = {}, pending = [definition];
+  while (pending.length) {
+    const current = pending.shift();
+    if (definitions[current]) continue;
+    definitions[current] = CONTRACT_SCHEMA.$defs[current];
+    pending.push(...referencedDefinitions(definitions[current]));
+  }
+  return { $schema: CONTRACT_SCHEMA.$schema, $id: `https://promptchien.local/schema/1/${name}.json`, $defs: definitions, $ref: `#/$defs/${definition}` };
 }
 
 export function rulesDocument() {
   return {
     versions: VERSIONS,
     ruleset: RULESET,
-    workflow: ["create_bot", "validate_bot", "simulate_bot", "get_replay", "render_replay", "edit_bot", "validate_bot", "submit_bot"],
-    tools: TOOL_DEFINITIONS,
-    resources: ["/agent.md", "/rules", "/schema/bot.json", "/schema/replay.json", M4_REPLAY_RESOURCE],
+    workflow: ["open_game", "create_bot", "validate_bot", "simulate_bot", "get_replay", "render_replay", "edit_bot", "validate_bot", "submit_bot"],
+    toolNames: TOOL_DEFINITIONS.map(tool => tool.name),
+    resources: ["/agent.md", "/rules", "/schema/bot.json", "/schema/replay.json", M4_GAME_RESOURCE, M4_REPLAY_RESOURCE],
+    botSchema: schemaFor("bot"),
+    exampleBot,
+    referenceBotIds: ["spear", "shield", "flanker", "spinner", "glass-cannon", "chim-ung-tien-phong"],
   };
 }
 

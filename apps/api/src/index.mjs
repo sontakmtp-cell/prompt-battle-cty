@@ -17,8 +17,9 @@ import {
   schemaFor,
   validateDefinition,
 } from "./m3-contract.mjs";
-import { M4_REPLAY_MIME, M4_REPLAY_RESOURCE, M4_REPLAY_RESOURCE_META } from "./m4-contract.mjs";
+import { M4_GAME_RESOURCE, M4_GAME_RESOURCE_META, M4_REPLAY_MIME, M4_REPLAY_RESOURCE, M4_REPLAY_RESOURCE_META } from "./m4-contract.mjs";
 import { M4_WIDGET_HTML } from "./m4-widget.mjs";
+import { M4_GAME_WIDGET_HTML } from "./m4-game-widget.mjs";
 
 export { MatchQueue };
 
@@ -132,7 +133,7 @@ function allowedOrigins(env) {
 
 function isAllowedOrigin(request, env) {
   const origin = request.headers.get("origin");
-  return allowedOrigins(env).includes(origin) || (origin === "https://chatgpt.com" && new URL(request.url).pathname === "/mcp");
+  return origin === new URL(request.url).origin || allowedOrigins(env).includes(origin) || origin === "https://web-sandbox.oaiusercontent.com" || origin?.endsWith(".web-sandbox.oaiusercontent.com") || (origin === "https://chatgpt.com" && new URL(request.url).pathname === "/mcp");
 }
 
 function corsHeaders(request, env) {
@@ -327,6 +328,7 @@ async function editBot(env, user, botId, revision, bot) {
 }
 
 async function getBot(env, user, botId) {
+  if (REFERENCE_DEFINITIONS[botId]) return { botId, revision: 0, bot: clone(REFERENCE_DEFINITIONS[botId]), reference: true, versions: [] };
   const current = await ownedBot(env, user, botId);
   const versions = await all(env, "SELECT id, revision, package_hash, validation_json, created_at FROM bot_versions WHERE bot_id = ? AND user_id = ? ORDER BY revision DESC", botId, user.id);
   return {
@@ -374,6 +376,12 @@ async function saveReplay(env, ownerUserId, replay, official = false) {
     now(),
   );
   return { replayId, replay, result: replay.manifest.result, replayUrl: `/api/v1/replays/${replayId}` };
+}
+
+function simulationSummary(saved) {
+  if (!saved.result) return saved;
+  const { winner, reason, tick, scores } = saved.result;
+  return { replayId: saved.replayId, status: "completed", winner, reason, tick, scores, replayUrl: saved.replayUrl };
 }
 
 async function getReplay(env, user, replayId) {
@@ -473,8 +481,10 @@ async function callTool(name, args, env, request, user) {
   if (!TOOL_DEFINITIONS.some(tool => tool.name === name)) throw httpError(`Unknown tool: ${name}`, 404);
   const input = objectBody(args ?? {});
   switch (name) {
+    case "open_game":
+      return { webAppUrl: new URL("/panel/", request.url).toString() };
     case "get_rules":
-      return rulesDocument();
+      return { ...rulesDocument(), webAppUrl: allowedOrigins(env)[0] ?? null };
     case "create_bot":
       return withIdempotency(env, user, name, input, () => createBot(env, user, input.bot));
     case "get_bot":
@@ -484,14 +494,14 @@ async function callTool(name, args, env, request, user) {
     case "validate_bot":
       return validateOwnedBot(env, user, input.botId);
     case "simulate_bot": {
-      return withIdempotency(env, user, name, input, async () => {
+      return simulationSummary(await withIdempotency(env, user, name, input, async () => {
         const current = await ownedBot(env, user, input.botId);
         const opponent = input.opponentBotId
           ? (await ownedBot(env, user, input.opponentBotId)).bot
           : REFERENCE_DEFINITIONS[input.opponent ?? "spear"] ?? REFERENCE_DEFINITIONS.spear;
         const replay = await makeReplay(current.bot, opponent, input.seed ?? 1234);
-        return saveReplay(env, user.id, replay, false);
-      });
+        return simulationSummary(await saveReplay(env, user.id, replay, false));
+      }));
     }
     case "get_replay":
       return getReplay(env, user, input.replayId);
@@ -502,6 +512,10 @@ async function callTool(name, args, env, request, user) {
     default:
       throw httpError(`Unknown tool: ${name}`, 404);
   }
+}
+
+function canonicalToolName(name) {
+  return name.startsWith("play.") ? name.slice("play.".length) : name;
 }
 
 function rpcError(idValue, code, message) {
@@ -545,29 +559,67 @@ async function dispatchMcp(body, env, request, user) {
       _meta: { "io.modelcontextprotocol/serverInfo": { name: "prompt-chien", version: VERSIONS.mcpApi } },
     };
   }
-  if (method === "tools/list") return { tools: TOOL_DEFINITIONS };
+  if (method === "tools/list") return { tools: TOOL_DEFINITIONS, ttlMs: 0, cacheScope: "private" };
   if (method === "resources/list") {
+    const resource = (path, name, description, mimeType) => ({ uri: new URL(path, request.url).toString(), name, description, mimeType });
     return {
-      resources: [{
+      resources: [
+        resource("/agent.md", "PROMPT Chien agent guide", "Safe MCP workflow and onboarding guide.", "text/markdown"),
+        resource("/rules", "PROMPT Chien rules", "Ruleset, tools, BotDefinition schema and valid example bot.", "application/json"),
+        resource("/schema/bot.json", "BotDefinition schema", "Complete JSON Schema for bot definitions.", "application/schema+json"),
+        resource("/schema/replay.json", "Replay schema", "Complete JSON Schema for replay data.", "application/schema+json"),
+        {
+          uri: M4_GAME_RESOURCE,
+          name: "PROMPT Chien Game",
+          description: "Bot editor, inspector, sandbox and queue.",
+          mimeType: M4_REPLAY_MIME,
+          _meta: M4_GAME_RESOURCE_META,
+        },
+        {
         uri: M4_REPLAY_RESOURCE,
         name: "PROMPT Chiến Replay Viewer",
         description: "Interactive replay viewer with play, pause, seek and damage heatmap controls.",
         mimeType: M4_REPLAY_MIME,
         _meta: M4_REPLAY_RESOURCE_META,
-      }],
+        },
+      ],
+      ttlMs: 0,
+      cacheScope: "private",
     };
   }
   if (method === "resources/read") {
-    if (body.params?.uri !== M4_REPLAY_RESOURCE) throw httpError("MCP resource not found.", 404);
-    return {
+    const uri = body.params?.uri;
+    if ([M4_GAME_RESOURCE, "ui://promptchien/game/v2.html", "ui://promptchien/game/v3.html"].includes(uri)) return {
+      contents: [{ uri, mimeType: M4_REPLAY_MIME, text: M4_GAME_WIDGET_HTML, _meta: M4_GAME_RESOURCE_META }],
+      ttlMs: 0,
+      cacheScope: "private",
+    };
+    if (uri === M4_REPLAY_RESOURCE) return {
       contents: [{ uri: M4_REPLAY_RESOURCE, mimeType: M4_REPLAY_MIME, text: M4_WIDGET_HTML, _meta: M4_REPLAY_RESOURCE_META }],
+      ttlMs: 0,
+      cacheScope: "private",
+    };
+    let path;
+    try { path = new URL(uri).pathname; } catch { path = uri; }
+    const resources = {
+      "/agent.md": ["text/markdown", AGENT_MD],
+      "/rules": ["application/json", JSON.stringify(rulesDocument())],
+      "/schema/bot.json": ["application/schema+json", JSON.stringify(schemaFor("bot"))],
+      "/schema/replay.json": ["application/schema+json", JSON.stringify(schemaFor("replay"))],
+    };
+    if (!resources[path]) throw httpError("MCP resource not found.", 404);
+    return {
+      contents: [{ uri, mimeType: resources[path][0], text: resources[path][1] }],
+      ttlMs: 0,
+      cacheScope: "private",
     };
   }
   if (method === "tools/call") {
     if (typeof body.params?.name !== "string") throw httpError("tools/call requires params.name.", 400);
     try {
-      const value = await callTool(body.params.name, body.params.arguments ?? {}, env, request, user);
-      if (body.params.name === "render_replay") {
+      const name = canonicalToolName(body.params.name);
+      const value = await callTool(name, body.params.arguments ?? {}, env, request, user);
+      if (name === "render_replay") {
         const { viewer, ...summary } = value;
         const result = mcpToolResult(summary, { "promptchien/replay": viewer });
         result.content = [{ type: "text", text: `Replay ${summary.replayId} is ready. Fallback link: ${summary.replayUrl}` }];

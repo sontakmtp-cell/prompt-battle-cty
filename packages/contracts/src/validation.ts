@@ -11,7 +11,7 @@ function nativeValidator(): Ajv2020 {
   return ajv;
 }
 
-type ExternalValidator = (input: unknown) => boolean;
+type ExternalValidator = (input: unknown) => boolean | Issue[];
 type ValidatorGlobal = typeof globalThis & { __PROMPTCHIEN_CONTRACT_VALIDATORS__?: Map<string, ExternalValidator>; __PROMPTCHIEN_CONTRACT_VALIDATOR_FUNCTIONS__?: Record<string, ExternalValidator> };
 const externalValidators = ((globalThis as ValidatorGlobal).__PROMPTCHIEN_CONTRACT_VALIDATORS__ ??= new Map<string, ExternalValidator>());
 
@@ -45,9 +45,11 @@ export function checkSchema<K extends keyof ContractMap>(name: K, input: unknown
     }
   }
   const external = externalValidators.get(name) ?? (globalThis as ValidatorGlobal).__PROMPTCHIEN_CONTRACT_VALIDATOR_FUNCTIONS__?.[name];
-  if (external) return external(input)
-    ? { ok: true, value: input as ContractMap[K], issues: [] }
-    : { ok: false, issues: [{ code: "SCHEMA_INVALID", path: "", message: `Invalid ${String(name)} data.` }] };
+  if (external) {
+    const result = external(input);
+    if (result === true || (Array.isArray(result) && result.length === 0)) return { ok: true, value: input as ContractMap[K], issues: [] };
+    return { ok: false, issues: Array.isArray(result) ? result : [{ code: "SCHEMA_INVALID", path: "", message: `Invalid ${String(name)} data.` }] };
+  }
   const validate = nativeValidator().getSchema<ContractMap[K]>(`${CONTRACT_SCHEMA.$id}#/$defs/${name}`)!;
   if (validate(input)) return { ok: true, value: input as ContractMap[K], issues: [] };
   return { ok: false, issues: (validate.errors ?? []).slice(0, 20).map(error => ({

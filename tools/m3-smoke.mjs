@@ -45,7 +45,8 @@ assert(health.value.ok && health.value.mcpApi === "1.0.0", "healthz did not repo
 const agent = await fetch(`${base}/agent.md`).then(response => response.text());
 assert(agent.includes("validate_bot") && agent.includes("S256 PKCE"), "agent onboarding resource is incomplete");
 const rules = await request("/rules");
-assert(rules.value.tools.filter(tool => tool.name !== "render_replay").length === 8 && rules.value.tools.some(tool => tool.name === "render_replay") && rules.value.versions.mcpApi === "1.0.0", "rules resource does not expose the eight M3 tools plus the M4 viewer");
+assert(rules.value.toolNames.length === 10 && rules.value.toolNames.includes("open_game") && rules.value.toolNames.includes("render_replay") && rules.value.versions.mcpApi === "1.0.0", "rules resource does not expose the M3 tools and M4 apps");
+assert(!rules.value.tools && !rules.value.botSchema.$defs.ReplayData, "rules resource contains unrelated schema or duplicate tool definitions");
 const schema = await request("/schema/bot.json");
 assert(schema.value.$ref === "#/$defs/BotDefinition" && schema.value.$defs.BotDefinition, "bot schema is not self-contained");
 const references = await request("/api/references");
@@ -96,7 +97,7 @@ const batchResponse = await fetch(`${base}/mcp`, {
   ]),
 });
 const batch = await batchResponse.json();
-assert(batchResponse.ok && Array.isArray(batch) && batch.length === 2 && batch[1].result.tools.length === 9, "ChatGPT-style MCP batch discovery failed");
+assert(batchResponse.ok && Array.isArray(batch) && batch.length === 2 && batch[1].result.tools.length === 10, "ChatGPT-style MCP batch discovery failed");
 
 async function publicMcp(method, params = {}) {
   const response = await fetch(`${base}/mcp`, {
@@ -112,7 +113,7 @@ async function publicMcp(method, params = {}) {
 const publicDiscovery = await publicMcp("server/discover");
 assert(publicDiscovery.supportedVersions.includes("2026-07-28"), "public MCP discovery used the wrong protocol version");
 const publicTools = await publicMcp("tools/list");
-assert(publicTools.tools.length === 9 && publicTools.tools.every(tool => tool.inputSchema), "public MCP tools/list is incomplete");
+assert(publicTools.tools.length === 10 && publicTools.tools.every(tool => tool.inputSchema), "public MCP tools/list is incomplete");
 const unauthorizedCall = await fetch(`${base}/mcp`, {
   method: "POST",
   headers: { "content-type": "application/json", "MCP-Protocol-Version": "2026-07-28", "Mcp-Method": "tools/call", "Mcp-Name": "get_rules" },
@@ -136,7 +137,22 @@ async function mcp(method, params = {}) {
 const discover = await mcp("server/discover");
 assert(discover.supportedVersions.includes("2026-07-28"), "MCP modern discovery used the wrong protocol version");
 const toolList = await mcp("tools/list");
-assert(toolList.tools.length === 9 && toolList.tools.every(tool => tool.inputSchema), "MCP tools/list is incomplete");
+assert(toolList.tools.length === 10 && toolList.tools.every(tool => tool.inputSchema), "MCP tools/list is incomplete");
+const openGame = toolList.tools.find(tool => tool.name === "open_game");
+assert(openGame?._meta?.ui?.resourceUri === "ui://promptchien/game/v4.html", "open_game does not reference the game UI resource");
+const listedResources = await mcp("resources/list");
+const botSchemaResource = listedResources.resources.find(resource => resource.uri.endsWith("/schema/bot.json"));
+assert(botSchemaResource, "MCP did not list the BotDefinition schema resource");
+const readSchema = await mcp("resources/read", { uri: botSchemaResource.uri });
+assert(JSON.parse(readSchema.contents[0].text).$defs.BotDefinition, "MCP could not read the BotDefinition schema resource");
+const ruleResult = await mcp("tools/call", { name: "get_rules", arguments: {} });
+assert(ruleResult.structuredContent.botSchema.$defs.BotDefinition && ruleResult.structuredContent.exampleBot.schemaVersion, "get_rules is not self-contained");
+const namespacedRules = await mcp("tools/call", { name: "play.get_rules", arguments: {} });
+assert(namespacedRules.structuredContent.versions.mcpApi === "1.0.0", "plugin-namespaced tool calls are not accepted");
+const invalid = await mcp("tools/call", { name: "create_bot", arguments: { bot: {}, idempotencyKey: "m3-invalid-key" } });
+assert(invalid.structuredContent.inspection.issues.some(issue => issue.path === "/schemaVersion"), "invalid drafts need field-level validation errors");
+const reference = await mcp("tools/call", { name: "get_bot", arguments: { botId: "spear" } });
+assert(reference.structuredContent.reference && reference.structuredContent.bot.schemaVersion, "get_bot could not read a reference bot");
 const created = await mcp("tools/call", { name: "create_bot", arguments: { bot, idempotencyKey: "m3-create-key" } });
 const createdValue = created.structuredContent;
 assert(createdValue.botId && createdValue.revision === 1, "MCP create_bot failed");
@@ -144,6 +160,7 @@ const validated = await mcp("tools/call", { name: "validate_bot", arguments: { b
 assert(validated.structuredContent.report.valid, "MCP validate_bot failed");
 const simulated = await mcp("tools/call", { name: "simulate_bot", arguments: { botId: createdValue.botId, opponent: "shield", seed: 42, idempotencyKey: "m3-simulate-key" } });
 assert(simulated.structuredContent.replayId, "MCP simulate_bot did not save a replay");
+assert(simulated.structuredContent.winner && !simulated.structuredContent.replay && JSON.stringify(simulated).length < 2000, "MCP simulate_bot did not return a compact summary");
 const replay = await mcp("tools/call", { name: "get_replay", arguments: { replayId: simulated.structuredContent.replayId } });
 assert(replay.structuredContent.replay.manifest.dataHash, "MCP get_replay returned no deterministic hash");
 const edited = await mcp("tools/call", { name: "edit_bot", arguments: { botId: createdValue.botId, revision: createdValue.revision, bot: { ...bot, name: "M3 smoke edited" }, idempotencyKey: "m3-edit-key" } });

@@ -1,0 +1,55 @@
+Trong quá trình dùng MCP Play để tạo, test và submit bot, gặp 2 vấn đề thực tế sau:
+
+1. `get_rules` trả response quá lớn
+
+Khi gọi `get_rules`, output bị truncate.
+
+Response hiện chứa rất nhiều dữ liệu cùng lúc, gồm:
+
+* ruleset
+* tool definitions
+* bot schema
+* replay schema
+* example bot
+* các cấu trúc dữ liệu liên quan
+
+Kết quả thực tế:
+
+* output bị cắt bớt
+* khó đọc toàn bộ dữ liệu trả về trong một lần gọi
+
+2. `simulate_bot` trả toàn bộ replay quá lớn
+
+Khi gọi `simulate_bot`, response trả về toàn bộ replay, gồm:
+
+* manifest
+* package của hai bot
+* toàn bộ frames
+* checkpoints
+* events
+* result
+
+Trong một lần test 6 opponent, output của tool rất lớn và bị truncate.
+
+Trong khi để đánh giá nhanh trận đấu, phần cần dùng thực tế chỉ là:
+
+* `replayId`
+* `winner`
+* `reason`
+* `tick`
+* `scores`
+
+Do output quá lớn, sau đó phải gọi lại `simulate_bot` với cùng idempotency key và tự lấy riêng phần kết quả cần thiết.
+
+Các phần khác đã dùng trong workflow:
+`create_bot → edit_bot → validate_bot → submit_bot`
+
+không gặp lỗi trong lần kiểm tra này.
+
+3. Mở giao diện game không được
+{"path":"/Play/link_6ab26cb378d08191a0e781d224fba581/open_game","args":{}}
+{"webAppUrl":"https://prompt-battle-cty.vercel.app"}
+Lỗi khi tải ứng dụng
+Failed to fetch template
+
+4. Cần chỉnh sửa lại để tăng tốc quá trình mô phỏng, rút ngắn thời gian người chơi phải chờ đợi mô phỏng.

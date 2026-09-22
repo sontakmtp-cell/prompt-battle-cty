@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
 import worker from "./index.mjs";
+import { handlePage } from "../../../scripts/web-static.mjs";
 
 const root = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const databasePath = resolve(process.env.PROMPTCHIEN_DB_PATH ?? resolve(root, "data/promptchien.sqlite"));
@@ -115,6 +116,13 @@ async function toRequest(request, body) {
 
 const server = createServer(async (request, response) => {
   try {
+    const url = new URL(request.url ?? "/", `http://${request.headers.host ?? `127.0.0.1:${port}`}`);
+    if (request.method === "GET" && (url.pathname === "/panel" || url.pathname.startsWith("/panel/"))) {
+      if (handlePage(response, url, "/panel")) return;
+      response.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+      response.end("Not found");
+      return;
+    }
     const chunks = [];
     for await (const chunk of request) chunks.push(chunk);
     const result = await worker.fetch(await toRequest(request, Buffer.concat(chunks)), env);

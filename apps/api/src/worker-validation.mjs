@@ -4,49 +4,67 @@ function equal(left, right) {
   return left === right || JSON.stringify(left) === JSON.stringify(right);
 }
 
-function validate(schema, value, root) {
-  if (!schema || typeof schema !== "object") return true;
+const pointer = value => String(value).replace(/~/g, "~0").replace(/\//g, "~1");
+const issue = (path, message) => ({ code: "SCHEMA_INVALID", path, message });
+
+function validate(schema, value, root, path = "") {
+  if (!schema || typeof schema !== "object") return [];
   if (schema.$ref) {
     const name = String(schema.$ref).split("/").pop();
-    return validate(root.$defs[name], value, root);
+    return validate(root.$defs[name], value, root, path);
   }
-  if (schema.const !== undefined && !equal(value, schema.const)) return false;
-  if (schema.enum && !schema.enum.some(candidate => equal(value, candidate))) return false;
-  if (schema.type === "object") {
-    if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-    if (schema.required?.some(key => !Object.prototype.hasOwnProperty.call(value, key))) return false;
-    if (schema.additionalProperties === false && Object.keys(value).some(key => !schema.properties?.[key])) return false;
+  if (schema.const !== undefined && !equal(value, schema.const)) return [issue(path, `must equal ${JSON.stringify(schema.const)}`)];
+  if (schema.enum && !schema.enum.some(candidate => equal(value, candidate))) return [issue(path, `must be one of: ${schema.enum.join(", ")}`)];
+  if (schema.type === "object" || schema.properties || schema.required || schema.additionalProperties === false) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return [issue(path, "must be an object")];
+    const issues = [];
+    for (const key of schema.required ?? []) if (!Object.prototype.hasOwnProperty.call(value, key)) issues.push(issue(`${path}/${pointer(key)}`, "is required"));
+    if (schema.additionalProperties === false) for (const key of Object.keys(value)) if (!schema.properties?.[key]) issues.push(issue(`${path}/${pointer(key)}`, "is not allowed"));
     for (const [key, child] of Object.entries(schema.properties ?? {})) {
-      if (Object.prototype.hasOwnProperty.call(value, key) && !validate(child, value[key], root)) return false;
+      if (Object.prototype.hasOwnProperty.call(value, key)) issues.push(...validate(child, value[key], root, `${path}/${pointer(key)}`));
     }
-    if (schema.minProperties !== undefined && Object.keys(value).length < schema.minProperties) return false;
-    if (schema.maxProperties !== undefined && Object.keys(value).length > schema.maxProperties) return false;
+    if (schema.minProperties !== undefined && Object.keys(value).length < schema.minProperties) issues.push(issue(path, `must have at least ${schema.minProperties} properties`));
+    if (schema.maxProperties !== undefined && Object.keys(value).length > schema.maxProperties) issues.push(issue(path, `must have at most ${schema.maxProperties} properties`));
+    if (issues.length) return issues.slice(0, 20);
   }
   if (schema.type === "array") {
-    if (!Array.isArray(value)) return false;
-    if (schema.minItems !== undefined && value.length < schema.minItems) return false;
-    if (schema.maxItems !== undefined && value.length > schema.maxItems) return false;
-    if (schema.uniqueItems && new Set(value.map(item => JSON.stringify(item))).size !== value.length) return false;
-    if (schema.items && value.some(item => !validate(schema.items, item, root))) return false;
+    if (!Array.isArray(value)) return [issue(path, "must be an array")];
+    const issues = [];
+    if (schema.minItems !== undefined && value.length < schema.minItems) issues.push(issue(path, `must contain at least ${schema.minItems} items`));
+    if (schema.maxItems !== undefined && value.length > schema.maxItems) issues.push(issue(path, `must contain at most ${schema.maxItems} items`));
+    if (schema.uniqueItems && new Set(value.map(item => JSON.stringify(item))).size !== value.length) issues.push(issue(path, "must contain unique items"));
+    if (schema.items) value.forEach((item, index) => issues.push(...validate(schema.items, item, root, `${path}/${index}`)));
     if (schema.contains) {
-      const count = value.filter(item => validate(schema.contains, item, root)).length;
-      if (schema.minContains !== undefined && count < schema.minContains) return false;
-      if (schema.maxContains !== undefined && count > schema.maxContains) return false;
+      const count = value.filter(item => validate(schema.contains, item, root).length === 0).length;
+      if (schema.minContains !== undefined && count < schema.minContains) issues.push(issue(path, `must contain at least ${schema.minContains} matching items`));
+      if (schema.maxContains !== undefined && count > schema.maxContains) issues.push(issue(path, `must contain at most ${schema.maxContains} matching items`));
     }
+    if (issues.length) return issues.slice(0, 20);
   }
   if (schema.type === "string") {
-    if (typeof value !== "string") return false;
-    if (schema.minLength !== undefined && [...value].length < schema.minLength) return false;
-    if (schema.maxLength !== undefined && [...value].length > schema.maxLength) return false;
-    if (schema.pattern && !(new RegExp(schema.pattern).test(value))) return false;
+    if (typeof value !== "string") return [issue(path, "must be a string")];
+    if (schema.minLength !== undefined && [...value].length < schema.minLength) return [issue(path, `must have at least ${schema.minLength} characters`)];
+    if (schema.maxLength !== undefined && [...value].length > schema.maxLength) return [issue(path, `must have at most ${schema.maxLength} characters`)];
+    if (schema.pattern && !(new RegExp(schema.pattern).test(value))) return [issue(path, `must match pattern ${schema.pattern}`)];
   }
-  if (schema.type === "integer" && (!Number.isSafeInteger(value) || (schema.minimum !== undefined && value < schema.minimum) || (schema.maximum !== undefined && value > schema.maximum))) return false;
-  if (schema.type === "number" && (typeof value !== "number" || !Number.isFinite(value))) return false;
-  if (schema.type === "boolean" && typeof value !== "boolean") return false;
-  if (schema.oneOf && schema.oneOf.filter(candidate => validate(candidate, value, root)).length !== 1) return false;
-  if (schema.anyOf && !schema.anyOf.some(candidate => validate(candidate, value, root))) return false;
-  if (schema.if && validate(schema.if, value, root) && schema.then && !validate(schema.then, value, root)) return false;
-  return true;
+  if (schema.type === "integer" && !Number.isSafeInteger(value)) return [issue(path, "must be an integer")];
+  if (schema.type === "integer" && schema.minimum !== undefined && value < schema.minimum) return [issue(path, `must be at least ${schema.minimum}`)];
+  if (schema.type === "integer" && schema.maximum !== undefined && value > schema.maximum) return [issue(path, `must be at most ${schema.maximum}`)];
+  if (schema.type === "number" && (typeof value !== "number" || !Number.isFinite(value))) return [issue(path, "must be a finite number")];
+  if (schema.type === "boolean" && typeof value !== "boolean") return [issue(path, "must be a boolean")];
+  if (schema.type === "null" && value !== null) return [issue(path, "must be null")];
+  if (schema.oneOf) {
+    const candidates = schema.oneOf.map(candidate => validate(candidate, value, root, path));
+    const matches = candidates.filter(errors => errors.length === 0).length;
+    if (matches > 1) return [issue(path, "must match exactly one allowed shape")];
+    if (matches === 0) return candidates.reduce((best, errors) => errors.length < best.length ? errors : best).slice(0, 20);
+  }
+  if (schema.anyOf) {
+    const candidates = schema.anyOf.map(candidate => validate(candidate, value, root, path));
+    if (!candidates.some(errors => errors.length === 0)) return candidates.reduce((best, errors) => errors.length < best.length ? errors : best).slice(0, 20);
+  }
+  if (schema.if && validate(schema.if, value, root, path).length === 0 && schema.then) return validate(schema.then, value, root, path);
+  return [];
 }
 
 export const workerValidators = {

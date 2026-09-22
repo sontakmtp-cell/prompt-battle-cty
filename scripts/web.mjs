@@ -1,33 +1,12 @@
 import { createServer } from "node:http";
-import { existsSync, readFileSync, statSync } from "node:fs";
-import { extname, join, resolve, sep } from "node:path";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { inspectDefinition } from "@prompt-chien/application";
 import { analyzeGeometry } from "@prompt-chien/core/geometry";
 import { packBot } from "@prompt-chien/core/engine";
 import { referenceBots } from "./reference-bots.mjs";
 import { runIsolated } from "./run-isolated.mjs";
-
-const root = fileURLToPath(new URL("..", import.meta.url));
-const webRoot = join(root, "apps", "web");
-const files = {
-  "/app/": join(webRoot, "dist"),
-  "/pkg/ui/": join(root, "packages", "ui", "dist"),
-  "/pkg/contracts/": join(root, "packages", "contracts", "dist"),
-  "/pkg/application/": join(root, "packages", "application", "dist"),
-};
-const types = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8" };
-
-function inside(directory, target) {
-  const base = resolve(directory);
-  const full = resolve(target);
-  return full === base || full.startsWith(base + sep);
-}
-
-function send(res, status, body, type = "application/json; charset=utf-8") {
-  res.writeHead(status, { "content-type": type, "cache-control": "no-store" });
-  res.end(body);
-}
+import { handlePage, send } from "./web-static.mjs";
 
 function readBody(req) {
   return new Promise((resolveBody, reject) => {
@@ -97,32 +76,6 @@ async function handleApi(req, res, url) {
   } catch (error) {
     send(res, 400, JSON.stringify({ error: error instanceof Error ? error.message : "Yêu cầu không chạy được." }));
   }
-}
-
-function handlePage(res, url) {
-  if (url.pathname === "/" || url.pathname === "/index.html") {
-    send(res, 200, readFileSync(join(webRoot, "index.html")), types[".html"]);
-    return true;
-  }
-  if (url.pathname === "/lab.css") {
-    send(res, 200, readFileSync(join(webRoot, "lab.css")), types[".css"]);
-    return true;
-  }
-  if (url.pathname === "/runtime-config.js") {
-    send(res, 200, readFileSync(join(webRoot, "runtime-config.js")), types[".js"]);
-    return true;
-  }
-  const route = Object.entries(files).find(([prefix]) => url.pathname.startsWith(prefix));
-  if (!route) return false;
-  const [prefix, directory] = route;
-  const relative = decodeURIComponent(url.pathname.slice(prefix.length));
-  if (relative.includes("\0") || relative.split("/").includes("..")) return false;
-  if (prefix === "/pkg/application/" && relative !== "lab.js") return false;
-  const type = types[extname(relative)];
-  const target = join(directory, relative);
-  if (!type || !inside(directory, target) || !existsSync(target) || !statSync(target).isFile()) return false;
-  send(res, 200, readFileSync(target), type);
-  return true;
 }
 
 export function startLab(port = 4174) {

@@ -4,9 +4,9 @@ Cloudflare Worker backend for the M3 demo:
 
 - D1 stores accounts, sessions, bot revisions, validated packages, submissions and replays.
 - `MatchQueue` is a SQLite-backed Durable Object. It pairs the oldest submissions from different accounts.
-- `/mcp` exposes the eight M3 tools plus the M4 `render_replay` MCP App tool over stateless Streamable HTTP with OAuth 2.1 Authorization Code + S256 PKCE.
+- `/mcp` exposes the M3 workflow plus the M4 `open_game` and `render_replay` MCP App tools over stateless Streamable HTTP with OAuth 2.1 Authorization Code + S256 PKCE.
 - `/agent.md`, `/rules`, `/schema/bot.json` and `/schema/replay.json` are machine-readable onboarding resources.
-- `ui://promptchien/replay-viewer/v1.html` is the M4 MCP Apps resource. It reuses the shared `packages/ui` viewer and has a signed standalone `/replays/{replay_id}` fallback.
+- `ui://promptchien/game/v4.html` loads the VPS-hosted editor, inspector, sandbox and queue directly inside chat. `ui://promptchien/replay-viewer/v1.html` reuses the shared `packages/ui` viewer and has a signed standalone `/replays/{replay_id}` fallback.
 
 ## Local Worker
 
