@@ -136,6 +136,19 @@ function isAllowedOrigin(request, env) {
   return origin === new URL(request.url).origin || allowedOrigins(env).includes(origin) || origin === "https://web-sandbox.oaiusercontent.com" || origin?.endsWith(".web-sandbox.oaiusercontent.com") || (origin === "https://chatgpt.com" && new URL(request.url).pathname === "/mcp");
 }
 
+function allowsPublicDiscovery(request) {
+  const origin = request.headers.get("origin");
+  return origin === "https://chatgpt.com"
+    || origin === "https://web-sandbox.oaiusercontent.com"
+    || Boolean(origin?.endsWith(".web-sandbox.oaiusercontent.com"));
+}
+
+function oauthChallenge(request) {
+  return {
+    "www-authenticate": `Bearer realm="promptchien", resource_metadata="${originOf(request)}/.well-known/oauth-protected-resource"`,
+  };
+}
+
 function corsHeaders(request, env) {
   const origin = request.headers.get("origin");
   const headers = { "cache-control": "no-store", vary: "Origin" };
@@ -637,8 +650,11 @@ async function dispatchMcp(body, env, request, user) {
 }
 
 async function handleMcp(request, env) {
-  checkOrigin(request, env);
-  if (request.method === "GET") return text(request, env, "MCP Streamable HTTP is stateless; send POST JSON-RPC requests.", "text/plain; charset=utf-8", 405, { allow: "POST" });
+  if (request.method === "GET") {
+    if (!bearer(request) && !allowsPublicDiscovery(request)) return json(request, env, { error: "Authentication required." }, 401, oauthChallenge(request));
+    checkOrigin(request, env);
+    return text(request, env, "MCP Streamable HTTP is stateless; send POST JSON-RPC requests.", "text/plain; charset=utf-8", 405, { allow: "POST" });
+  }
   if (request.method !== "POST") return text(request, env, "Method not allowed.", "text/plain; charset=utf-8", 405, { allow: "POST" });
   const raw = await bodyText(request);
   if (!raw.trim()) {
@@ -655,7 +671,9 @@ async function handleMcp(request, env) {
   if (!bodies.length || bodies.some(body => !body || typeof body !== "object" || Array.isArray(body) || body.jsonrpc !== "2.0" || typeof body.method !== "string")) {
     return json(request, env, rpcError(null, -32600, "Invalid JSON-RPC request."), 400);
   }
+  if (!bearer(request) && !allowsPublicDiscovery(request)) return json(request, env, { error: "Authentication required." }, 401, oauthChallenge(request));
   for (const body of bodies) validateMcpHeaders(request, body);
+  checkOrigin(request, env);
   // ChatGPT Developer Mode discovers the app before it has an OAuth bearer token.
   // Keep discovery and static widget resources public; every tool call remains authenticated.
   const publicMethods = new Set(["initialize", "notifications/initialized", "server/discover", "tools/list", "resources/list", "resources/read"]);
@@ -722,6 +740,7 @@ function oauthMetadata(request) {
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code"],
     code_challenge_methods_supported: ["S256"],
+    token_endpoint_auth_methods_supported: ["none"],
     scopes_supported: ["promptchien"],
   };
 }
@@ -740,10 +759,14 @@ function validRedirectUri(value) {
 async function oauthRegister(env, request) {
   const body = objectBody(await bodyJson(request));
   const redirectUris = body.redirect_uris;
-  if (!Array.isArray(redirectUris) || !redirectUris.length || redirectUris.some(uri => typeof uri !== "string" || !validRedirectUri(uri))) throw httpError("redirect_uris must use HTTPS or a loopback HTTP address.", 400);
+  console.info("[oauth/register]", { client_name: String(body.client_name ?? "MCP client").slice(0, 120), redirect_uris: redirectUris });
+  if (!Array.isArray(redirectUris) || !redirectUris.length) throw httpError("redirect_uris must use HTTPS or a loopback HTTP address.", 400);
+  const acceptedRedirectUris = redirectUris.filter(uri => typeof uri === "string" && validRedirectUri(uri));
+  if (!acceptedRedirectUris.length) throw httpError("redirect_uris must use HTTPS or a loopback HTTP address.", 400);
   const clientId = id("client");
-  await run(env, "INSERT INTO oauth_clients (client_id, client_name, redirect_uris_json, created_at) VALUES (?, ?, ?, ?)", clientId, String(body.client_name ?? "MCP client").slice(0, 120), JSON.stringify(redirectUris), now());
-  return json(request, env, { client_id: clientId, client_name: body.client_name ?? "MCP client", redirect_uris: redirectUris, grant_types: ["authorization_code"], response_types: ["code"] }, 201);
+  const clientName = String(body.client_name ?? "MCP client").slice(0, 120);
+  await run(env, "INSERT INTO oauth_clients (client_id, client_name, redirect_uris_json, created_at) VALUES (?, ?, ?, ?)", clientId, clientName, JSON.stringify(acceptedRedirectUris), now());
+  return json(request, env, { client_id: clientId, client_name: clientName, redirect_uris: acceptedRedirectUris, grant_types: ["authorization_code"], response_types: ["code"] }, 201);
 }
 
 async function checkOAuthClient(env, clientId, redirectUri) {
@@ -771,7 +794,7 @@ async function oauthAuthorize(env, request) {
   await checkOAuthClient(env, clientId, redirectUri);
   if (request.method === "GET") {
     const hidden = ["client_id", "redirect_uri", "response_type", "scope", "state", "code_challenge", "code_challenge_method"].map(key => `<input type="hidden" name="${key}" value="${escapeHtml(params.get(key) ?? "")}">`).join("");
-    return text(request, env, `<main style="font:16px system-ui;max-width:420px;margin:8vh auto"><h1>PROMPT Chiến</h1><p>Sign in to authorize this MCP client.</p><form method="post">${hidden}<label>Email<br><input name="email" type="email" required></label><br><label>Password<br><input name="password" type="password" required></label><br><button>Authorize</button></form></main>`, "text/html; charset=utf-8");
+    return text(request, env, `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PROMPT Chiến</title></head><body><main style="font:16px system-ui;max-width:420px;margin:8vh auto"><h1>PROMPT Chiến</h1><p>Sign in to authorize this MCP client.</p><form method="post">${hidden}<label>Email<br><input name="email" type="email" required></label><br><label>Password<br><input name="password" type="password" required></label><br><button>Authorize</button></form></main></body></html>`, "text/html; charset=utf-8");
   }
   const email = String(params.get("email") ?? "").trim().toLowerCase();
   const password = String(params.get("password") ?? "");
@@ -907,9 +930,9 @@ export default {
       if (url.pathname === "/healthz" && request.method === "GET") return json(request, env, { ok: true, service: "promptchien-api", mcpApi: VERSIONS.mcpApi });
       if (url.pathname === "/.well-known/oauth-authorization-server" && request.method === "GET") return json(request, env, oauthMetadata(request));
       if (["/.well-known/oauth-protected-resource", "/.well-known/oauth-protected-resource/mcp", "/mcp/.well-known/oauth-protected-resource"].includes(url.pathname) && request.method === "GET") return json(request, env, { resource: `${originOf(request)}/mcp`, authorization_servers: [originOf(request)], scopes_supported: ["promptchien"], bearer_methods_supported: ["header"] });
-      if (url.pathname === "/oauth/register" && request.method === "POST") return oauthRegister(env, request);
-      if (url.pathname === "/oauth/authorize" && (request.method === "GET" || request.method === "POST")) return oauthAuthorize(env, request);
-      if (url.pathname === "/oauth/token" && request.method === "POST") return oauthToken(env, request);
+      if (url.pathname === "/oauth/register" && request.method === "POST") return await oauthRegister(env, request);
+      if (url.pathname === "/oauth/authorize" && (request.method === "GET" || request.method === "POST")) return await oauthAuthorize(env, request);
+      if (url.pathname === "/oauth/token" && request.method === "POST") return await oauthToken(env, request);
       if (url.pathname === "/mcp") return await handleMcp(request, env);
       if (url.pathname === "/agent.md" && request.method === "GET") return text(request, env, AGENT_MD, "text/markdown; charset=utf-8", 200, resourceHeaders());
       if (url.pathname === "/rules" && request.method === "GET") return json(request, env, rulesDocument());
@@ -922,7 +945,7 @@ export default {
     } catch (error) {
       const status = Number(error?.status) || (error instanceof Error && error.message.includes("too large") ? 413 : 500);
       const payload = error?.data ? { error: error.message, ...error.data } : { error: error instanceof Error ? error.message : String(error) };
-      const headers = status === 401 ? { "www-authenticate": `Bearer realm="promptchien", resource_metadata="${new URL(request.url).origin}/.well-known/oauth-protected-resource"` } : {};
+      const headers = status === 401 ? oauthChallenge(request) : {};
       return json(request, env, payload, status, headers);
     }
   },

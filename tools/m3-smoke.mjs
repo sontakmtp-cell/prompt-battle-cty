@@ -89,7 +89,7 @@ assert(token.value.token_type === "Bearer" && token.value.access_token, "OAuth t
 
 const batchResponse = await fetch(`${base}/mcp`, {
   method: "POST",
-  headers: { "content-type": "application/json", "MCP-Protocol-Version": "2025-06-18" },
+  headers: { "content-type": "application/json", origin: "https://chatgpt.com", "MCP-Protocol-Version": "2025-06-18" },
   body: JSON.stringify([
     { jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "openai-mcp", version: "1" } } },
     { jsonrpc: "2.0", method: "notifications/initialized", params: {} },
@@ -98,6 +98,13 @@ const batchResponse = await fetch(`${base}/mcp`, {
 });
 const batch = await batchResponse.json();
 assert(batchResponse.ok && Array.isArray(batch) && batch.length === 2 && batch[1].result.tools.length === 10, "ChatGPT-style MCP batch discovery failed");
+
+const unauthorizedInitialize = await fetch(`${base}/mcp`, {
+  method: "POST",
+  headers: { "content-type": "application/json", "MCP-Protocol-Version": "2025-06-18" },
+  body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "grok-mcp", version: "1" } } }),
+});
+assert(unauthorizedInitialize.status === 401 && unauthorizedInitialize.headers.get("www-authenticate")?.includes("oauth-protected-resource"), "MCP discovery without a ChatGPT origin must require OAuth");
 
 async function publicMcp(method, params = {}) {
   const response = await fetch(`${base}/mcp`, {
