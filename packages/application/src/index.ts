@@ -60,3 +60,9 @@ export async function validateBot(input: unknown): Promise<{ report: ValidationR
   // Hash is bound to the exact definition above; callers still enforce ownership/revision at submit time.
   return { report, package: report.valid ? pkg : null, trials };
 }
+
+export {
+  emptyStore, writeDraft, recordVersion, submitOwn, enqueueOpponent, takePair,
+  finishPair, releasePair, reclaimRunning, renameOwner, ownerBusy, matchSeed,
+} from "./lab.js";
+export type { LabStore, DraftRecord, VersionRecord, QueueRecord, QueueStatus, LabFail } from "./lab.js";

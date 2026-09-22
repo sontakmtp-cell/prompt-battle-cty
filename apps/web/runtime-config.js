@@ -1,0 +1,1 @@
+window.PROMPTCHIEN_API_BASE = "";

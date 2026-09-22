@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./lab": { "types": "./dist/lab.d.ts", "default": "./dist/lab.js" }
+  },
   "dependencies": {
     "@prompt-chien/contracts": "workspace:*",
     "@prompt-chien/core": "workspace:*"

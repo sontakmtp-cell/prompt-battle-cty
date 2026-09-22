@@ -632,3 +632,33 @@ Rà soát đợt 2 (xem `ra_soat_can_bang.md`) sửa 4 lỗ hổng có đụng t
 - [ ] Bậc Tối thiểu vẫn chơi và hiểu được trận
 - [ ] Không có `shadowBlur` hay `ctx.filter` trong mã nguồn
 - [ ] Số lệnh tô mỗi khung hình không phụ thuộc số tam giác (đã gộp theo kiểu)
+
+---
+
+## 11. Nâng cấp Sân đấu Dark Cyber & Low-Contrast Grid (Áp dụng từ M2)
+
+Ở mốc M2, để tiệm cận phong cách **Alexandria Editorial / Autonomous Geometric Combat**, sân đấu đã được nâng cấp từ nền trắng sang **Sân đấu Dark Cyber**:
+
+### 11.1. Bảng màu & Môi trường đấu trường
+- **Màu nền chủ đạo:** Tông đen thạch anh `#0B0F17` (Deep Obsidian / Slate-950) thay cho nền trắng `#FFFFFF`. Nền tối triệt tiêu ánh sáng chói, tôn bật các gam màu chiến đấu nóng/lạnh của hai đội bot.
+- **Lưới vi mô `.bg-grid-cyber`:**
+  - Ma trận điểm Cyan: `radial-gradient(rgba(56, 189, 248, 0.15) 1px, transparent 1px)`.
+  - Vạch kẻ tọa độ tương phản thấp (low-contrast): `linear-gradient` ngang/dọc `rgba(56, 189, 248, 0.04) 1px`.
+  - Bước lưới 32px tạo cảm giác hệ thống hiển thị quân sự viễn tưởng.
+- **Khung định vị Laser Reticles:**
+  - 4 góc laser ngắm màu cyan `#06B6D4/50`.
+  - Kinh tuyến `Grid Meridian X-00` với vòng tròn tâm ngắm và đèn nhịp xung phát quang `bg-cyan-400/50 animate-pulse`.
+  - Hiệu ứng bóng mờ nội vi `shadow-[inset_0_0_120px_rgba(0,0,0,0.85)]` tạo chiều sâu không gian.
+
+### 11.2. Trực quan hóa trên Canvas (`packages/ui/src/render.ts`)
+- **Nền canvas `#0B0F17`:** Vẽ đồng nhất giữa nền sàn và canvas trận đấu.
+- **Lưới vi phân 10×10 khu vực đấu:** Vẽ trực tiếp trong không gian tọa độ thế giới (bước 4000 đơn vị) với nét mờ `rgba(56, 189, 248, 0.06)`, kèm tâm ngắm chữ thập trung tâm `rgba(56, 189, 248, 0.16)`.
+- **Vòng bo an toàn:** Sử dụng sắc neon rose `#F43F5E` với nét đứt `[180, 140]`, cảnh báo rõ ràng khi co hẹp.
+- **Khối đa giác nổi 3D:** Mỗi tam giác bot được mở rộng 70 đơn vị và tô bóng chân `#020617`, giúp thân bot tách bạch rõ rệt khỏi lưới nền tối.
+- **Vành chỉ số máu lõi (Badge arcs):** Phát sáng neon đỏ Crimson `#F43F5E` (Đội A) và xanh Sky Blue `#38BDF8` (Đội B).
+
+### 11.3. Lưới Editor Bot (`apps/web/src/main.ts`)
+- **Lưới tam giác isometric:** Sử dụng nét mảnh cyan mờ `rgba(56, 189, 248, 0.12)` tương phản thấp, cực kỳ êm mắt khi chỉnh sửa bot trong thời gian dài.
+- **Viền sáng sắc nét:** Búa (`#FDA4AF`), Kéo (`#FDBA74`), Bao (`#FDE047`), Motor (`#CBD5E1`).
+- **Lõi hạt nhân:** Viền vàng hoàng kim `#F59E0B` và nhân hạt tâm phát sáng `#FBBF24`.
+

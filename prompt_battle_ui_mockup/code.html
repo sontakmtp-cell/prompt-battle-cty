@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440, initial-scale=1.0">
+  <title>PROMPT CHIẾN — Autonomous Geometric Combat</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans / JetBrains Mono / Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            arena: '#FAFBFD',
+            crimson: {
+              DEFAULT: '#E11D48',
+              50: '#FFF1F2',
+              100: '#FFE4E6',
+              500: '#F43F5E',
+              600: '#E11D48',
+              700: '#BE123C',
+            },
+            cobalt: {
+              DEFAULT: '#2563EB',
+              50: '#EFF6FF',
+              100: '#DBEAFE',
+              500: '#3B82F6',
+              600: '#2563EB',
+              700: '#1D4ED8',
+            },
+            surface: {
+              base: '#FFFFFF',
+              muted: '#F8FAFC',
+              border: '#E2E8F0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F1F5F9;
+      color: #0F172A;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      user-select: none;
+      overflow: hidden;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    /* Subtle dot grid pattern */
+    .bg-grid-tri {
+      background-image: radial-gradient(rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    /* Soft glowing aura for the organic core */
+    .core-pulse-a {
+      animation: pulse-aura-a 2.4s ease-in-out infinite alternate;
+    }
+    .core-pulse-b {
+      animation: pulse-aura-b 2.4s ease-in-out infinite alternate;
+    }
+    @keyframes pulse-aura-a {
+      0% { filter: drop-shadow(0 0 6px rgba(225, 29, 72, 0.4)); }
+      100% { filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.7)); }
+    }
+    @keyframes pulse-aura-b {
+      0% { filter: drop-shadow(0 0 6px rgba(37, 99, 235, 0.4)); }
+      100% { filter: drop-shadow(0 0 16px rgba(20, 184, 166, 0.7)); }
+    }
+    .shimmer-badge {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-badge::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, transparent 40%, rgba(255,255,255,0.7) 50%, transparent 60%);
+      transform: rotate(25deg);
+      animation: shimmer 4s infinite linear;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(25deg); }
+      100% { transform: translateX(100%) rotate(25deg); }
+    }
+  </style>
+</head>
+<body class="w-[1440px] h-[900px] flex flex-col font-sans antialiased bg-[#F4F6F9] text-slate-800">
+
+  <!-- TOP APP HEADER -->
+  <header class="h-14 bg-white/95 backdrop-blur border-b border-slate-200/80 px-6 flex items-center justify-between z-30 shrink-0 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+    <!-- Brand & Subtitle -->
+    <div class="flex items-center gap-6">
+      <div class="flex items-center gap-3">
+        <!-- Geometric Logo Icon -->
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-slate-900 to-slate-700 flex items-center justify-center shadow-sm">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="text-white">
+            <polygon points="12 3 21 19 3 19" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" fill="rgba(255,255,255,0.12)" />
+            <circle cx="12" cy="14" r="2.5" fill="#F43F5E" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold tracking-tight text-slate-900 text-sm font-sans">PROMPT CHIẾN</span>
+            <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-semibold border border-slate-200/60">v1.4.2</span>
+          </div>
+          <p class="text-[10.5px] text-slate-400 font-medium tracking-tight">Design with AI. Fight with code.</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-1 ml-4 pl-4 border-l border-slate-200">
+        <a href="#" class="px-3.5 py-1.5 rounded-md text-xs font-semibold text-rose-600 bg-rose-50/80 border border-rose-100 flex items-center gap-1.5 shadow-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+          Battle
+        </a>
+        <a href="#" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+          Bots
+        </a>
+        <a href="#" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+          Lab & Synthesis
+        </a>
+        <a href="#" class="px-3.5 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+          Replays
+        </a>
+      </nav>
+    </div>
+
+    <!-- Match Environment Mode & MCP Status -->
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[11px] font-mono text-slate-500">
+        <span class="text-slate-400">SEED</span>
+        <span class="font-semibold text-slate-700">#8029-TX</span>
+        <span class="text-slate-300">|</span>
+        <span class="text-slate-400">PHYSICS</span>
+        <span class="font-semibold text-emerald-600">60 FPS</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-xs">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="text-xs font-mono font-medium text-emerald-700">MCP Connected</span>
+      </div>
+
+      <!-- Quick Action Profile / Help -->
+      <button class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-500 transition shadow-2xs">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER (Arena + Overlays + Floating Panels) -->
+  <main class="relative flex-1 w-full overflow-hidden flex flex-col justify-between">
+
+    <!-- ARENA CANVAS LAYER (Flat 2D Sandbox Arena) -->
+    <div class="absolute inset-0 bg-[#FFFFFF] bg-grid-tri overflow-hidden">
+      <!-- Arena Boundaries & Metric Marks -->
+      <div class="absolute inset-4 rounded-2xl border border-slate-200/70 pointer-events-none shadow-[inset_0_0_80px_rgba(241,245,249,0.5)]">
+        <!-- Corner Reticles -->
+        <div class="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-slate-300"></div>
+        <div class="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-slate-300"></div>
+        <div class="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-slate-300"></div>
+        <div class="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-slate-300"></div>
+        
+        <!-- Arena Center Divider & Neutral Radius -->
+        <div class="absolute inset-y-8 left-1/2 -translate-x-1/2 w-px border-l border-dashed border-slate-200/90 flex flex-col justify-between items-center py-6">
+          <span class="font-mono text-[9px] text-slate-300 tracking-widest uppercase rotate-90 origin-center">Grid Meridian X-00</span>
+          <div class="w-28 h-28 rounded-full border border-slate-200/60 flex items-center justify-center">
+            <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+          </div>
+          <span class="font-mono text-[9px] text-slate-300 tracking-widest uppercase rotate-90 origin-center">Contact Sector 4</span>
+        </div>
+      </div>
+
+      <!-- LIVING 2D GEOMETRIC ORGANISMS (SVG VECTOR GRAPHICS) -->
+      <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1440 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Gradients for Bot A (Warm: Crimson, Orange, Gold) -->
+          <linearGradient id="gradBotA" x1="450" y1="260" x2="680" y2="440" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#BE123C"/>
+            <stop offset="60%" stop-color="#E11D48"/>
+            <stop offset="100%" stop-color="#F59E0B"/>
+          </linearGradient>
+
+          <!-- Gradients for Bot B (Cool: Cobalt, Teal, Jade) -->
+          <linearGradient id="gradBotB" x1="950" y1="460" x2="720" y2="340" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#1D4ED8"/>
+            <stop offset="55%" stop-color="#2563EB"/>
+            <stop offset="100%" stop-color="#0D9488"/>
+          </linearGradient>
+
+          <!-- Triangular Dotted Pattern for "Paper" Triangles -->
+          <pattern id="paperDottedA" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+            <circle cx="4" cy="4" r="1.1" fill="#E11D48" opacity="0.45"/>
+          </pattern>
+          <pattern id="paperDottedB" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+            <circle cx="4" cy="4" r="1.1" fill="#2563EB" opacity="0.45"/>
+          </pattern>
+
+          <!-- Core Glow Radial -->
+          <radialGradient id="coreGlowA" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.8"/>
+            <stop offset="45%" stop-color="#E11D48" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#E11D48" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="coreGlowB" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#14B8A6" stop-opacity="0.8"/>
+            <stop offset="45%" stop-color="#2563EB" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- SUBTLE BACKGROUND FORCE VECTOR LINES -->
+        <g opacity="0.25">
+          <line x1="520" y1="360" x2="680" y2="380" stroke="#E11D48" stroke-dasharray="3 4" stroke-width="1.2" />
+          <line x1="900" y1="410" x2="740" y2="385" stroke="#2563EB" stroke-dasharray="3 4" stroke-width="1.2" />
+          <!-- Collision shock ring ripples -->
+          <circle cx="715" cy="382" r="32" stroke="#F59E0B" stroke-width="1.5" opacity="0.6" stroke-dasharray="4 6" />
+          <circle cx="715" cy="382" r="64" stroke="#CBD5E1" stroke-width="1" opacity="0.4" />
+        </g>
+
+        <!-- BOT A: "SPEAR v12" (WARM IDENTITY - Crimson / Orange / Gold - Thrusting from Left) -->
+        <g id="bot-a" class="transform transition-transform">
+          <!-- Fluid Envelope Outer Membrane Glow -->
+          <path d="M420,380 C410,320 460,260 520,250 C580,240 640,290 685,350 C715,380 690,425 640,460 C580,500 480,480 435,430 Z" 
+                fill="#FFF1F2" opacity="0.55" filter="blur(16px)" />
+
+          <!-- CLUSTER OF ~50 CONNECTED TRIANGLES (Bot A) -->
+          <!-- Rear / Core anchor modules (Motor triangles: pale fill with dashed outline) -->
+          <polygon points="430,370 465,335 470,385" fill="#FFE4E6" fill-opacity="0.6" stroke="#E11D48" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="420,405 470,385 460,435" fill="#FFE4E6" fill-opacity="0.6" stroke="#E11D48" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="460,435 495,470 515,430" fill="#FFE4E6" fill-opacity="0.6" stroke="#E11D48" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="440,330 485,300 465,335" fill="#FFE4E6" fill-opacity="0.6" stroke="#E11D48" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="485,300 525,275 510,320" fill="#FFE4E6" fill-opacity="0.6" stroke="#E11D48" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="465,335 510,320 495,365" fill="#FFE4E6" fill-opacity="0.7" stroke="#E11D48" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="470,385 495,365 520,405" fill="#FEE2E2" stroke="#E11D48" stroke-width="1.2" />
+
+          <!-- Midbody Organism Tissue (Paper: subtle dotted fill; Scissor: clean thin outline) -->
+          <polygon points="510,320 550,295 545,340" fill="url(#paperDottedA)" stroke="#F43F5E" stroke-width="1.4" />
+          <polygon points="495,365 545,340 540,385" fill="white" stroke="#E11D48" stroke-width="1.4" />
+          <polygon points="470,385 520,405 490,440" fill="url(#paperDottedA)" stroke="#F43F5E" stroke-width="1.4" />
+          <polygon points="520,405 560,435 535,465" fill="white" stroke="#E11D48" stroke-width="1.4" />
+          <polygon points="525,275 570,260 550,295" fill="white" stroke="#FB7185" stroke-width="1.2" />
+          <polygon points="550,295 595,280 580,325" fill="url(#paperDottedA)" stroke="#F43F5E" stroke-width="1.4" />
+          <polygon points="545,340 580,325 585,370" fill="white" stroke="#E11D48" stroke-width="1.2" />
+          <polygon points="540,385 585,370 575,420" fill="url(#paperDottedA)" stroke="#E11D48" stroke-width="1.4" />
+          <polygon points="520,405 575,420 560,435" fill="white" stroke="#FB7185" stroke-width="1.2" />
+          <polygon points="560,435 605,455 585,485" fill="url(#paperDottedA)" stroke="#F43F5E" stroke-width="1.4" />
+          <polygon points="535,465 585,485 555,510" fill="#FFE4E6" fill-opacity="0.6" stroke="#E11D48" stroke-width="1" stroke-dasharray="3 3" />
+
+          <!-- Internal Solid Combat Vanguard (Hammer: solid fill, thick outline) -->
+          <polygon points="580,325 625,310 615,355" fill="#E11D48" stroke="#9F1239" stroke-width="2" />
+          <polygon points="585,370 615,355 625,395" fill="#BE123C" stroke="#881337" stroke-width="2" />
+          <polygon points="575,420 625,395 620,440" fill="#E11D48" stroke="#9F1239" stroke-width="2" />
+          <polygon points="595,280 645,290 625,310" fill="#F43F5E" stroke="#BE123C" stroke-width="1.8" />
+          <polygon points="625,310 665,325 650,365" fill="#E11D48" stroke="#881337" stroke-width="2.2" />
+          <polygon points="615,355 650,365 655,400" fill="#BE123C" stroke="#4C0519" stroke-width="2.2" />
+          <polygon points="625,395 655,400 660,435" fill="#E11D48" stroke="#881337" stroke-width="2" />
+
+          <!-- Spear Apex Thrusting Cone (Impact Spearhead - Orange/Gold Accent) -->
+          <polygon points="650,365 695,360 675,390" fill="#F59E0B" stroke="#B45309" stroke-width="2.4" />
+          <polygon points="655,400 675,390 710,382" fill="#EA580C" stroke="#9A3412" stroke-width="2.6" />
+          <polygon points="665,325 700,345 695,360" fill="#F43F5E" stroke="#BE123C" stroke-width="2" />
+
+          <!-- ORGANIC CORE A (Glowing Circular Marker around internal nucleus triangle) -->
+          <g class="core-pulse-a">
+            <!-- Pulsing Halo Rings -->
+            <circle cx="530" cy="365" r="28" fill="url(#coreGlowA)" />
+            <circle cx="530" cy="365" r="18" stroke="#F59E0B" stroke-width="2" stroke-dasharray="6 3" />
+            <circle cx="530" cy="365" r="8" fill="#F59E0B" />
+            <!-- Inner Vital Core Triangle -->
+            <polygon points="522,374 538,374 530,358" fill="#FFFFFF" stroke="#D97706" stroke-width="1.5" />
+          </g>
+        </g>
+
+        <!-- BOT B: "FLANKER v08" (COOL IDENTITY - Cobalt / Teal / Cool Green - Curling & Bending to Evade) -->
+        <g id="bot-b" class="transform transition-transform">
+          <!-- Fluid Envelope Outer Membrane Glow -->
+          <path d="M720,380 C740,320 800,280 870,285 C940,290 1000,340 1010,410 C1015,480 950,540 880,535 C820,530 740,490 720,430 Z" 
+                fill="#EFF6FF" opacity="0.6" filter="blur(18px)" />
+
+          <!-- CLUSTER OF ~50 CONNECTED TRIANGLES (Bot B) -->
+          <!-- Rear anchor modules (Motor triangles: pale fill with dashed outline) -->
+          <polygon points="980,410 940,380 950,430" fill="#DBEAFE" fill-opacity="0.6" stroke="#2563EB" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="990,440 950,430 965,475" fill="#DBEAFE" fill-opacity="0.6" stroke="#2563EB" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="950,350 910,330 920,375" fill="#DBEAFE" fill-opacity="0.6" stroke="#2563EB" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="965,475 925,480 935,520" fill="#DBEAFE" fill-opacity="0.6" stroke="#2563EB" stroke-width="1" stroke-dasharray="3 3" />
+          <polygon points="915,505 875,520 890,550" fill="#DBEAFE" fill-opacity="0.6" stroke="#2563EB" stroke-width="1" stroke-dasharray="3 3" />
+
+          <!-- Body Wings Curling Around Attack (Teal / Cobalt Paper & Scissor) -->
+          <polygon points="940,380 900,365 895,410" fill="white" stroke="#2563EB" stroke-width="1.4" />
+          <polygon points="950,430 895,410 910,460" fill="url(#paperDottedB)" stroke="#3B82F6" stroke-width="1.4" />
+          <polygon points="910,330 870,320 860,365" fill="url(#paperDottedB)" stroke="#0D9488" stroke-width="1.4" />
+          <polygon points="895,410 855,395 860,445" fill="white" stroke="#2563EB" stroke-width="1.3" />
+          <polygon points="910,460 860,445 870,490" fill="url(#paperDottedB)" stroke="#2563EB" stroke-width="1.4" />
+          <polygon points="870,320 830,315 825,360" fill="white" stroke="#0D9488" stroke-width="1.2" />
+          <polygon points="860,365 825,360 815,405" fill="url(#paperDottedB)" stroke="#2563EB" stroke-width="1.4" />
+          <polygon points="855,395 815,405 810,450" fill="white" stroke="#0D9488" stroke-width="1.2" />
+          <polygon points="860,445 810,450 820,495" fill="url(#paperDottedB)" stroke="#2563EB" stroke-width="1.4" />
+
+          <!-- Defensive Fore-Flank Modules (Hammer: Solid Fill, Strong Outline) -->
+          <polygon points="825,360 780,345 775,390" fill="#0D9488" stroke="#115E59" stroke-width="2" />
+          <polygon points="815,405 775,390 765,435" fill="#2563EB" stroke="#1E40AF" stroke-width="2.2" />
+          <polygon points="810,450 765,435 770,480" fill="#1D4ED8" stroke="#1E3A8A" stroke-width="2" />
+          <polygon points="780,345 745,330 735,370" fill="#14B8A6" stroke="#0F766E" stroke-width="1.8" />
+
+          <!-- Contact Arc Facing Bot A's Spearhead (Curved & Deformed under force) -->
+          <polygon points="775,390 735,370 720,388" fill="#3B82F6" stroke="#1D4ED8" stroke-width="2.4" />
+          <polygon points="765,435 720,388 730,440" fill="#2563EB" stroke="#1E40AF" stroke-width="2.2" />
+          <polygon points="770,480 730,440 740,490" fill="#0D9488" stroke="#115E59" stroke-width="1.8" />
+
+          <!-- ORGANIC CORE B (Defensive Position - Protected in Mid-Right Cavity) -->
+          <g class="core-pulse-b">
+            <!-- Pulsing Halo Rings -->
+            <circle cx="875" cy="405" r="28" fill="url(#coreGlowB)" />
+            <circle cx="875" cy="405" r="18" stroke="#14B8A6" stroke-width="2" stroke-dasharray="6 3" />
+            <circle cx="875" cy="405" r="8" fill="#14B8A6" />
+            <!-- Inner Vital Core Triangle -->
+            <polygon points="867,414 883,414 875,398" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.5" />
+          </g>
+        </g>
+
+        <!-- ACTIVE COLLISION POINT PARTICLES & DETACHED SHARDS -->
+        <g id="collision-fx">
+          <!-- Focal Impact Flash Point (Between (710,382) and (720,388)) -->
+          <circle cx="715" cy="385" r="14" fill="#FFFFFF" opacity="0.9" />
+          <circle cx="715" cy="385" r="7" fill="#F59E0B" />
+          
+          <!-- Kinetic Impact Sparks (Subtle geometric micro-sparks) -->
+          <line x1="715" y1="385" x2="702" y2="350" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" />
+          <line x1="715" y1="385" x2="685" y2="405" stroke="#E11D48" stroke-width="1.5" stroke-linecap="round" />
+          <line x1="715" y1="385" x2="738" y2="360" stroke="#14B8A6" stroke-width="2" stroke-linecap="round" />
+          <line x1="715" y1="385" x2="745" y2="415" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" />
+          <line x1="715" y1="385" x2="710" y2="430" stroke="#CBD5E1" stroke-width="1" stroke-linecap="round" />
+
+          <!-- Breaking-Away Triangular Cells (Shedding / Flying Off into Space) -->
+          <!-- Shard 1 (Bot B fragment spinning out, losing integrity) -->
+          <g transform="translate(734, 325) rotate(42)">
+            <polygon points="0,0 24,-6 14,20" fill="white" stroke="#3B82F6" stroke-width="1.5" />
+            <line x1="-10" y1="5" x2="-2" y2="2" stroke="#93C5FD" stroke-width="1" stroke-dasharray="2 2" />
+          </g>
+          <!-- Shard 2 (Bot A fragment cracked) -->
+          <g transform="translate(685, 435) rotate(-28)">
+            <polygon points="0,0 20,-12 16,16" fill="#FFE4E6" stroke="#E11D48" stroke-width="1.4" />
+          </g>
+          <!-- Shard 3: Dissipating into pale gray void (Dead Triangle) -->
+          <g transform="translate(760, 290) rotate(15)" opacity="0.35">
+            <polygon points="0,0 18,-4 10,16" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1" stroke-dasharray="2 2" />
+            <text x="22" y="10" font-family="'JetBrains Mono', monospace" font-size="8" fill="#94A3B8">LOST: B-31</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- FLOATING TOP HUD (HEALTH / CORE STATUS / CLOCK) -->
+    <div class="relative z-20 w-full px-8 pt-4 flex justify-between items-start pointer-events-none">
+      
+      <!-- LEFT HUD: BOT A (SPEAR v12) -->
+      <div class="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-[0_4px_20px_-4px_rgba(225,29,72,0.12)] w-80">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-sm bg-rose-600 rotate-45 shadow-xs"></span>
+            <span class="font-extrabold text-sm tracking-tight text-slate-900">BOT A · SPEAR v12</span>
+          </div>
+          <span class="font-mono text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">82% CORE</span>
+        </div>
+
+        <!-- Health & Core Energy Bar -->
+        <div class="space-y-1.5 mb-2.5">
+          <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+            <div class="h-full bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 rounded-full w-[82%] transition-all duration-300"></div>
+          </div>
+          <div class="flex justify-between items-center text-[10.5px] font-mono text-slate-500">
+            <span>STRUCTURAL INTEGRITY</span>
+            <span class="font-semibold text-slate-700">4,920 / 6,000 HP</span>
+          </div>
+        </div>
+
+        <!-- Metric Badges: Triangles & Motors -->
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 font-mono text-[11px]">
+          <div class="flex items-center justify-between px-2 py-1 rounded bg-slate-50 border border-slate-200/60">
+            <span class="text-slate-400">TRIANGLES</span>
+            <span class="font-bold text-slate-800">57<span class="text-slate-400 font-normal">/60</span></span>
+          </div>
+          <div class="flex items-center justify-between px-2 py-1 rounded bg-slate-50 border border-slate-200/60">
+            <span class="text-slate-400">MOTORS</span>
+            <span class="font-bold text-rose-600">14<span class="text-slate-400 font-normal">/15</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER HUD: MATCH CLOCK & STATUS -->
+      <div class="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-6 py-2.5 shadow-sm flex flex-col items-center">
+        <div class="flex items-center gap-1.5 mb-0.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">LIVE SIMULATION</span>
+        </div>
+        <div class="font-mono text-2xl font-black tracking-tight text-slate-900 leading-none">
+          00:47
+        </div>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="text-[10.5px] font-bold text-slate-600 uppercase tracking-wider">ROUND 01</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-[10.5px] font-mono text-slate-400">BEST OF 3</span>
+        </div>
+      </div>
+
+      <!-- RIGHT HUD: BOT B (FLANKER v08) -->
+      <div class="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-[0_4px_20px_-4px_rgba(37,99,235,0.12)] w-80">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">64% CORE</span>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-sm tracking-tight text-slate-900">BOT B · FLANKER v08</span>
+            <span class="w-2.5 h-2.5 rounded-sm bg-blue-600 rotate-45 shadow-xs"></span>
+          </div>
+        </div>
+
+        <!-- Health & Core Energy Bar -->
+        <div class="space-y-1.5 mb-2.5">
+          <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+            <div class="h-full bg-gradient-to-r from-teal-500 via-blue-500 to-blue-700 rounded-full w-[64%] transition-all duration-300 ml-auto"></div>
+          </div>
+          <div class="flex justify-between items-center text-[10.5px] font-mono text-slate-500">
+            <span class="font-semibold text-slate-700">3,840 / 6,000 HP</span>
+            <span>STRUCTURAL INTEGRITY</span>
+          </div>
+        </div>
+
+        <!-- Metric Badges: Triangles & Motors -->
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 font-mono text-[11px]">
+          <div class="flex items-center justify-between px-2 py-1 rounded bg-slate-50 border border-slate-200/60">
+            <span class="text-slate-400">MOTORS</span>
+            <span class="font-bold text-blue-600">11<span class="text-slate-400 font-normal">/14</span></span>
+          </div>
+          <div class="flex items-center justify-between px-2 py-1 rounded bg-slate-50 border border-slate-200/60">
+            <span class="text-slate-400">TRIANGLES</span>
+            <span class="font-bold text-slate-800">49<span class="text-slate-400 font-normal">/58</span></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MIDDLE ROW: FLOATING SIDE PANELS (LEFT INSPECTOR & RIGHT EVENTS) -->
+    <div class="relative z-20 w-full px-8 flex justify-between items-center pointer-events-none mt-2 mb-2">
+      
+      <!-- LEFT FLOATING PANEL: BOT INSPECTOR -->
+      <aside class="pointer-events-auto w-72 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-4 shadow-lg shadow-slate-200/50 flex flex-col gap-3">
+        <!-- Panel Header -->
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+            <span class="font-bold text-xs uppercase tracking-wider text-slate-700">Bot Inspector</span>
+          </div>
+          <span class="font-mono text-[10px] text-slate-400">NODE #A12</span>
+        </div>
+
+        <!-- Miniature Schematic Diagram of Bot A -->
+        <div class="w-full h-24 bg-slate-50/80 rounded-xl border border-slate-200/60 flex items-center justify-center relative overflow-hidden group">
+          <div class="absolute top-2 left-2 text-[9px] font-mono text-slate-400 uppercase">Kinematic Blueprint</div>
+          <!-- Miniature SVG representation -->
+          <svg width="120" height="60" viewBox="0 0 120 60" fill="none" class="opacity-90">
+            <polygon points="30,30 50,15 50,30" fill="#FFE4E6" stroke="#E11D48" stroke-width="0.8" stroke-dasharray="2 2"/>
+            <polygon points="50,15 70,20 65,35" fill="white" stroke="#E11D48" stroke-width="1"/>
+            <polygon points="50,30 65,35 60,45" fill="#E11D48" stroke="#BE123C" stroke-width="1.2"/>
+            <polygon points="65,35 90,32 80,45" fill="#F59E0B" stroke="#B45309" stroke-width="1.5"/>
+            <circle cx="58" cy="28" r="4" stroke="#F59E0B" stroke-width="1" fill="#FEF3C7"/>
+          </svg>
+          <div class="absolute bottom-1.5 right-2 text-[9px] font-mono text-rose-600 font-medium">SPEAR v12</div>
+        </div>
+
+        <!-- Compositional Breakdown Table -->
+        <div class="space-y-1.5 text-xs">
+          <div class="flex justify-between items-center text-slate-600 font-medium">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 bg-rose-700 rounded-2xs inline-block"></span>
+              Hammer (Solid)
+            </span>
+            <span class="font-mono font-bold text-slate-800">18</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-600 font-medium">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 border border-rose-500 rounded-2xs inline-block"></span>
+              Scissor (Outline)
+            </span>
+            <span class="font-mono font-bold text-slate-800">12</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-600 font-medium">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 border border-dashed border-rose-400 bg-rose-50 rounded-2xs inline-block"></span>
+              Paper (Dotted)
+            </span>
+            <span class="font-mono font-bold text-slate-800">15</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-600 font-medium">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 border border-dashed border-slate-400 bg-slate-100 rounded-2xs inline-block"></span>
+              Motor (Thrust)
+            </span>
+            <span class="font-mono font-bold text-slate-800">15</span>
+          </div>
+        </div>
+
+        <!-- Physical Metrics Grid -->
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200/70 grid grid-cols-3 gap-2 text-center font-mono">
+          <div>
+            <div class="text-[9.5px] text-slate-400">LOAD</div>
+            <div class="text-xs font-bold text-slate-800 mt-0.5">1.00</div>
+          </div>
+          <div class="border-x border-slate-200">
+            <div class="text-[9.5px] text-slate-400">MOBILITY</div>
+            <div class="text-xs font-bold text-emerald-600 mt-0.5">100%</div>
+          </div>
+          <div>
+            <div class="text-[9.5px] text-slate-400">CORE HP</div>
+            <div class="text-xs font-bold text-rose-600 mt-0.5">82%</div>
+          </div>
+        </div>
+
+        <!-- Tactical AI Brain Label -->
+        <div class="p-2.5 rounded-xl bg-rose-50/60 border border-rose-100/90">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-mono uppercase font-bold text-rose-800 tracking-wider">AI Strategy Engine</span>
+            <span class="text-[9px] font-mono text-rose-600">v4.1</span>
+          </div>
+          <p class="text-xs font-semibold text-slate-800 mt-1">Aggressive · Direct Assault</p>
+          <p class="text-[10px] text-slate-500 leading-tight mt-0.5">Piercing thrust towards enemy centroid via motor vector lock.</p>
+        </div>
+
+        <!-- Inspector Action Buttons -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button class="py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition border border-slate-200/80 flex items-center justify-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            Inspect
+          </button>
+          <button class="py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition shadow-xs flex items-center justify-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            Edit Bot
+          </button>
+        </div>
+      </aside>
+
+      <!-- RIGHT FLOATING PANEL: MATCH EVENTS & DAMAGE MAP -->
+      <aside class="pointer-events-auto w-72 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-4 shadow-lg shadow-slate-200/50 flex flex-col gap-3">
+        <!-- Panel Header -->
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span class="font-bold text-xs uppercase tracking-wider text-slate-700">Match Events</span>
+          </div>
+          <span class="font-mono text-[10px] text-slate-400">LIVE FEED</span>
+        </div>
+
+        <!-- Event Stream Log -->
+        <div class="space-y-2 font-mono text-[11px] custom-scroll max-h-48 overflow-y-auto pr-1">
+          <!-- Event 1 -->
+          <div class="flex items-start gap-2 p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+            <span class="text-slate-400 shrink-0 text-[10px] mt-0.5">00:41</span>
+            <div class="flex-1">
+              <div class="flex items-center gap-1 text-amber-700 font-medium">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>Motor cluster damaged</span>
+              </div>
+              <span class="text-[10px] text-slate-400">Bot B -12% thrust</span>
+            </div>
+          </div>
+
+          <!-- Event 2 -->
+          <div class="flex items-start gap-2 p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+            <span class="text-slate-400 shrink-0 text-[10px] mt-0.5">00:42</span>
+            <div class="flex-1">
+              <div class="flex items-center gap-1 text-slate-700 font-medium">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>Bot B overloaded</span>
+              </div>
+              <span class="text-[10px] text-slate-400">Torque balance shift</span>
+            </div>
+          </div>
+
+          <!-- Event 3: Critical Triangle Advantage -->
+          <div class="flex items-start gap-2 p-1.5 rounded-lg bg-rose-50/80 border border-rose-100">
+            <span class="text-rose-500 font-bold shrink-0 text-[10px] mt-0.5">00:44</span>
+            <div class="flex-1">
+              <div class="flex items-center gap-1.5 text-rose-800 font-bold">
+                <span class="px-1 py-0.2 bg-rose-600 text-white rounded text-[9px]">CRIT</span>
+                <span>Hammer → Scissor</span>
+              </div>
+              <div class="flex justify-between items-center text-[10px] text-rose-600 font-semibold mt-0.5">
+                <span>Multi-hit multiplier</span>
+                <span class="font-mono">×2.0 EFFECT</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event 4 -->
+          <div class="flex items-start gap-2 p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+            <span class="text-slate-400 shrink-0 text-[10px] mt-0.5">00:45</span>
+            <div class="flex-1">
+              <div class="flex items-center gap-1 text-slate-800 font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                <span>Triangle B-31 destroyed</span>
+              </div>
+              <span class="text-[10px] text-slate-400">Hull fragment detached</span>
+            </div>
+          </div>
+
+          <!-- Event 5: Core exposed alert -->
+          <div class="flex items-start gap-2 p-1.5 rounded-lg bg-amber-50/80 border border-amber-200">
+            <span class="text-amber-600 font-bold shrink-0 text-[10px] mt-0.5">00:46</span>
+            <div class="flex-1">
+              <div class="flex items-center gap-1 text-amber-900 font-bold">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                <span>Core exposed</span>
+              </div>
+              <span class="text-[10px] text-amber-700">Flanker v08 barrier breached</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Damage Map Mini-Preview -->
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">Damage Heatmap</span>
+            <span class="text-[9px] font-mono text-emerald-600 font-semibold">UPDATED 00:47</span>
+          </div>
+          <!-- Mini Heatmap Visualization -->
+          <div class="h-14 rounded-lg bg-white border border-slate-200/80 flex items-center justify-around px-3 relative overflow-hidden">
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 rounded-full bg-rose-100 border border-rose-300 flex items-center justify-center text-[10px] font-bold text-rose-700">
+                A
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 mt-0.5">18% DMG</span>
+            </div>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <div class="flex flex-col items-center">
+              <div class="w-8 h-8 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-[10px] font-bold text-amber-800">
+                B
+              </div>
+              <span class="text-[9px] font-mono text-slate-400 mt-0.5">36% DMG</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy Footnote -->
+        <div class="text-[10.5px] text-slate-400 text-center font-mono">
+          Ruleset: Rock-Paper-Scissors Dynamics
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- BOTTOM REPLAY TIMELINE & SCRUBBER BAR -->
+    <footer class="relative z-30 w-full px-8 pb-4">
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 px-5 py-3 shadow-lg shadow-slate-200/40 flex items-center justify-between gap-6">
+        
+        <!-- Play / Pause & Time readout -->
+        <div class="flex items-center gap-3 shrink-0">
+          <button class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-center transition shadow-xs group">
+            <!-- Pause Icon -->
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16" rx="1.5" />
+              <rect x="14" y="4" width="4" height="16" rx="1.5" />
+            </svg>
+          </button>
+          
+          <div class="font-mono text-xs">
+            <span class="font-bold text-slate-900">00:47</span>
+            <span class="text-slate-400"> / 02:00</span>
+          </div>
+        </div>
+
+        <!-- Center Timeline Scrubber with Event Pins -->
+        <div class="flex-1 relative flex flex-col justify-center">
+          <!-- Timeline Track Container -->
+          <div class="relative w-full h-6 flex items-center cursor-pointer group">
+            <!-- Base track -->
+            <div class="w-full h-1.5 bg-slate-100 rounded-full border border-slate-200/70 overflow-hidden">
+              <!-- Progress fill (00:47 / 02:00 = 39.1%) -->
+              <div class="h-full bg-gradient-to-r from-rose-500 via-amber-500 to-blue-600 rounded-full w-[39.1%]"></div>
+            </div>
+
+            <!-- Key Event Pins on timeline -->
+            <div class="absolute left-[12%] -top-1 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-white shadow-xs" title="00:14 Encounter"></div>
+            <div class="absolute left-[24%] -top-1 w-2.5 h-2.5 rounded-full bg-slate-300 border-2 border-white shadow-xs" title="00:29 Thrust Initiated"></div>
+            <div class="absolute left-[34.1%] -top-1.5 w-3.5 h-3.5 rounded-full bg-rose-500 border-2 border-white shadow-sm flex items-center justify-center" title="00:41 Motor Damaged">
+              <div class="w-1 h-1 bg-white rounded-full"></div>
+            </div>
+            <div class="absolute left-[36.6%] -top-1.5 w-3.5 h-3.5 rounded-full bg-rose-600 border-2 border-white shadow-sm flex items-center justify-center" title="00:44 Critical Hit">
+              <div class="w-1 h-1 bg-white rounded-full"></div>
+            </div>
+
+            <!-- Scrubber Thumb (Playhead at 39.1%) -->
+            <div class="absolute left-[39.1%] -translate-x-1/2 w-4 h-4 bg-slate-900 rounded-full border-2 border-white shadow-md flex items-center justify-center ring-2 ring-slate-900/10 transition-transform group-hover:scale-110">
+              <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+            </div>
+          </div>
+
+          <!-- Timeline Time Markers -->
+          <div class="flex justify-between text-[10px] font-mono text-slate-400 px-0.5">
+            <span>00:00</span>
+            <span>00:30</span>
+            <span>01:00</span>
+            <span>01:30</span>
+            <span>02:00</span>
+          </div>
+        </div>
+
+        <!-- Speed Controls (0.5x, 1x, 2x, 4x) -->
+        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 font-mono text-xs shrink-0">
+          <button class="px-2 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition font-medium">0.5×</button>
+          <button class="px-2.5 py-1 rounded-lg bg-white text-slate-900 font-bold shadow-2xs border border-slate-200/60">1×</button>
+          <button class="px-2 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition font-medium">2×</button>
+          <button class="px-2 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition font-medium">4×</button>
+        </div>
+
+        <!-- Mode Buttons: Damage Map, Events, Inspect -->
+        <div class="flex items-center gap-2 shrink-0 border-l border-slate-200 pl-4">
+          <button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-slate-200/60 flex items-center gap-1.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            Damage Map
+          </button>
+          <button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition border border-slate-200/60 flex items-center gap-1.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Events
+          </button>
+          <button class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition shadow-2xs flex items-center gap-1.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Inspect
+          </button>
+        </div>
+
+      </div>
+    </footer>
+
+  </main>
+
+</body>
+</html>

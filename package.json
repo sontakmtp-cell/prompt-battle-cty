@@ -4,14 +4,23 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.33.0",
-  "engines": { "node": "22.23.1", "pnpm": "10.33.0" },
+  "engines": {
+    "node": "22",
+    "pnpm": "10.33.0"
+  },
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b && node tools/build-m4-widget.mjs",
     "cli": "pnpm build && node scripts/cli.mjs",
     "bots": "pnpm build && node scripts/reference-bots.mjs --write",
     "gate:m1": "pnpm build && node scripts/m1-gate.mjs",
     "balance": "pnpm build && node scripts/balance.mjs",
     "debug:replay": "pnpm build && node scripts/debug-replay.mjs",
+    "web": "pnpm build && node scripts/web.mjs",
+    "api:node": "pnpm build && node apps/api/src/node.mjs",
+    "m3:smoke": "node tools/m3-smoke.mjs",
+    "m3:load": "node tools/m3-load.mjs",
+    "m4:widget": "node tools/build-m4-widget.mjs",
+    "m4:smoke": "node tools/m4-smoke.mjs",
     "schema": "pnpm build && node scripts/export-schemas.mjs",
     "examples": "pnpm build && node examples/catalog.mjs",
     "check:boundaries": "node scripts/check-boundaries.mjs",
@@ -19,6 +28,7 @@
     "check": "pnpm build && node scripts/export-schemas.mjs --check && pnpm check:boundaries && node --test tests/*.test.mjs"
   },
   "devDependencies": {
+    "@modelcontextprotocol/ext-apps": "2.0.0",
     "@prompt-chien/application": "workspace:*",
     "@prompt-chien/contracts": "workspace:*",
     "@prompt-chien/core": "workspace:*",

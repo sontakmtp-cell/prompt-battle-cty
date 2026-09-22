@@ -92,12 +92,13 @@ Demo đầu tiên phải cố tình nhỏ.
 ## Bắt buộc
 
 - Web game
-- 1 arena trắng, phẳng, 2D
+- 1 arena 2D (phong cách Modern Cyber Dark `#0B0F17` với lưới mờ tương phản thấp và reticles công nghệ)
 - 1v1
 - bot được ghép từ lưới tam giác chuẩn
 - 3 Combat Triangle: Búa / Bao / Kéo
 - 1 Motor Triangle
 - 1 Core
+- Cơ chế Nhập / Xuất bot bằng tệp và chuỗi JSON (`BotDefinition`) trong Web Lab
 - Geometry Budget cố định
 - bot tự tìm và giao chiến
 - real-time autonomous battle
@@ -779,15 +780,17 @@ Replay Viewer cần:
 
 # 20. Visual Direction
 
-Arena Demo:
+Arena Demo (áp dụng phong cách Alexandria / Modern Cyber Dark từ M2):
 
-- nền trắng tinh
+- nền đen thạch anh công nghệ (`#0B0F17` / Slate-950) kèm lưới vi mô tương phản thấp `.bg-grid-cyber`
+- khung định vị laser reticles cyan 4 góc và kinh tuyến `Grid Meridian X-00` với đèn xung phát quang
 - không gian 2D phẳng
 - bot là các sinh vật hình học được ghép từ nhiều triangle
+- viền nổi đa giác đổ bóng 3D `#020617` tách bạch rõ rệt khỏi lưới nền
 - silhouette có cảm giác mềm, sống, hơi giống chất lỏng
 - chuyển động hữu cơ dù cấu trúc nền là hình học
-- hai bot phân biệt rõ bằng visual identity
-- UI tối giản
+- hai bot phân biệt rõ bằng visual identity (Đội A gam nóng Crimson, Đội B gam lạnh Cobalt/Sky Blue)
+- UI tối giản, floating HUD theo dõi telemetry thời gian thực
 
 Bot không nên trông giống robot cơ khí cứng.
 
@@ -850,6 +853,7 @@ Cho phép:
 - đổi Búa/Bao/Kéo/Motor
 - chọn Core
 - xem Geometry Budget
+- nhập/xuất tệp hoặc chuỗi JSON `BotDefinition`
 - validate
 - xem warnings
 

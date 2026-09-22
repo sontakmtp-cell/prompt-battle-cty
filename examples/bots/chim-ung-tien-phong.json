@@ -1,0 +1,978 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "Chim Ưng Tiên Phong",
+  "body": {
+    "triangles": [
+      {
+        "id": "t00",
+        "q": -3,
+        "r": 0,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t01",
+        "q": -3,
+        "r": 0,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t02",
+        "q": -2,
+        "r": 0,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t03",
+        "q": -2,
+        "r": 0,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t04",
+        "q": -1,
+        "r": 0,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t05",
+        "q": -1,
+        "r": 0,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t06",
+        "q": 0,
+        "r": 0,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t07",
+        "q": 0,
+        "r": 0,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t08",
+        "q": 1,
+        "r": 0,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t09",
+        "q": 1,
+        "r": 0,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t10",
+        "q": 2,
+        "r": 0,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t11",
+        "q": 2,
+        "r": 0,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t12",
+        "q": -3,
+        "r": 1,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t13",
+        "q": -3,
+        "r": 1,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t14",
+        "q": -2,
+        "r": 1,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t15",
+        "q": -2,
+        "r": 1,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t16",
+        "q": -1,
+        "r": 1,
+        "orientation": "up",
+        "type": "paper",
+        "core": true
+      },
+      {
+        "id": "t17",
+        "q": -1,
+        "r": 1,
+        "orientation": "down",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t18",
+        "q": 0,
+        "r": 1,
+        "orientation": "up",
+        "type": "motor",
+        "core": false
+      },
+      {
+        "id": "t19",
+        "q": 0,
+        "r": 1,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t20",
+        "q": 1,
+        "r": 1,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t21",
+        "q": 1,
+        "r": 1,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t22",
+        "q": 2,
+        "r": 1,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t23",
+        "q": 2,
+        "r": 1,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t24",
+        "q": 3,
+        "r": 1,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t25",
+        "q": 3,
+        "r": 1,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t26",
+        "q": -4,
+        "r": 2,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t27",
+        "q": -4,
+        "r": 2,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t28",
+        "q": -3,
+        "r": 2,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t29",
+        "q": -3,
+        "r": 2,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t30",
+        "q": -2,
+        "r": 2,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t31",
+        "q": -2,
+        "r": 2,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t32",
+        "q": -1,
+        "r": 2,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t33",
+        "q": -1,
+        "r": 2,
+        "orientation": "down",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t34",
+        "q": 0,
+        "r": 2,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t35",
+        "q": 0,
+        "r": 2,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t36",
+        "q": 1,
+        "r": 2,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t37",
+        "q": 1,
+        "r": 2,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t38",
+        "q": 2,
+        "r": 2,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t39",
+        "q": 2,
+        "r": 2,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t40",
+        "q": -4,
+        "r": 3,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t41",
+        "q": -4,
+        "r": 3,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t42",
+        "q": -3,
+        "r": 3,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t43",
+        "q": -3,
+        "r": 3,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t44",
+        "q": -2,
+        "r": 3,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t45",
+        "q": -2,
+        "r": 3,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t46",
+        "q": -1,
+        "r": 3,
+        "orientation": "up",
+        "type": "paper",
+        "core": false
+      },
+      {
+        "id": "t47",
+        "q": -1,
+        "r": 3,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t48",
+        "q": 0,
+        "r": 3,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t49",
+        "q": 0,
+        "r": 3,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t50",
+        "q": 1,
+        "r": 3,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t51",
+        "q": 1,
+        "r": 3,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t52",
+        "q": -4,
+        "r": 4,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t53",
+        "q": -4,
+        "r": 4,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t54",
+        "q": -3,
+        "r": 4,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t55",
+        "q": -3,
+        "r": 4,
+        "orientation": "down",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t56",
+        "q": -2,
+        "r": 4,
+        "orientation": "up",
+        "type": "scissor",
+        "core": false
+      },
+      {
+        "id": "t57",
+        "q": -2,
+        "r": 4,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t58",
+        "q": -1,
+        "r": 4,
+        "orientation": "up",
+        "type": "hammer",
+        "core": false
+      },
+      {
+        "id": "t59",
+        "q": -1,
+        "r": 4,
+        "orientation": "down",
+        "type": "hammer",
+        "core": false
+      }
+    ]
+  },
+  "brain": {
+    "apiVersion": "1.0.0",
+    "initialState": "engage_hunt",
+    "variables": [],
+    "states": [
+      {
+        "name": "engage_hunt",
+        "rules": [
+          {
+            "when": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "kind": "sensor",
+                "name": "self.outsideRing"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 1
+              }
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            },
+            "nextState": "engage_hunt"
+          },
+          {
+            "when": {
+              "op": "any",
+              "args": [
+                {
+                  "op": "compare",
+                  "cmp": "lte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "enemy.motorCount"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 4
+                  }
+                },
+                {
+                  "op": "compare",
+                  "cmp": "lte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "enemy.coreHpRatio"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 300
+                  }
+                }
+              ]
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            },
+            "nextState": "execute_core"
+          },
+          {
+            "when": {
+              "op": "all",
+              "args": [
+                {
+                  "op": "compare",
+                  "cmp": "lte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "enemy.distance"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 9000
+                  }
+                },
+                {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "enemy.distance"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 2800
+                  }
+                }
+              ]
+            },
+            "action": {
+              "move": {
+                "mode": "orbitLeft",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 4
+              }
+            },
+            "nextState": "flank_strike"
+          },
+          {
+            "when": {
+              "op": "always"
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            },
+            "nextState": "engage_hunt"
+          }
+        ]
+      },
+      {
+        "name": "flank_strike",
+        "rules": [
+          {
+            "when": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "kind": "sensor",
+                "name": "self.outsideRing"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 1
+              }
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            },
+            "nextState": "engage_hunt"
+          },
+          {
+            "when": {
+              "op": "compare",
+              "cmp": "lt",
+              "left": {
+                "kind": "sensor",
+                "name": "enemy.distance"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 2800
+              }
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 2
+              }
+            },
+            "nextState": "ram_impact"
+          },
+          {
+            "when": {
+              "op": "all",
+              "args": [
+                {
+                  "op": "compare",
+                  "cmp": "lte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "self.coreHpRatio"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 250
+                  }
+                },
+                {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "enemy.coreHpRatio"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 400
+                  }
+                },
+                {
+                  "op": "compare",
+                  "cmp": "lte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "stateTicks"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 35
+                  }
+                }
+              ]
+            },
+            "action": {
+              "move": {
+                "mode": "awayFromEnemy",
+                "power": 900
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            },
+            "nextState": "tactical_retreat"
+          },
+          {
+            "when": {
+              "op": "compare",
+              "cmp": "gt",
+              "left": {
+                "kind": "sensor",
+                "name": "enemy.distance"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 11000
+              }
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            },
+            "nextState": "engage_hunt"
+          },
+          {
+            "when": {
+              "op": "always"
+            },
+            "action": {
+              "move": {
+                "mode": "orbitLeft",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 4
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "ram_impact",
+        "rules": [
+          {
+            "when": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "kind": "sensor",
+                "name": "self.outsideRing"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 1
+              }
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            },
+            "nextState": "engage_hunt"
+          },
+          {
+            "when": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "kind": "sensor",
+                "name": "stateTicks"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 25
+              }
+            },
+            "action": {
+              "move": {
+                "mode": "orbitRight",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": -3
+              }
+            },
+            "nextState": "engage_hunt"
+          },
+          {
+            "when": {
+              "op": "always"
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "execute_core",
+        "rules": [
+          {
+            "when": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "kind": "sensor",
+                "name": "self.outsideRing"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 1
+              }
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            }
+          },
+          {
+            "when": {
+              "op": "always"
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "tactical_retreat",
+        "rules": [
+          {
+            "when": {
+              "op": "any",
+              "args": [
+                {
+                  "op": "compare",
+                  "cmp": "eq",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "self.outsideRing"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 1
+                  }
+                },
+                {
+                  "op": "compare",
+                  "cmp": "gt",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "enemy.distance"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 11000
+                  }
+                },
+                {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "stateTicks"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 45
+                  }
+                }
+              ]
+            },
+            "action": {
+              "move": {
+                "mode": "towardEnemy",
+                "power": 1000
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            },
+            "nextState": "engage_hunt"
+          },
+          {
+            "when": {
+              "op": "always"
+            },
+            "action": {
+              "move": {
+                "mode": "awayFromEnemy",
+                "power": 900
+              },
+              "turn": {
+                "mode": "faceEnemy",
+                "power": 1000,
+                "offset": 0
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

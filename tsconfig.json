@@ -4,6 +4,7 @@
     { "path": "packages/contracts" },
     { "path": "packages/core" },
     { "path": "packages/application" },
-    { "path": "packages/ui" }
+    { "path": "packages/ui" },
+    { "path": "apps/web" }
   ]
 }

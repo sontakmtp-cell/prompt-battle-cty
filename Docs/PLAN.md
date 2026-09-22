@@ -170,7 +170,7 @@ Công việc dài trả ID và trạng thái `queued/running/completed/failed`. 
 - Trang xem lại: `/replays/{replay_id}`.
 - Đăng nhập và OAuth dùng cùng tên miền con.
 
-M3 hiện triển khai web tĩnh bằng **Vercel** và API bằng **Cloudflare Worker**. D1 lưu tài khoản, bot, version, submission, OAuth và replay; Durable Object giữ hàng chờ FIFO.
+M3 hiện triển khai web tĩnh bằng **Vercel**. API có tuyến **Cloudflare Worker + D1 + Durable Object** và tuyến **Node + SQLite + Nginx trên VPS**; tuyến VPS dùng chung handler lõi để phục vụ simulation nặng hơn.
 
 - Public registration bị khóa nếu không đặt secret `INVITE_CODE`; `WEB_ORIGIN` giới hạn CORS. Local Worker dùng D1 local của Wrangler để smoke test trước khi deploy.
 
@@ -186,17 +186,17 @@ M3 hiện triển khai web tĩnh bằng **Vercel** và API bằng **Cloudflare W
 
 **Chỉ sang mốc tiếp theo khi Gate hiện tại đạt và có bằng chứng kiểm tra.**
 
-**Trạng thái 2026-09-22:** M0 đã đạt. M1 có đủ lõi, CLI, 5 bot và bản vẽ gỡ lỗi; **Gate kỹ thuật M1 đạt**: 14/14 nhóm kiểm tra, cùng hash trên Windows/Linux với 100 seed cố định. Bộ vòng tròn 1.000 trận có trung vị 42,27 giây. **Cân bằng chưa đạt toàn bộ tiêu chí** (bot cánh, bot nghiêng 70/30 và tốc độ di chuyển thực); các phép đo và giới hạn ghi ở [M1.md](M1.md). Chưa triển khai M2.
+**Trạng thái 2026-09-22:** M0 đã đạt. M1 có đủ lõi, CLI, 5 bot và bản vẽ gỡ lỗi; **Gate kỹ thuật M1 đạt**: 14/14 nhóm kiểm tra. **M2 — Local Web Lab đã hoàn tất xuất sắc và đạt Gate kỹ thuật M2**: 18/18 nhóm kiểm tra đạt 100%, không vi phạm ranh giới mô-đun (apps/web không import core), tài liệu chi tiết tại [M2.md](M2.md). Web Lab đã được tái cấu trúc toàn diện theo phong cách cao cấp Alexandria / Autonomous Geometric Combat với sàn đấu Dark Cyber `#0B0F17` và lưới mờ tương phản thấp (`bg-grid-cyber`), HUD thời gian thực, bảng điều khiển replay đa tốc độ, cơ chế nhập/xuất bot bằng file và chuỗi JSON (`#json-modal`), cùng bot tham chiếu thông minh mới *Chim Ưng Tiên Phong* (`examples/bots/chim-ung-tien-phong.json`, 60 tam giác, tải 1.00, thắng 80% bộ 5 bot mẫu). **M3 đã hoàn tất lõi kỹ thuật, local gate, triển khai VPS và HTTPS hosted; API Node smoke pass**, nhưng load gate VPS chưa đạt (1 vCPU, 10 simulation đồng thời p95 24,9 giây), xem [M3.md](M3.md). **M4 đã triển khai trên VPS; MCP Apps resource, replay viewer dùng chung và fallback link ký đều pass local/hosted smoke, còn kiểm tra render trên ChatGPT/Claude thật**, xem [M4.md](M4.md).
 
 | Mốc | Kết quả bàn giao | Gate |
 |---|---|---|
 | **M0 — Nền móng** | Workspace, ranh giới mô-đun, schema, ruleset ban đầu, bộ lệnh Brain, lệnh kiểm tra | Schema đọc được, ví dụ hợp lệ, kiểm tra phụ thuộc mô-đun đạt |
 | **M1 — Hai bot tự đánh** | Geometry, Brain, engine, phá hủy, replay dữ liệu, CLI và 5 bot mẫu trong spec | Hai bot đánh hết trận; chạy lại cùng kết quả; Windows/Linux cho cùng hash với 100 seed cố định |
-| **M2 — Local web lab** | Editor, Inspector, Viewer, replay controls, lưu version và hàng FIFO local | Người không biết code tạo bot, validate, simulate, chỉnh sửa, submit và xem replay hoàn chỉnh trên browser local |
+| **M2 — Local web lab** | Editor, Inspector, Viewer, replay controls, lưu version và hàng FIFO local; Giao diện Dark Cyber, Nhập/Xuất bot JSON | Người không biết code tạo/nhập bot từ JSON, validate, simulate, chỉnh sửa, submit và xem replay hoàn chỉnh trên browser local |
 | **M3 — Demo dùng AI** | Account/auth, D1 database, Durable Object matchmaking, tám MCP tools, OAuth, tài liệu agent, Vercel + Cloudflare deployment | ChatGPT và Claude đều thực hiện được tạo → validate → thử → sửa → submit; tải thử đạt trước khi mời người dùng |
 | **M4 — Replay trong chat** | Viewer dùng chung qua MCP Apps | Render thật trên host hỗ trợ; play/pause/seek hoạt động; fallback link hoạt động trên client chỉ có tools |
 
-M2 cố ý là web lab local-first: draft, version và queue dùng `localStorage`, còn account, database, auth và matchmaking chính thức là phạm vi M3. Gate M2 không coi các năng lực hosted đó là đã hoàn tất.
+M2 cố ý là web lab local-first: draft, version và queue dùng `localStorage`, còn account, database, auth và matchmaking chính thức là phạm vi M3. Gate M2 không coi các năng lực hosted đó là đã hoàn tất. Chi tiết kỹ thuật và kết quả đo M2 được lưu tại [M2.md](M2.md).
 
 Bộ kiểm tra trọng tâm dùng `node:test`, kèm kiểm tra giao diện và hai AI client thực tế:
 

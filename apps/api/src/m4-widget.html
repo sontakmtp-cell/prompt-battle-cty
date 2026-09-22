@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light dark">
+  <style>
+    :root {
+      --ink: var(--color-text-primary, #e5eefc);
+      --sub: var(--color-text-secondary, #91a4bf);
+      --line: var(--color-border-default, rgba(148, 163, 184, .22));
+      --panel: rgba(15, 23, 42, .72);
+      --accent-a: #f43f5e;
+      --accent-b: #38bdf8;
+    }
+    :root:not(.dark) {
+      --ink: var(--color-text-primary, #0f172a);
+      --sub: var(--color-text-secondary, #526174);
+      --line: var(--color-border-default, rgba(71, 85, 105, .2));
+      --panel: rgba(248, 250, 252, .9);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 320px; background: transparent; color: var(--ink); font: 13px/1.35 system-ui, sans-serif; }
+    body { padding: 10px; }
+    button, input { font: inherit; }
+    button { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); cursor: pointer; padding: 6px 10px; }
+    button:hover { border-color: var(--accent-b); }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--accent-b); outline-offset: 2px; }
+    .shell { display: grid; gap: 8px; max-width: 780px; }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .title { min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .meta, .status, .events { color: var(--sub); }
+    .meta { font-size: 11px; white-space: nowrap; }
+    canvas { display: block; width: 100%; height: auto; aspect-ratio: 1.38; border: 1px solid var(--line); border-radius: 10px; background: #0b0f17; }
+    .controls { display: grid; grid-template-columns: auto auto auto minmax(120px, 1fr) auto auto; align-items: center; gap: 6px; }
+    .controls input[type="range"] { min-width: 0; width: 100%; accent-color: var(--accent-b); }
+    .controls select { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); padding: 5px 6px; }
+    .status { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; }
+    .events { display: grid; gap: 2px; margin: 0; padding-left: 18px; font-size: 11px; }
+    .events:empty { display: none; }
+    .fallback { color: var(--accent-b); font-size: 11px; }
+    .fallback[hidden], #empty[hidden] { display: none; }
+    @media (max-width: 540px) {
+      .controls { grid-template-columns: auto auto auto 1fr; }
+      .controls select { grid-column: span 1; }
+      .controls label { grid-column: span 2; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell" aria-label="PROMPT Chiến replay viewer">
+    <div class="top">
+      <div id="title" class="title">Đang tải replay…</div>
+      <div id="meta" class="meta"></div>
+    </div>
+    <canvas id="arena" width="760" height="550" aria-label="Replay arena"></canvas>
+    <div id="empty" class="status">Widget đang chờ dữ liệu replay từ MCP host.</div>
+    <div class="controls">
+      <button id="play" type="button" disabled>Phát</button>
+      <button id="back" type="button" disabled aria-label="Lùi một nhịp">−1</button>
+      <button id="forward" type="button" disabled aria-label="Tiến một nhịp">+1</button>
+      <input id="seek" type="range" min="0" max="0" value="0" disabled aria-label="Tua replay">
+      <select id="speed" aria-label="Tốc độ phát">
+        <option value="0.5">0.5×</option>
+        <option value="1" selected>1×</option>
+        <option value="2">2×</option>
+        <option value="4">4×</option>
+      </select>
+      <button id="damage" type="button" disabled>Damage</button>
+    </div>
+    <div class="status"><span id="position">—</span><span id="result"></span></div>
+    <ol id="events" class="events" aria-label="Sự kiện gần nhất"></ol>
+    <a id="fallback" class="fallback" href="#" hidden>Mở link fallback JSON</a>
+  </main>
+  <script type="module">
+/*__EXT_APPS_BUNDLE__*/
+/*__PROMPT_CHIEN_VIEWER__*/
+    (async () => {
+      const { App, applyHostStyleVariables } = globalThis.ExtApps;
+      const viewer = globalThis.PromptChienViewer;
+      const $ = (id) => document.getElementById(id);
+      const canvas = /** @type {HTMLCanvasElement} */ ($("arena"));
+      const state = { payload: null, tick: 0, alpha: 0, playing: false, speed: 1, damage: false, checkpointTick: -1, checkpoint: null, lastTime: 0 };
+      const app = new App({ name: "PromptChienReplayViewer", version: "1.0.0" }, {}, { autoResize: true });
+
+      function payloadFrom(result) {
+        return result?._meta?.["promptchien/replay"] ?? result?.structuredContent?.viewer ?? result?.structuredContent ?? null;
+      }
+
+      function replay() { return state.payload?.replay ?? null; }
+
+      function setEnabled(enabled) {
+        for (const id of ["play", "back", "forward", "seek", "damage"]) $(id).disabled = !enabled;
+        $("empty").hidden = enabled;
+      }
+
+      function clampTick(value) {
+        const total = replay()?.manifest?.totalTicks ?? 0;
+        return Math.max(0, Math.min(total, Math.round(Number(value) || 0)));
+      }
+
+      function draw() {
+        const data = state.payload;
+        const current = replay();
+        if (!data || !current || !state.payload.shapes) return;
+        const total = current.manifest.totalTicks;
+        state.tick = clampTick(state.tick);
+        if (state.checkpointTick !== state.tick) {
+          state.checkpoint = viewer.viewCheckpoint(current, state.tick);
+          state.checkpointTick = state.tick;
+        }
+        const previous = current.frames[state.tick];
+        const next = current.frames[Math.min(total, state.tick + 1)] ?? previous;
+        if (!previous || !next || !state.checkpoint) return;
+        viewer.drawViewer(canvas, {
+          previous, next, checkpoint: state.checkpoint, events: current.events,
+          alpha: next.tick === state.tick ? 0 : state.alpha,
+          seed: current.manifest.seed, bodies: data.shapes, frames: current.frames,
+          showDamage: state.damage, organic: true,
+        });
+        const names = data.names ?? { A: "A", B: "B" };
+        $("title").textContent = `${names.A} vs ${names.B}`;
+        $("meta").textContent = `${data.official ? "official" : "sandbox"} · seed ${current.manifest.seed}`;
+        $("position").textContent = `Nhịp ${state.tick.toLocaleString()} / ${total.toLocaleString()} · ${(state.tick / current.manifest.tickRate).toFixed(1)}s`;
+        $("result").textContent = state.tick === total ? `${current.manifest.result.winner === "draw" ? "HÒA" : `${current.manifest.result.winner} THẮNG`} · ${current.manifest.result.reason}` : "";
+        const seek = /** @type {HTMLInputElement} */ ($("seek"));
+        seek.max = String(total); seek.value = String(state.tick);
+        $("play").textContent = state.playing ? "Tạm dừng" : "Phát";
+        const events = $("events");
+        events.replaceChildren();
+        for (const item of current.events.filter((event) => event.tick <= state.tick).slice(-5).reverse()) {
+          const li = document.createElement("li"); li.textContent = viewer.captionEvent(item); events.append(li);
+        }
+      }
+
+      function step(by) {
+        if (!replay()) return;
+        state.playing = false; state.alpha = 0; state.tick = clampTick(state.tick + by); draw();
+      }
+
+      function frame(now) {
+        const current = replay();
+        if (state.playing && current) {
+          const dt = state.lastTime ? Math.min(0.05, (now - state.lastTime) / 1000) : 0;
+          state.alpha += dt * current.manifest.tickRate * state.speed;
+          while (state.alpha >= 1 && state.tick < current.manifest.totalTicks) { state.alpha -= 1; state.tick += 1; state.checkpointTick = -1; }
+          if (state.tick >= current.manifest.totalTicks) { state.tick = current.manifest.totalTicks; state.alpha = 0; state.playing = false; }
+          draw();
+        }
+        state.lastTime = now; requestAnimationFrame(frame);
+      }
+
+      function applyContext(context) {
+        document.documentElement.classList.toggle("dark", context?.theme === "dark");
+        if (context?.styles?.variables) applyHostStyleVariables(context.styles.variables);
+      }
+
+      app.onhostcontextchanged = applyContext;
+      app.ontoolresult = (result) => {
+        const data = payloadFrom(result);
+        if (!data?.replay || !data?.shapes) { $("title").textContent = "Replay data không hợp lệ"; return; }
+        state.payload = data; state.tick = 0; state.alpha = 0; state.playing = true; state.checkpointTick = -1;
+        const link = $("fallback");
+        if (data.fallbackUrl) {
+          link.hidden = false; link.href = data.fallbackUrl;
+          link.addEventListener("click", (event) => { event.preventDefault(); void app.openLink({ url: data.fallbackUrl }); }, { once: true });
+        }
+        setEnabled(true); draw();
+      };
+
+      $("play").addEventListener("click", () => { if (!replay()) return; if (state.tick >= replay().manifest.totalTicks) { state.tick = 0; state.alpha = 0; state.checkpointTick = -1; } state.playing = !state.playing; state.lastTime = 0; draw(); });
+      $("back").addEventListener("click", () => step(-1));
+      $("forward").addEventListener("click", () => step(1));
+      $("seek").addEventListener("input", (event) => { state.playing = false; state.alpha = 0; state.tick = clampTick(event.currentTarget.value); state.checkpointTick = -1; draw(); });
+      $("speed").addEventListener("change", (event) => { state.speed = Number(event.currentTarget.value) || 1; });
+      $("damage").addEventListener("click", () => { state.damage = !state.damage; $("damage").textContent = state.damage ? "Damage: on" : "Damage"; draw(); });
+
+      try {
+        await app.connect();
+        applyContext(app.getHostContext());
+      } catch (error) {
+        $("title").textContent = "MCP Apps host chưa kết nối";
+        console.error(error);
+      }
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>

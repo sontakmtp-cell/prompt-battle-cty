@@ -2,8 +2,23 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import { CONTRACT_SCHEMA } from "./schema.js";
 import type { ContractMap, Issue } from "./types.js";
 
-const ajv = new Ajv2020({ strict: true, allErrors: false });
-ajv.addSchema(CONTRACT_SCHEMA);
+let ajv: Ajv2020 | undefined;
+function nativeValidator(): Ajv2020 {
+  if (!ajv) {
+    ajv = new Ajv2020({ strict: true, allErrors: false });
+    ajv.addSchema(CONTRACT_SCHEMA);
+  }
+  return ajv;
+}
+
+type ExternalValidator = (input: unknown) => boolean;
+type ValidatorGlobal = typeof globalThis & { __PROMPTCHIEN_CONTRACT_VALIDATORS__?: Map<string, ExternalValidator>; __PROMPTCHIEN_CONTRACT_VALIDATOR_FUNCTIONS__?: Record<string, ExternalValidator> };
+const externalValidators = ((globalThis as ValidatorGlobal).__PROMPTCHIEN_CONTRACT_VALIDATORS__ ??= new Map<string, ExternalValidator>());
+
+/** Allows runtimes that forbid dynamic code generation (for example Workers) to install a compatible validator. */
+export function registerContractValidators(validators: Partial<Record<keyof ContractMap, ExternalValidator>>): void {
+  for (const [name, validator] of Object.entries(validators)) if (validator) externalValidators.set(name, validator);
+}
 
 export type SchemaCheck<T> = { ok: true; value: T; issues: [] } | { ok: false; issues: Issue[] };
 
@@ -29,7 +44,11 @@ export function checkSchema<K extends keyof ContractMap>(name: K, input: unknown
       return { ok: false, issues: [{ code: "INVALID_JSON", path: "", message: "Only JSON values are allowed." }] };
     }
   }
-  const validate = ajv.getSchema<ContractMap[K]>(`${CONTRACT_SCHEMA.$id}#/$defs/${name}`)!;
+  const external = externalValidators.get(name) ?? (globalThis as ValidatorGlobal).__PROMPTCHIEN_CONTRACT_VALIDATOR_FUNCTIONS__?.[name];
+  if (external) return external(input)
+    ? { ok: true, value: input as ContractMap[K], issues: [] }
+    : { ok: false, issues: [{ code: "SCHEMA_INVALID", path: "", message: `Invalid ${String(name)} data.` }] };
+  const validate = nativeValidator().getSchema<ContractMap[K]>(`${CONTRACT_SCHEMA.$id}#/$defs/${name}`)!;
   if (validate(input)) return { ok: true, value: input as ContractMap[K], issues: [] };
   return { ok: false, issues: (validate.errors ?? []).slice(0, 20).map(error => ({
     code: "SCHEMA_INVALID", path: error.instancePath, message: error.message ?? "Invalid data",

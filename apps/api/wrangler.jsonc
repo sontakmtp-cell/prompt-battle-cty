@@ -1,0 +1,30 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/wrangler/config-schema.json",
+  "name": "promptchien-api",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-09-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "vars": {
+    "WEB_ORIGIN": "https://prompt-battle-cty.vercel.app"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "promptchien-cty",
+      "database_id": "e8b4914d-4237-4db8-88ce-cfc3cccabfb7",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "MATCH_QUEUE", "class_name": "MatchQueue" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["MatchQueue"] }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

@@ -5,5 +5,5 @@ export const VERSIONS = Object.freeze({
   botSchema: "1.0.0",
   brainApi: "1.0.0",
   replay: "2.0.0",
-  mcpApi: "0.0.0",
+  mcpApi: "1.0.0",
 } as const);
