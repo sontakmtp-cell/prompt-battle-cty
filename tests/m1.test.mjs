@@ -158,6 +158,20 @@ test('immutable packages, canonical hashes, replay seek and rerun reject tamperi
   const cyclic=small(); cyclic.brain=cyclic; assert.equal(checkSchema('BotDefinition',cyclic).ok,false);
 });
 
+test('stationary retaliation stays below 80 percent of charging damage without breaking RPS', async () => {
+  let stationaryDamage=0,chargeDamage=0;
+  for(const seed of [0,1,7,42,2026]) {
+    const moving=referenceBots().shield; moving.brain=referenceBots().spear.brain;
+    let i=0; moving.body.triangles.forEach(t=>{if(t.type!=='motor')t.type=['hammer','scissor','paper'][i++%3];});
+    const stationary=clone(moving); stationary.brain.states[0].rules[0].action.move=IDLE_ACTION.move;
+    const swapped=seed%2===1, state=await match(swapped?moving:stationary,swapped?stationary:moving,seed);
+    while(!state.result&&state.tick<900)stepMatch(state);
+    stationaryDamage+=state.bots[swapped?'B':'A'].damageDealt;
+    chargeDamage+=state.bots[swapped?'A':'B'].damageDealt;
+  }
+  assert.ok(stationaryDamage/chargeDamage<0.8,`${stationaryDamage}/${chargeDamage}`);
+});
+
 test('all five bots actively engage, passive bots fail and worker timeout is a failed job', async () => {
   for(const bot of Object.values(referenceBots())) {
     const {report,trials}=await validateBot(bot);
@@ -166,6 +180,11 @@ test('all five bots actively engage, passive bots fail and worker timeout is a f
   }
   const passive=small(); passive.brain=brain(IDLE_ACTION);
   assert.equal((await validateBot(passive)).report.checks.sandbox,'failed');
+  const heavy=referenceBots().spear; let motors=0;
+  heavy.body.triangles.forEach(t=>{if(t.type==='motor'&&motors++>=5)t.type='hammer';});
+  const heavyResult=await validateBot(heavy);
+  assert.equal(heavyResult.report.valid,true,JSON.stringify(heavyResult.trials));
+  assert.ok(heavyResult.trials.some(t=>t.ticks>600),'slow legal bodies must not be mislabeled passive after 20 seconds');
   const worker=await runIsolated({kind:'validate',bot:referenceBots().spear}); assert.equal(worker.report.valid,true);
   await assert.rejects(runIsolated({kind:'validate',bot:small()},{timeoutMs:1}),/job failed: timeout/);
 });

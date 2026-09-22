@@ -1,6 +1,6 @@
-# Brain API 1.0.0 — hợp đồng M0
+# Brain API 1.0.0 — thực thi M1
 
-Brain là **danh sách luật viết bằng JSON**. Nó chỉ được xem thông tin game cho phép rồi chọn cách đi và xoay. Đây là bộ lệnh đã định nghĩa; trình thực thi từng nhịp được làm ở M1.
+Brain là **danh sách luật viết bằng JSON**. Nó chỉ được xem thông tin game cho phép rồi chọn cách đi và xoay. M1 đã có kiểm tra tĩnh và trình thực thi từng nhịp.
 
 Mẫu dễ đọc: [bot-basic.json](../examples/bot-basic.json). Mẫu có tiếp cận, vòng sườn, lùi rồi phản công: [brain-flanker.json](../examples/brain-flanker.json).
 
@@ -45,7 +45,7 @@ Phép cộng/trừ kẹp kết quả về khoảng số nguyên trên. Không c�
 | `ring.radius` | Bán kính vòng, đơn vị 1/1000; trước khi thu trả bán kính bắt đầu |
 | `self.outsideRing` | 1 nếu Core ngoài vòng đang gây sát thương, ngược lại 0 |
 
-`self.loadFactor` là `max(tải hiện tại, tải lúc khóa gói)`. Hằng số số học, lượng tử hóa hình học, lực Motor và va chạm sẽ được kiểm chứng ở M1.
+`self.loadFactor` là `max(tải hiện tại, tải lúc khóa gói)`. Trong thân bot, trục +Y là mũi trước; heading 0 xoay mũi về +X của sân. Trục +Y của sân hướng lên; Canvas lật trục Y khi vẽ. Các phép tính vật lý chia nguyên về 0; sát thương và các tỉ lệ không âm lấy phần nguyên xuống.
 
 ## Điều kiện
 
@@ -82,6 +82,10 @@ Phép cộng/trừ kẹp kết quả về khoảng số nguyên trên. Không c�
 - M0 đã kiểm tra các giới hạn trên, tên trùng, tham chiếu sai, lệnh/sensor lạ, số thực và thuộc tính thừa.
 - M1 thực thi tối đa **1000 bước/nhịp**: mỗi luật được xét, mỗi điều kiện, mỗi biểu thức, mỗi lệnh đi/xoay, mỗi phép ghi biến và phép chuyển trạng thái tính một bước; phép so sánh/logic gồm các bước của biểu thức/điều kiện con thực sự được thăm. Kiểm tra ngân sách trước mỗi bước.
 - Vượt ngân sách: bỏ **toàn bộ** ý định, ghi biến và chuyển trạng thái của nhịp đó; giữ biến/trạng thái cũ, tăng `stateTicks` như nhịp không chuyển trạng thái. Đếm vi phạm liên tiếp; nhịp hợp lệ đặt lại bộ đếm. **30 nhịp liên tiếp** thì thua với lý do `brainBudget`; hai bên cùng chạm ngưỡng cùng nhịp thì hòa.
-- Lỗi tiến trình, timeout hạ tầng hoặc hết bộ nhớ là **job failed**, không phải bot thua. Giới hạn tài nguyên tiến trình nằm ở M1/M3, không được coi là đã có ở M0.
+- CLI M1 chạy job trong tiến trình riêng, giới hạn 60 giây thực và 256 MiB V8 old heap. Lỗi tiến trình, timeout hạ tầng hoặc hết bộ nhớ là **job failed**, không phải bot thua.
+
+Validation thử 3 seed `7, 42, 2026`, đổi bên A/B thành 6 trận với đối thủ đứng yên cùng thân. Bot phải di chuyển, tiến gần và gây ít nhất một hit trước khi trận kết thúc. Dùng giới hạn thời gian trận thật, để bot quá tải 55/5 vẫn có cơ hội tiếp cận; không nhầm bot chậm với bot cố tình đứng yên.
+
+Từ ruleset 0.1.3, tam giác tấn công phải hồi phục thêm `ceil(30 × (1000 − powerDiChuyen) / 1000)` nhịp giữa hai lần gây hit. Đi `stop` hoặc mất hết Motor tương đương power 0; chỉ xoay không được tính là dùng lực di chuyển. Lệnh đi power 1000 không thêm thời gian hồi phục. Đồng thời mỗi tam giác phòng thủ vẫn nhận tối đa một hit mỗi 18 nhịp. Đây là luật chống đứng yên đã được Khầy chọn ở M1; công thức sát thương mỗi hit và bất biến RPS được giữ nguyên.
 
 Định nghĩa chuẩn máy đọc: [brain.json](../schemas/brain.json); kiểm tra tĩnh: `@prompt-chien/core/brain` → `validateBrain()`.

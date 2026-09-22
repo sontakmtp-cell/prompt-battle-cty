@@ -56,13 +56,14 @@ Các giá trị dưới đây nằm tập trung trong `ruleset`, được điề
 | Sát thương nền | Búa **24** · Kéo **16** · Bao **10** · Motor **0** |
 | Hệ số khắc chế | Lợi thế **×2.0** · cùng loại **×1.0** · bất lợi **×0.5** — lưu dạng số nguyên 1/1000: `2000` / `1000` / `500` |
 | Đánh vào Motor | **×1.0** (`1000`) với mọi tam giác chiến đấu — Motor không nằm trong vòng khắc chế |
-| Hệ số va chạm | **0.85 → 1.00** (`850 → 1000`) theo tốc độ va chạm; lao hết tốc lực = 1.00. `IMPACT_REF_SPEED` đặt tạm `4000`, **phải hiệu chuẩn ở M1** sao cho r ≈ 1.0 ở ca chuẩn |
+| Hệ số va chạm | **0.85 → 1.00** (`850 → 1000`) theo vận tốc riêng của bên tấn công; `IMPACT_REF_SPEED = 4000`, M1 đã đo r = 1.00 ở ca chuẩn |
 | Hệ số hướng | **0.85 → 1.00** (`850 → 1000`) theo góc giữa hướng mặt tam giác tấn công và hướng đâm; tra bảng 64 hướng, không tính `cos` lúc chạy |
 | Cộng hưởng đa dạng | **+12% máu TỐI ĐA** cho mỗi **loại chiến đấu** khác trong vòng 1 hàng xóm giáp cạnh, tối đa **+24%**. Motor **nhận** thưởng nhưng **không được đếm** là một loại. Tính lại **khi cấu trúc thay đổi** (có tam giác chết), không tính mỗi tick, không tính một lần rồi thôi |
 | Trần thuần chủng | Một loại chiếm **>65%** → cảnh báo; **>80%** → chặn (công tắc, mặc định chỉ cảnh báo) |
 | Tải trọng Motor | Mỗi Motor kéo được **4 tam giác**; hệ số tải = tải thân ÷ sức kéo. **Hệ số tải hiệu dụng = max(hệ số hiện tại, hệ số lúc khóa gói)** — bot không bao giờ nhanh lên nhờ bị đánh gãy |
 | Bảng tốc độ theo tải | ≤0.50 → **115%** · 0.50–1.00 → **100%** · 1.00–1.50 → 70% · 1.50–2.00 → 40% · >2.00 → 15% hoặc đứng yên |
-| Nhịp đánh | **Mỗi tam giác phòng thủ** nhận tối đa 1 hit mỗi 6 tick — **không** tính theo cặp (nếu tính theo cặp, một tam giác bị 3 mặt kẹp cùng tick sẽ ăn 3 hit và chết trong 0,033 giây) |
+| Nhịp đánh | **Mỗi tam giác phòng thủ** nhận tối đa 1 hit mỗi **18 tick** — không tính theo cặp; tăng từ 6 sau đo M1 |
+| Chống đứng yên | Nguồn tấn công hồi phục thêm `ceil(30 × (1000 − power di chuyển) / 1000)` tick; đứng yên/hết Motor dùng power 0, đi power 1000 không thêm hồi phục. M1 đo sát thương đứng yên còn 71,49% bên lao vào |
 | Mảnh tách rời | Loại khỏi mô phỏng ngay; Viewer cho tan biến ngắn |
 | Vùng thu hẹp | Từ giây thứ **60**, bán kính thu từ 28.3 về 4.0; lõi nằm ngoài vòng mất **1.5% máu tối đa mỗi nhịp** (đổi từ "2 máu cố định" để mọi loại lõi có cùng ~2,2 giây ân hạn) |
 
@@ -185,7 +186,7 @@ M3 hiện triển khai web tĩnh bằng **Vercel** và API bằng **Cloudflare W
 
 **Chỉ sang mốc tiếp theo khi Gate hiện tại đạt và có bằng chứng kiểm tra.**
 
-**Trạng thái 2026-09-19:** M0 đã đạt trên Windows (`pnpm check`: build, 10 tệp schema, ranh giới mô-đun và 6/6 nhóm kiểm tra). Chi tiết phạm vi, quyết định và bằng chứng ở [M0.md](M0.md). Chưa triển khai M1.
+**Trạng thái 2026-09-22:** M0 đã đạt. M1 có đủ lõi, CLI, 5 bot và bản vẽ gỡ lỗi; **Gate kỹ thuật M1 đạt**: 14/14 nhóm kiểm tra, cùng hash trên Windows/Linux với 100 seed cố định. Bộ vòng tròn 1.000 trận có trung vị 42,27 giây. **Cân bằng chưa đạt toàn bộ tiêu chí** (bot cánh, bot nghiêng 70/30 và tốc độ di chuyển thực); các phép đo và giới hạn ghi ở [M1.md](M1.md). Chưa triển khai M2.
 
 | Mốc | Kết quả bàn giao | Gate |
 |---|---|---|

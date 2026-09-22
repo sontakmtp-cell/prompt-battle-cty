@@ -495,16 +495,33 @@
         "rules": [
           {
             "when": {
-              "op": "compare",
-              "cmp": "lt",
-              "left": {
-                "kind": "sensor",
-                "name": "enemy.distance"
-              },
-              "right": {
-                "kind": "constant",
-                "value": 8500
-              }
+              "op": "all",
+              "args": [
+                {
+                  "op": "compare",
+                  "cmp": "lt",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "enemy.distance"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 8500
+                  }
+                },
+                {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "kind": "sensor",
+                    "name": "tick"
+                  },
+                  "right": {
+                    "kind": "constant",
+                    "value": 150
+                  }
+                }
+              ]
             },
             "action": {
               "move": {

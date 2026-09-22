@@ -47,7 +47,7 @@ export async function validateBot(input: unknown): Promise<{ report: ValidationR
     const bot = state.bots[team], enemy = state.bots[team === "A" ? "B" : "A"];
     const initial = { ...bot.position }, initialDistance = distanceSquared(bot.position, enemy.position);
     let moved = false, approached = false;
-    while (!state.result && state.tick < RULESET.match.tickRate * 20 && bot.hitCount === 0) {
+    while (!state.result && state.tick < RULESET.match.maxTicks && bot.hitCount === 0) {
       stepMatch(state);
       moved ||= distanceSquared(bot.position, initial) >= 500 ** 2;
       approached ||= distanceSquared(bot.position, enemy.position) < initialDistance - 1000 ** 2;
@@ -55,7 +55,7 @@ export async function validateBot(input: unknown): Promise<{ report: ValidationR
     trials.push({ seed, team, ticks: state.tick, moved, approached, engaged: bot.hitCount > 0 });
   }
   checks.sandbox = trials.every(t => t.moved && t.approached && t.engaged) ? "passed" : "failed";
-  if (checks.sandbox === "failed") report.errors.push({ code: "PASSIVE_BRAIN", path: "/brain", message: "Bot must move, approach and hit the dummy within 20 seconds in all six trials." });
+  if (checks.sandbox === "failed") report.errors.push({ code: "PASSIVE_BRAIN", path: "/brain", message: "Bot must move, approach and hit the dummy before the match ends in all six trials." });
   report.valid = checks.sandbox === "passed";
   // Hash is bound to the exact definition above; callers still enforce ownership/revision at submit time.
   return { report, package: report.valid ? pkg : null, trials };

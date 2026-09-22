@@ -1,0 +1,221 @@
+{
+  "versions": {
+    "engine": "0.1.1",
+    "ruleset": "0.1.3",
+    "botSchema": "1.0.0",
+    "brainApi": "1.0.0",
+    "replay": "2.0.0",
+    "mcpApi": "0.0.0"
+  },
+  "experimental": false,
+  "diversityBonus": 120,
+  "cooldown": 18,
+  "seeds": 10,
+  "results": [
+    {
+      "label": "biased-vs-mixed",
+      "a": "32 hammer, 13 other",
+      "b": "Balanced",
+      "seeds": 10,
+      "aWins": 0,
+      "bWins": 10,
+      "draws": 0,
+      "aWinRate": 0,
+      "bWinRate": 1,
+      "aMeanSpeed": 787.3397235673018,
+      "bMeanSpeed": 787.3397235673018,
+      "aMeanCapacity": 3995.8527932956786,
+      "bMeanCapacity": 4000,
+      "damageFactor": 0.8211987640026741,
+      "damageRatio": 0.9151864646519599,
+      "timeoutRate": 0,
+      "rows": [
+        {
+          "seed": 0,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 861,
+          "aDamage": 3304,
+          "bDamage": 3720,
+          "aMeanSpeed": 762.439024390244,
+          "bMeanSpeed": 762.439024390244,
+          "aMeanCapacity": 3995.3542392566783,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8260121400862068,
+          "firstR": 0.8991
+        },
+        {
+          "seed": 1,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 1004,
+          "aDamage": 3462,
+          "bDamage": 3731,
+          "aMeanSpeed": 568.2141434262949,
+          "bMeanSpeed": 568.2141434262949,
+          "aMeanCapacity": 3996.0159362549803,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8220132783505154,
+          "firstR": 0.996
+        },
+        {
+          "seed": 2,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 1059,
+          "aDamage": 3734,
+          "bDamage": 3765,
+          "aMeanSpeed": 695.2662889518414,
+          "bMeanSpeed": 695.2662889518414,
+          "aMeanCapacity": 3996.222851746931,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8184477557692308,
+          "firstR": 0.8955
+        },
+        {
+          "seed": 3,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 853,
+          "aDamage": 2943,
+          "bDamage": 3464,
+          "aMeanSpeed": 965.1207502930832,
+          "bMeanSpeed": 965.1207502930832,
+          "aMeanCapacity": 3995.310668229777,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8220989627791563,
+          "firstR": 1
+        },
+        {
+          "seed": 4,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 949,
+          "aDamage": 3397,
+          "bDamage": 3686,
+          "aMeanSpeed": 618.8914646996839,
+          "bMeanSpeed": 618.8914646996839,
+          "aMeanCapacity": 3995.7850368809272,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8243551494736843,
+          "firstR": 0.995
+        },
+        {
+          "seed": 5,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 1109,
+          "aDamage": 3423,
+          "bDamage": 3663,
+          "aMeanSpeed": 901.824165915239,
+          "bMeanSpeed": 901.824165915239,
+          "aMeanCapacity": 3996.3931469792606,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8199424308617235,
+          "firstR": 0.9158
+        },
+        {
+          "seed": 6,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 997,
+          "aDamage": 3392,
+          "bDamage": 3633,
+          "aMeanSpeed": 814.0140421263791,
+          "bMeanSpeed": 814.0140421263791,
+          "aMeanCapacity": 3995.987963891675,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8173380806451613,
+          "firstR": 0.5992999999999999
+        },
+        {
+          "seed": 7,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 939,
+          "aDamage": 3305,
+          "bDamage": 3686,
+          "aMeanSpeed": 852.5260915867945,
+          "bMeanSpeed": 852.5260915867945,
+          "aMeanCapacity": 3995.740149094782,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8213977048832272,
+          "firstR": 0.9033
+        },
+        {
+          "seed": 8,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 1037,
+          "aDamage": 3317,
+          "bDamage": 3685,
+          "aMeanSpeed": 1116.9132111861138,
+          "bMeanSpeed": 1116.9132111861138,
+          "aMeanCapacity": 3996.142719382835,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.8211024309278351,
+          "firstR": 0.999
+        },
+        {
+          "seed": 9,
+          "winner": "b",
+          "reason": "core",
+          "ticks": 904,
+          "aDamage": 3368,
+          "bDamage": 3730,
+          "aMeanSpeed": 578.1880530973451,
+          "bMeanSpeed": 578.1880530973451,
+          "aMeanCapacity": 3995.575221238938,
+          "bMeanCapacity": 4000,
+          "damageFactor": 0.81927970625,
+          "firstR": 0.9056000000000001
+        }
+      ]
+    }
+  ],
+  "calibration": {
+    "seed": 42,
+    "winner": null,
+    "reason": "probeLimit",
+    "ticks": 117,
+    "aDamage": 157,
+    "bDamage": 132,
+    "aMeanSpeed": 3801.4615384615386,
+    "bMeanSpeed": 0,
+    "aMeanCapacity": 4000,
+    "bMeanCapacity": 4000,
+    "damageFactor": 0.78625,
+    "firstR": 1
+  },
+  "staticChecks": {
+    "rpsInvariant": true,
+    "overloadedBodyLoss": {
+      "before": 600,
+      "after": 600,
+      "passed": true
+    },
+    "biasedWarnings": [
+      {
+        "code": "MONOCULTURE",
+        "path": "/body/triangles",
+        "message": "hammer exceeds 65% of combat triangles."
+      }
+    ],
+    "monoWarnings": [
+      {
+        "code": "MONOCULTURE",
+        "path": "/body/triangles",
+        "message": "paper exceeds 65% of combat triangles."
+      }
+    ],
+    "compactBounds": {
+      "width": 6000,
+      "height": 5196
+    },
+    "wideBounds": {
+      "width": 11500,
+      "height": 11258
+    },
+    "orientationOnly": "All-up or all-down bodies cannot be edge-connected at budget > 1. This requested comparison is not constructible on the specified grid."
+  }
+}
