@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
+import { smokeAuth } from "./smoke-auth.mjs";
 
-const base = (process.env.M3_API_URL ?? "http://127.0.0.1:8787").replace(/\/$/, "");
-const inviteCode = process.env.M3_INVITE_CODE ?? "local-demo-invite";
+const fixture = await smokeAuth("M3");
+const base = fixture.base;
 const bot = JSON.parse(await readFile(new URL("../examples/bots/spear.json", import.meta.url), "utf8"));
 const opponent = JSON.parse(await readFile(new URL("../examples/bots/shield.json", import.meta.url), "utf8"));
 
@@ -26,14 +27,12 @@ function cookieFrom(response) {
 }
 
 async function register(suffix) {
-  const email = `m3-${Date.now()}-${suffix}@example.test`;
-  const password = "local-demo-password";
-  const result = await request("/api/auth/register", {
+  const result = await request("/api/auth/google", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email, password, inviteCode }),
+    body: JSON.stringify({ credential: await fixture.credential(suffix) }),
   });
-  return { email, password, cookie: cookieFrom(result.response), user: result.value.user };
+  return { cookie: cookieFrom(result.response), user: result.value.user };
 }
 
 async function form(path, values, redirect = "follow", cookie = "") {
@@ -80,8 +79,8 @@ const oauthParams = {
   code_challenge_method: "S256",
 };
 const authorizePage = await request(`/oauth/authorize?${new URLSearchParams(oauthParams)}`);
-assert(typeof authorizePage.value === "string" && authorizePage.value.includes("Authorize"), "OAuth authorize page did not render");
-const authorized = await form("/oauth/authorize", { ...oauthParams, email: first.email, password: first.password }, "manual", first.cookie);
+assert(typeof authorizePage.value === "string" && authorizePage.value.includes("Google"), "OAuth authorize page did not render");
+const authorized = await form("/oauth/authorize", oauthParams, "manual", first.cookie);
 assert(authorized.response.status === 302, "OAuth authorization did not redirect");
 const code = new URL(authorized.response.headers.get("location")).searchParams.get("code");
 const token = await form("/oauth/token", { grant_type: "authorization_code", client_id: clientId, redirect_uri: oauthParams.redirect_uri, code, code_verifier: verifier });
@@ -183,3 +182,4 @@ const official = await mcp("tools/call", { name: "get_replay", arguments: { repl
 assert(official.structuredContent.official && official.structuredContent.replay.manifest.mode === "official", "official replay was not visible to the first account");
 
 console.log("M3 SMOKE PASSED: resources, account, OAuth PKCE, modern MCP, CRUD, validation, replay and two-account FIFO matchmaking");
+await fixture.close();

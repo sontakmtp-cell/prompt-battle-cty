@@ -15,6 +15,17 @@ await mkdir(dirname(databasePath), { recursive: true });
 const db = new DatabaseSync(databasePath);
 db.exec("PRAGMA foreign_keys = ON");
 db.exec(await readFile(new URL("../migrations/0001_m3.sql", import.meta.url), "utf8"));
+db.exec(await readFile(new URL("../node-migrations/0002_queue.sql", import.meta.url), "utf8"));
+if (db.prepare("PRAGMA user_version").get().user_version < 3) {
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    db.exec(await readFile(new URL("../node-migrations/0003_google_admin.sql", import.meta.url), "utf8"));
+    db.exec("PRAGMA user_version = 3; COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
 
 class NodeStatement {
   constructor(sql, values = []) {
@@ -43,18 +54,6 @@ class NodeStatement {
 const nodeDb = { prepare: sql => new NodeStatement(sql) };
 
 class NodeMatchQueue {
-  constructor() {
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS waiting_submissions (
-        submission_id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        version_id TEXT NOT NULL,
-        queued_at INTEGER NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS waiting_submissions_order ON waiting_submissions(queued_at, submission_id);
-    `);
-  }
-
   getByName() {
     return this;
   }
@@ -85,14 +84,19 @@ class NodeMatchQueue {
   snapshot() {
     return db.prepare("SELECT submission_id, user_id, version_id, queued_at FROM waiting_submissions ORDER BY queued_at, submission_id").all();
   }
+
+  cancelUser(userId) {
+    db.prepare("DELETE FROM waiting_submissions WHERE user_id = ?").run(userId);
+  }
 }
 
 const env = {
   DB: nodeDb,
   MATCH_QUEUE: new NodeMatchQueue(),
-  WEB_ORIGIN: process.env.WEB_ORIGIN ?? "http://127.0.0.1:4174",
-  INVITE_CODE: process.env.INVITE_CODE ?? "",
-  REPLAY_SHARE_SECRET: process.env.REPLAY_SHARE_SECRET ?? process.env.INVITE_CODE ?? "",
+  WEB_ORIGIN: process.env.WEB_ORIGIN ?? "https://prompt-battle-cty.vercel.app,http://127.0.0.1:4174",
+  REPLAY_SHARE_SECRET: process.env.REPLAY_SHARE_SECRET ?? "",
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "268703770614-btcocg67p6r1f0hb9gh6i1sbm2h2sn36.apps.googleusercontent.com",
+  GOOGLE_JWKS_URL: process.env.NODE_ENV === "test" ? process.env.GOOGLE_JWKS_URL : undefined,
 };
 
 function headersFrom(request) {

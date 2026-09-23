@@ -1,27 +1,14 @@
-# PROMPT Chiến M3 API
+# PROMPT Chiến Node API
 
-Cloudflare Worker backend for the M3 demo:
+Backend phát hành dùng Node + SQLite trên VPS cho web, OAuth/MCP, bot và replay. Worker/D1 là tuyến demo cũ, chưa tắt vì còn phải kiểm tra client ở M3. Hợp đồng và gate M1: [Docs/M1_RELEASE.md](../../Docs/M1_RELEASE.md).
 
-- D1 stores accounts, sessions, bot revisions, validated packages, submissions and replays.
-- `MatchQueue` is a SQLite-backed Durable Object. It pairs the oldest submissions from different accounts.
-- `/mcp` exposes the M3 workflow plus the M4 `open_game` and `render_replay` MCP App tools over stateless Streamable HTTP with OAuth 2.1 Authorization Code + S256 PKCE.
-- `/agent.md`, `/rules`, `/schema/bot.json` and `/schema/replay.json` are machine-readable onboarding resources.
-- `ui://promptchien/game/v4.html` loads the VPS-hosted editor, inspector, sandbox and queue directly inside chat. `ui://promptchien/replay-viewer/v1.html` reuses the shared `packages/ui` viewer and has a signed standalone `/replays/{replay_id}` fallback.
-
-## Local Worker
+Chạy local bằng Node 22.23.1 và pnpm 10.33.0:
 
 ```powershell
 pnpm build
-pnpm dlx wrangler@latest d1 migrations apply promptchien --local
-Copy-Item .dev.vars.example .dev.vars
-pnpm dlx wrangler@latest dev --local --port 8787
+$env:WEB_ORIGIN = 'http://127.0.0.1:4174'
+$env:REPLAY_SHARE_SECRET = 'a separate random secret'
+pnpm api:node
 ```
 
-For hosted deployment, create the D1 database, replace `REPLACE_WITH_D1_DATABASE_ID`, set `INVITE_CODE`, set `WEB_ORIGIN` to the Vercel URL, then run:
-
-```powershell
-pnpm dlx wrangler@latest d1 migrations apply promptchien --remote
-pnpm dlx wrangler@latest deploy
-```
-
-Registration is closed unless `INVITE_CODE` is set. Passwords use PBKDF2-SHA-256; session and OAuth tokens are stored only as SHA-256 hashes. Replay JSON is capped at 4 MiB for this demo. Replay share links use `REPLAY_SHARE_SECRET` when set, otherwise `INVITE_CODE`, and expire after 24 hours.
+`PROMPTCHIEN_DB_PATH` mặc định là `data/promptchien.sqlite`; Node tự chạy migration `0001`, `0002`, `0003` khi khởi động. Node có Client ID công khai mặc định từ file chủ dự án cung cấp; có thể ghi đè bằng `GOOGLE_CLIENT_ID`. Không cần Client Secret và không đặt `INVITE_CODE`. Google chỉ hoạt động ở JavaScript origin đã đăng ký. Admin được cấp bằng `node scripts/promote-admin.mjs --sub GOOGLE_SUB` sau lần đăng nhập Google đầu tiên và sau khi chọn đúng DB.

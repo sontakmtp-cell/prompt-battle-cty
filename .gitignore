@@ -6,6 +6,8 @@ dist/
 !.env.example
 .dev.vars
 .wrangler/
+client_secret_*.apps.googleusercontent.com.json
+.playwright-cli/
 
 .vercel
 .env*

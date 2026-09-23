@@ -4,8 +4,8 @@ import { enqueueOpponent, finishPair, matchSeed, recordVersion, releasePair, ren
 import type { LabStore } from "@prompt-chien/application/lab";
 import { captionEvent, cellAt, cellsInView, cellVertices, drawViewer, TEAM_FILL, TEAM_INK, viewCheckpoint } from "@prompt-chien/ui";
 import type { DisplayTriangle, GridCell } from "@prompt-chien/ui";
-import { inspectBot, referenceBots, simulateRequest, validateRequest } from "./api.js";
-import type { Inspection, ReferenceBot, ShapeReport } from "./api.js";
+import { apiOrigin, authMe, createCloudBot, editCloudBot, getCloudBot, getCloudReplay, googleConfig, googleLogin, inspectBot, listCloudBots, logout, referenceBots, simulateCloudBot, simulateRequest, validateCloudBot, validateRequest } from "./api.js";
+import type { CloudBot, CloudUser, Inspection, ReferenceBot, ShapeReport } from "./api.js";
 import { starterDefinition } from "./starter.js";
 import { loadMeta, loadReplay, loadStore, ownerIdFromName, saveMeta, saveReplay, saveStore, listReplays } from "./store.js";
 import type { Meta, SavedReplay } from "./store.js";
@@ -58,6 +58,12 @@ const app = {
   sought: -1,
   checkpoint: null as ReplayCheckpoint | null,
   organic: !matchMedia("(prefers-reduced-motion: reduce)").matches,
+  cloudUser: null as CloudUser | null,
+  cloudBotId: null as string | null,
+  cloudRevision: 0,
+  cloudSaved: "",
+  cloudBots: [] as CloudBot[],
+  cloudVersions: [] as { packageHash: string; revision: number }[],
 };
 
 const $ = <T extends Element>(selector: string) => {
@@ -100,6 +106,18 @@ function useDraft(store: LabStore, id: string): void {
 }
 
 function createDraft(definition: BotDefinition, tactic: Tactic | null = { ...DEFAULT_TACTIC }): void {
+  if (app.cloudUser) {
+    app.cloudBotId = null;
+    app.cloudRevision = 0;
+    app.cloudSaved = "";
+    app.cloudVersions = [];
+    app.definition = structuredClone(definition);
+    app.tactic = tactic;
+    app.report = null;
+    app.package = null;
+    renderInspector();
+    return;
+  }
   const id = freshId("d");
   const written = writeDraft(app.store, { id, ownerId: owner(), expectedRevision: 0, definition });
   if (!written.ok) { toast(written.message); return; }
@@ -124,6 +142,11 @@ function commit(): boolean {
   let json = "";
   try { json = canonicalJson(app.definition); }
   catch { toast("Bot có dữ liệu không lưu được."); return false; }
+  if (app.cloudUser) {
+    if (json !== app.cloudSaved) { app.package = null; app.report = null; }
+    queueInspect();
+    return true;
+  }
   if (json === app.saved) return true;
   const written = writeDraft(app.store, { id: app.draftId, ownerId: owner(), expectedRevision: app.revision, definition: app.definition });
   if (!written.ok) { toast(written.code === "REVISION_CONFLICT" ? "Bản nháp vừa đổi ở một thẻ khác. Hãy tải lại trang." : written.message); return false; }
@@ -359,7 +382,13 @@ function renderInspector(): void {
   text("#hash", app.package ? `Gói đã kiểm tra: ${app.package.packageHash}` : "Chưa có gói đã kiểm tra cho đúng bản đang mở.");
   const versions = $("#versions");
   versions.replaceChildren();
-  for (const version of app.store.versions.filter(item => item.ownerId === owner())) {
+  if (app.cloudUser) for (const version of app.cloudVersions) {
+    const li = document.createElement("li");
+    li.className = "p-2 rounded-lg bg-slate-50 border border-slate-100";
+    li.textContent = `Bản ${version.revision} · ${version.packageHash.slice(0, 12)}`;
+    versions.append(li);
+  }
+  else for (const version of app.store.versions.filter(item => item.ownerId === owner())) {
     const li = document.createElement("li");
     li.className = "p-2 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between";
     li.innerHTML = `
@@ -371,7 +400,12 @@ function renderInspector(): void {
   if (!versions.childElementCount) versions.append(item("Chưa có phiên bản nào đạt kiểm tra.", ""));
   const drafts = $("#drafts");
   drafts.replaceChildren();
-  for (const draft of app.store.drafts.filter(item => item.ownerId === owner())) {
+  if (app.cloudUser) for (const bot of app.cloudBots) {
+    const btn = button(`${bot.bot.name} · sửa lần ${bot.revision}${bot.botId === app.cloudBotId ? " · đang mở" : ""}`, () => void openCloudBot(bot.botId).catch(error => toast(error instanceof Error ? error.message : "Không mở được bot.")));
+    btn.className = "w-full text-left p-2.5 rounded-xl border bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700";
+    drafts.append(btn);
+  }
+  else for (const draft of app.store.drafts.filter(item => item.ownerId === owner())) {
     const isActive = draft.id === app.draftId;
     const btn = button(`${draft.definition.name} · sửa lần ${draft.revision}${isActive ? " · đang mở" : ""}`, () => {
       useDraft(app.store, draft.id);
@@ -430,6 +464,7 @@ async function enqueueSample(bot: ReferenceBot): Promise<void> {
 }
 
 async function submitCurrent(): Promise<void> {
+  if (app.cloudUser) { toast("Hàng chờ chính thức sẽ được nối với tài khoản ở M2."); return; }
   if (!commit()) return;
   if (!app.package || canonicalJson(app.package.definition) !== canonicalJson(app.definition)) {
     toast("Hãy kiểm tra và đạt trên đúng hình đang sửa trước khi nộp.");
@@ -439,7 +474,7 @@ async function submitCurrent(): Promise<void> {
   if (!result.ok) { toast(result.code === "ALREADY_QUEUED" ? "Bạn đang có một lượt chờ hoặc trận đang chạy." : "Chỉ nộp được bản đã kiểm tra."); return; }
   app.store = result.store;
   remember();
-  toast("Đã vào hàng. Nếu có người khác đang chờ, trận sẽ chạy.");
+  toast("Đã vào hàng thử trên máy này. Trận ở đây không phải trận chính thức.");
   renderQueue();
   await maybeMatch();
 }
@@ -452,11 +487,11 @@ async function maybeMatch(): Promise<void> {
   renderQueue();
   const seed = matchSeed(paired.pair.a.package.packageHash, paired.pair.b.package.packageHash);
   try {
-    const result = await simulateRequest(paired.pair.a.package, paired.pair.b.package, seed, "official");
+    const result = await simulateRequest(paired.pair.a.package, paired.pair.b.package, seed, "test");
     const replayId = result.replay.manifest.replayId;
     const done = finishPair(app.store, paired.pair.a.id, paired.pair.b.id, replayId);
     if (done.ok) { app.store = done.store; remember(); }
-    await openReplay(result, `${paired.pair.a.package.definition.name} với ${paired.pair.b.package.definition.name}`, seed, "official");
+    await openReplay(result, `${paired.pair.a.package.definition.name} với ${paired.pair.b.package.definition.name}`, seed, "test");
   } catch (error) {
     const released = releasePair(app.store, paired.pair.a.id, paired.pair.b.id);
     if (released.ok) { app.store = released.store; remember(); }
@@ -717,6 +752,128 @@ function loop(now: number): void {
   requestAnimationFrame(loop);
 }
 
+async function refreshCloudBots(): Promise<void> {
+  if (!app.cloudUser) return;
+  const bots: CloudBot[] = [];
+  let cursor: number | null = 0;
+  while (cursor !== null) {
+    const page = await listCloudBots(cursor);
+    bots.push(...page.bots);
+    cursor = page.nextCursor;
+  }
+  app.cloudBots = bots;
+  if (!app.cloudBotId && bots[0]) await openCloudBot(bots[0].botId);
+  renderInspector();
+}
+
+async function openCloudBot(id: string): Promise<void> {
+  if (app.cloudBotId && canonicalJson(app.definition) !== app.cloudSaved && !confirm("Bot đang mở có thay đổi chưa lưu. Bỏ thay đổi và mở bot khác?")) return;
+  const saved = await getCloudBot(id);
+  app.cloudBotId = id;
+  app.cloudRevision = saved.revision;
+  app.cloudSaved = canonicalJson(saved.bot);
+  app.cloudVersions = saved.versions;
+  app.definition = structuredClone(saved.bot);
+  app.tactic = null;
+  app.report = null;
+  app.package = null;
+  showTactic();
+  paintEditor();
+  renderInspector();
+  await refreshInspect();
+}
+
+async function saveCloud(): Promise<boolean> {
+  if (!app.cloudUser || !commit()) return false;
+  const json = canonicalJson(app.definition);
+  if (app.cloudBotId && json === app.cloudSaved) return true;
+  try {
+    const result = app.cloudBotId
+      ? await editCloudBot(app.cloudBotId, app.cloudRevision, app.definition)
+      : await createCloudBot(app.definition);
+    app.cloudBotId = result.botId;
+    app.cloudRevision = result.revision;
+    app.cloudSaved = json;
+    await refreshCloudBots();
+    toast("Đã lưu bot lên tài khoản.");
+    return true;
+  } catch (error) {
+    toast(error instanceof Error && error.message.includes("Revision conflict")
+      ? "Bot đã được sửa ở thẻ hoặc máy khác. Mở lại bản trên máy chủ trước khi lưu tiếp."
+      : error instanceof Error ? error.message : "Không lưu được bot.");
+    return false;
+  }
+}
+
+async function importLocalDrafts(): Promise<void> {
+  if (!app.cloudUser) return;
+  const drafts = app.store.drafts.filter(draft => draft.ownerId === owner());
+  const existing = new Set(app.cloudBots.map(item => canonicalJson(item.bot)));
+  const fresh = drafts.filter(draft => {
+    const json = canonicalJson(draft.definition);
+    if (existing.has(json)) return false;
+    existing.add(json);
+    return true;
+  });
+  if (!fresh.length) { toast("Không có bản nháp mới để nhập."); return; }
+  const preview = fresh.slice(0, 10).map(draft => `• ${draft.definition.name}`).join("\n");
+  if (!confirm(`Nhập ${fresh.length} bản nháp từ máy này lên tài khoản?\n${preview}${fresh.length > 10 ? "\n…" : ""}\nBot trùng nội dung sẽ được bỏ qua; không ghi đè bot đã có.`)) return;
+  try {
+    for (const draft of fresh) await createCloudBot(draft.definition);
+    await refreshCloudBots();
+    toast(`Đã nhập ${fresh.length} bot.`);
+  } catch (error) {
+    await refreshCloudBots().catch(() => {});
+    toast(error instanceof Error ? error.message : "Nhập bot thất bại.");
+  }
+}
+
+function renderAccount(): void {
+  const signedIn = Boolean(app.cloudUser);
+  text("#account-status", signedIn ? `${app.cloudUser?.displayName} · lưu trên tài khoản` : "Phòng thử trên máy này");
+  $<HTMLElement>("#google-signin").hidden = signedIn;
+  for (const id of ["#save-cloud", "#import-local", "#logout"]) $<HTMLElement>(id).hidden = !signedIn;
+  $<HTMLElement>("#admin-link").hidden = app.cloudUser?.role !== "admin";
+  $<HTMLAnchorElement>("#admin-link").href = `${apiOrigin()}/admin`;
+  $<HTMLInputElement>("#player").disabled = signedIn;
+  if (signedIn) $<HTMLInputElement>("#player").value = app.cloudUser?.displayName ?? "";
+}
+
+async function setupAccount(): Promise<void> {
+  try { app.cloudUser = (await authMe()).user; }
+  catch { /* no session */ }
+  if (app.cloudUser) {
+    app.cloudBotId = null;
+    app.definition = starterDefinition();
+    app.package = null;
+    renderAccount();
+    try { await refreshCloudBots(); }
+    catch (error) { toast(error instanceof Error ? error.message : "Không tải được bot từ tài khoản."); }
+    return;
+  }
+  renderAccount();
+  try {
+    const { clientId } = await googleConfig();
+    if (!clientId) { text("#account-status", "Google Sign-In chưa được cấu hình."); return; }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    document.head.append(script);
+    await new Promise<void>((resolve, reject) => { script.onload = () => resolve(); script.onerror = () => reject(new Error("Không tải được Google Sign-In.")); });
+    const google = (globalThis as typeof globalThis & { google: { accounts: { id: { initialize(options: unknown): void; renderButton(element: HTMLElement, options: unknown): void } } } }).google;
+    google.accounts.id.initialize({ client_id: clientId, use_fedcm_for_button: true, callback: async ({ credential }: { credential: string }) => {
+      try {
+        await googleLogin(credential);
+        try { await authMe(); }
+        catch { throw new Error("Trình duyệt không giữ được phiên đăng nhập. Hãy thử trình duyệt thường hoặc cho phép đăng nhập Google."); }
+        location.reload();
+      }
+      catch (error) { toast(error instanceof Error ? error.message : "Đăng nhập Google thất bại."); }
+    } });
+    google.accounts.id.renderButton($<HTMLElement>("#google-signin"), { theme: "outline", size: "medium", text: "continue_with" });
+  } catch (error) { text("#account-status", error instanceof Error ? error.message : "Không thể đăng nhập Google."); }
+}
+
 function syncResponsivePanels(): void {
   const media = window.matchMedia("(max-width: 1199px)");
   const apply = (): void => {
@@ -728,6 +885,9 @@ function syncResponsivePanels(): void {
 
 function bind(): void {
   syncResponsivePanels();
+  $("#save-cloud").addEventListener("click", () => void saveCloud());
+  $("#import-local").addEventListener("click", () => void importLocalDrafts());
+  $("#logout").addEventListener("click", () => void logout().then(() => location.reload()).catch(error => toast(error instanceof Error ? error.message : "Đăng xuất thất bại.")));
   $<HTMLInputElement>("#player").value = app.meta.playerName;
   $<HTMLInputElement>("#player").addEventListener("change", () => {
     const name = $<HTMLInputElement>("#player").value.trim() || "Bạn";
@@ -896,7 +1056,8 @@ async function validate(): Promise<void> {
   if (!commit()) return;
   text("#validate-summary", "Đang kiểm tra…");
   try {
-    const result = await validateRequest(app.definition);
+    if (app.cloudUser && !(await saveCloud())) return;
+    const result = app.cloudUser ? await validateCloudBot(app.cloudBotId!) : await validateRequest(app.definition);
     app.report = result.report;
     renderIssues(result.report.errors, result.report.warnings);
     if (!result.package || !result.report.valid) {
@@ -905,11 +1066,14 @@ async function validate(): Promise<void> {
       renderInspector();
       return;
     }
-    const recorded = await recordVersion(app.store, { draftId: app.draftId, ownerId: owner(), expectedRevision: app.revision, package: result.package });
-    if (!recorded.ok) { toast(recorded.message); return; }
-    app.store = recorded.store;
+    if (app.cloudUser) app.cloudVersions = (await getCloudBot(app.cloudBotId!)).versions;
+    else {
+      const recorded = await recordVersion(app.store, { draftId: app.draftId, ownerId: owner(), expectedRevision: app.revision, package: result.package });
+      if (!recorded.ok) { toast(recorded.message); return; }
+      app.store = recorded.store;
+      remember();
+    }
     app.package = result.package;
-    remember();
     text("#validate-summary", "Đạt. Bản này đã lưu và có thể chạy thử hoặc nộp vào hàng.");
     renderInspector();
   } catch (error) {
@@ -919,6 +1083,7 @@ async function validate(): Promise<void> {
 
 async function simulate(): Promise<void> {
   if (!commit()) return;
+  if (app.cloudUser && !(await saveCloud())) return;
   if (!app.package || canonicalJson(app.package.definition) !== canonicalJson(app.definition)) {
     toast("Hãy kiểm tra và đạt trên đúng hình đang sửa trước khi chạy thử.");
     return;
@@ -930,7 +1095,15 @@ async function simulate(): Promise<void> {
   if (!Number.isInteger(seed) || seed < 0 || seed > 4294967295) { toast("Seed phải là số nguyên từ 0 đến 4294967295."); return; }
   text("#validate-summary", "Đang chạy trận…");
   try {
-    const result = await simulateRequest(app.package, opponent.package, seed, "test");
+    let result;
+    if (app.cloudUser) {
+      const summary = await simulateCloudBot(app.cloudBotId!, opponent.id, seed);
+      const saved = await getCloudReplay(summary.replayId);
+      const definitions = saved.replay.manifest.packages;
+      const [left, right] = await Promise.all([inspectBot(definitions.A.definition), inspectBot(definitions.B.definition)]);
+      if (!left.shape || !right.shape) throw new Error("Không dựng được hình replay.");
+      result = { replay: saved.replay, shapes: { A: left.shape.triangles, B: right.shape.triangles } };
+    } else result = await simulateRequest(app.package, opponent.package, seed, "test");
     text("#validate-summary", "Đã có trận. Đang mở băng ghi.");
     await openReplay(result, `${app.definition.name} với ${opponent.name}`, seed, "test");
   } catch (error) {
@@ -957,6 +1130,7 @@ async function boot(): Promise<void> {
   } catch (error) {
     toast(error instanceof Error ? error.message : "Không tải được bot mẫu.");
   }
+  await setupAccount();
   app.replays = await listReplays().catch(() => []);
   renderReplayList();
   renderQueue();

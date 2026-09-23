@@ -125,6 +125,16 @@
     <section id="editor" class="app-editor relative flex-1 w-full h-full flex flex-col md:flex-row overflow-hidden">
       <!-- Left Dock: Tool Palette, Budget, Bot Name & Actions -->
       <aside class="app-editor__controls w-full md:w-80 bg-white/95 backdrop-blur-md border-r border-slate-200/80 p-4 flex flex-col gap-3.5 shrink-0 overflow-y-auto custom-scroll shadow-sm z-20">
+        <section aria-label="Tài khoản" class="rounded-xl border border-slate-200 p-3 bg-slate-50">
+          <p id="account-status" class="text-xs mb-2">Phòng thử trên máy này</p>
+          <div id="google-signin"></div>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <button type="button" id="save-cloud" hidden class="text-xs px-2 py-1 rounded bg-slate-900 text-white">Lưu bot lên tài khoản</button>
+            <button type="button" id="import-local" hidden class="text-xs px-2 py-1 rounded border border-slate-300">Nhập nháp trên máy này</button>
+            <button type="button" id="logout" hidden class="text-xs px-2 py-1 rounded border border-slate-300">Đăng xuất</button>
+            <a id="admin-link" href="/admin" hidden class="text-xs px-2 py-1 rounded border border-slate-300">Quản trị</a>
+          </div>
+        </section>
         <div>
           <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-1 block">Tên bot</label>
           <input id="bot-name" maxlength="80" required placeholder="Đặt tên cho bot..." class="w-full px-3 py-2 text-sm font-semibold rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 transition-colors outline-none">

@@ -1,0 +1,6 @@
+client_secret_*.apps.googleusercontent.com.json
+.env*
+.git/
+.wrangler/
+data/
+.playwright-cli/

@@ -1,6 +1,6 @@
 # PROMPT CHIẾN
 
-**M3 local gate đã đạt; API Node, HTTPS hosted và smoke public đều pass.** M4 đã có MCP Apps replay viewer và fallback link; kiểm tra host ChatGPT/Claude thật còn chờ refresh connector. Load gate VPS còn thiếu do máy 1 vCPU. Xem [M3](Docs/M3.md) và [M4](Docs/M4.md).
+**Bản phát hành mới chọn VPS Node + SQLite.** M0 và M1 đã hoàn tất; API chạy trên VPS, web chạy trên Vercel. Web gọi API VPS qua proxy cùng tên miền để đăng nhập hoạt động khi trình duyệt chặn cookie bên thứ ba; MCP gọi API VPS trực tiếp. M1 đã thử hai tài khoản Google thật, bot qua hai phiên trình duyệt, quyền admin và cùng dữ liệu API/MCP. M3/M4 cũ là demo lịch sử. Xem [bàn giao M1 phát hành](Docs/M1_RELEASE.md).
 
 ## Chạy kiểm tra
 
@@ -11,7 +11,7 @@ pnpm install --frozen-lockfile
 pnpm check
 ```
 
-`pnpm check` kiểm tra kiểu dữ liệu TypeScript, schema, ranh giới mô-đun và chạy 18 nhóm kiểm tra M0–M2. Có lỗi thì lệnh trả mã thoát khác 0. Cách chạy smoke/load M3 nằm trong [M3.md](Docs/M3.md).
+`pnpm check` kiểm tra kiểu dữ liệu TypeScript, schema, ranh giới mô-đun và chạy 20 nhóm kiểm tra, gồm migration và tài khoản M1 trên SQLite tạm. Có lỗi thì lệnh trả mã thoát khác 0.
 
 ## Chạy một trận
 
@@ -31,7 +31,7 @@ Lệnh cuối xuất HTML tự chứa dữ liệu và mở máy chủ tại `htt
 pnpm web
 ```
 
-Mở `http://127.0.0.1:4174`. Trang này để tạo bot bằng lưới tam giác, chọn chiến thuật mẫu, bấm Kiểm tra, Chạy thử, nộp vào hàng chờ và xem lại trận. Bản nháp, phiên bản và hàng chờ của Web Lab vẫn nằm trong trình duyệt; API M3 chạy riêng trong `apps/api`.
+Mở `http://127.0.0.1:4174`. Trang này để tạo bot bằng lưới tam giác, chọn chiến thuật mẫu, kiểm tra, chạy thử và xem lại trận. Bản nháp/queue thử cũ vẫn nằm trong trình duyệt. Khi đăng nhập Google, bot được lưu trên SQLite qua Node API; nộp trận chính thức trên web thuộc M2.
 
 CLI trả mã `0` khi thành công, `1` khi bot không đạt validation, `2` khi yêu cầu/job bị lỗi. Mỗi job chạy trong tiến trình riêng, tối đa 60 giây thực và 256 MiB V8 old heap. Đây không phải giới hạn tổng RAM của hệ điều hành; Brain JSON chỉ có các lệnh game, không chạy mã JavaScript tùy ý.
 
@@ -46,7 +46,7 @@ CLI trả mã `0` khi thành công, `1` khi bot không đạt validation, `2` kh
 | `pnpm bots` | Xuất lại 5 bot tham chiếu |
 | `pnpm gate:m1` | Chạy 100 seed; kiểm chứng chạy lại và đổi thứ tự cập nhật A/B |
 | `pnpm balance` | 1.000 trận vòng tròn: 100 seed cho mỗi cặp bot |
-| `pnpm m3:smoke` | Kiểm tra local Worker, OAuth, MCP, CRUD và matchmaking |
+| `pnpm m3:smoke` | Kiểm tra local Node, OAuth, MCP, CRUD và matchmaking |
 | `pnpm m3:load` | Tải thử 10 simulation đồng thời |
 
 ## Các phần của dự án
@@ -58,7 +58,7 @@ CLI trả mã `0` khi thành công, `1` khi bot không đạt validation, `2` kh
 | `packages/application` | Kiểm tra bản thiết kế, bản nháp, phiên bản và hàng chờ local |
 | `packages/ui` | Viewer, lưới editor và màu dùng chung |
 | `apps/web` | Phòng thử M2: editor, inspector, hàng chờ, replay |
-| `apps/api` | Worker M3: API, OAuth, MCP, D1 và Durable Object |
+| `apps/api` | Node API phát hành: OAuth, MCP, SQLite và hàng chờ; Worker/D1 là demo cũ chưa tắt |
 | `schemas` | JSON Schema tiêu chuẩn, có thể đọc bằng công cụ ngoài TypeScript |
 | `examples` | Bot mẫu, Brain mẫu và ví dụ các gói dữ liệu |
 | `tests`, `scripts` | Kiểm tra tự động và lệnh Gate |

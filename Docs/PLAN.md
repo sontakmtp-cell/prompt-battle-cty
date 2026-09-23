@@ -1,5 +1,9 @@
 # PROMPT Chiến — kế hoạch xây dựng theo mô-đun
 
+> **Quyết định phát hành 2026-09-23:** Các đoạn M3 bên dưới ghi lại kiến trúc demo lịch sử. Kế hoạch đưa game vào sử dụng tại [M0 phát hành](M0_RELEASE.md) chọn **VPS Node + SQLite** làm backend/database duy nhất. MCP dùng `https://api.kythuatvang.com`; web Vercel proxy `/api/*` và `/admin` tới đúng API đó để phiên đăng nhập hoạt động trong trình duyệt chặn cookie bên thứ ba. Bằng chứng: Cốc Cốc ẩn danh không giữ được phiên với API khác site, còn đăng nhập Google B thành công sau proxy và FedCM; xem [bàn giao M1](M1_RELEASE.md). Google đăng ký tự do không mã mời, admin có quyền và trang riêng. Giữ VPS hiện tại, chỉ xét nâng theo số đo. Chủ dự án xác nhận dữ liệu D1 cũ là dữ liệu thử, **không nhập sang VPS**; vẫn cần xác nhận client đã chuyển tuyến trước khi tắt Worker.
+
+> **M1 phát hành đã nghiệm thu production:** xem [bàn giao M1](M1_RELEASE.md). Mốc này là tài khoản Google, bot cloud và admin theo kế hoạch phát hành đính kèm; nó khác M1 lịch sử về engine ở phần dưới. API VPS và web Vercel đã lên bản M1; hai tài khoản thật đã thử bot qua web, API/MCP cùng dữ liệu, quyền và thao tác khóa/mở admin. Thử giao diện MCP trong ChatGPT/Claude thật thuộc M4.
+
 Xây dựng theo [spec_demo.md](H:/AI/prompt-battle-cty/Docs/spec_demo.md), với bản đầu dành cho **nhóm thử nghiệm**. M3 dùng Vercel cho web và Cloudflare Worker + D1 + Durable Object cho API/MCP/matchmaking; VPS vẫn là phương án triển khai riêng nếu cần. Người chơi dùng **ChatGPT và Claude qua MCP** để thiết kế bot; Brain sử dụng bộ lệnh riêng của game. Demo lõi hoàn tất ở M3; khung xem trận trong chat triển khai tiếp ở M4.
 
 ## 1. Kiến trúc và cách chia mô-đun
@@ -125,7 +129,7 @@ Người chơi tạo hoặc nhập bot → chỉnh hình dạng/chọn chiến t
 
 `submit` khóa phiên bản đã qua kiểm tra và đưa vào hàng ghép trận FIFO. Ghép hai người khác nhau, cùng engine/ruleset; mỗi người có tối đa một lượt chờ hoặc trận đang chạy.
 
-Trận chính thức chạy trên server theo thời gian thực. Web nhận cập nhật qua SSE riêng của game và làm mượt hình ảnh; mất kết nối thì lấy lại snapshot hoặc replay. Simulation thử và CLI chạy nhanh nhất có thể.
+Ở bản phát hành đầu, server có thể **tính xong trận chính thức rồi phát replay có nhãn “trận đã tính”**; tải lại trang lấy cùng kết quả từ SQLite. Nếu sau này công bố “trực tiếp”, cần job nền và sự kiện/snapshot hoặc SSE, kèm kiểm chứng mất kết nối và nối lại. Simulation thử và CLI chạy nhanh nhất có thể.
 
 ### Tám MCP tools
 

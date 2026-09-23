@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
+import { smokeAuth } from "./smoke-auth.mjs";
 
-const base = (process.env.M4_API_URL ?? process.env.M3_API_URL ?? "http://127.0.0.1:8787").replace(/\/$/, "");
-const inviteCode = process.env.M4_INVITE_CODE ?? process.env.M3_INVITE_CODE ?? "local-demo-invite";
+const fixture = await smokeAuth("M4");
+const base = fixture.base;
 const bot = JSON.parse(await readFile(new URL("../examples/bots/spear.json", import.meta.url), "utf8"));
 let sequence = 0;
 
@@ -25,12 +26,10 @@ function cookieFrom(response) {
 }
 
 const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-const email = `m4-${suffix}@example.test`;
-const password = "local-demo-password";
-const registered = await request("/api/auth/register", {
+const registered = await request("/api/auth/google", {
   method: "POST",
   headers: { "content-type": "application/json" },
-  body: JSON.stringify({ email, password, inviteCode }),
+  body: JSON.stringify({ credential: await fixture.credential(suffix) }),
 });
 const cookie = cookieFrom(registered.response);
 assert(cookie, "M4 smoke did not receive a session cookie");
@@ -55,7 +54,7 @@ const oauthParams = {
 const authorized = await request("/oauth/authorize", {
   method: "POST",
   headers: { "content-type": "application/x-www-form-urlencoded", cookie },
-  body: new URLSearchParams({ ...oauthParams, email, password }),
+  body: new URLSearchParams(oauthParams),
   redirect: "manual",
 });
 assert(authorized.response.status === 302, "M4 OAuth authorization did not redirect");
@@ -118,3 +117,4 @@ const fallback = await request(new URL(rendered.structuredContent.replayUrl).pat
 assert(fallback.response.headers.get("content-type")?.includes("text/html") && fallback.value.includes("PromptChienReplayViewer"), "signed fallback link did not serve the standalone viewer");
 
 console.log(`M4 SMOKE PASSED: MCP Apps negotiation, resource HTML, shared viewer payload and tools-only fallback (${replayId})`);
+await fixture.close();

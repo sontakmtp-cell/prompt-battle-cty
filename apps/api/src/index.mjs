@@ -20,6 +20,8 @@ import {
 import { M4_GAME_RESOURCE, M4_GAME_RESOURCE_META, M4_REPLAY_MIME, M4_REPLAY_RESOURCE, M4_REPLAY_RESOURCE_META } from "./m4-contract.mjs";
 import { M4_WIDGET_HTML } from "./m4-widget.mjs";
 import { M4_GAME_WIDGET_HTML } from "./m4-game-widget.mjs";
+import { verifyGoogleCredential } from "./google-auth.mjs";
+import { ADMIN_PAGE } from "./admin-page.mjs";
 
 export { MatchQueue };
 
@@ -80,7 +82,7 @@ async function hmacDigest(secret, value) {
 }
 
 function replayShareSecret(env) {
-  return String(env.REPLAY_SHARE_SECRET ?? env.INVITE_CODE ?? "");
+  return String(env.REPLAY_SHARE_SECRET ?? "");
 }
 
 async function issueReplayShare(env, replayId, ownerUserId) {
@@ -115,16 +117,6 @@ function sameSecret(left, right) {
   let difference = 0;
   for (let index = 0; index < left.length; index += 1) difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
   return difference === 0;
-}
-
-async function passwordHash(password, salt) {
-  const key = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt: encoder.encode(salt), iterations: 100_000, hash: "SHA-256" },
-    key,
-    256,
-  );
-  return hexDigest(bits);
 }
 
 function allowedOrigins(env) {
@@ -243,7 +235,7 @@ async function run(env, query, ...values) {
 }
 
 function publicUser(row) {
-  return { id: row.id, email: row.email, displayName: row.display_name ?? row.displayName };
+  return { id: row.id, email: row.google_email ?? row.email, displayName: row.display_name ?? row.displayName, role: row.role ?? "player" };
 }
 
 async function userForRequest(request, env) {
@@ -253,7 +245,7 @@ async function userForRequest(request, env) {
   if (accessToken) {
     const row = await first(
       env,
-      "SELECT u.id, u.email, u.display_name FROM oauth_tokens t JOIN users u ON u.id = t.user_id WHERE t.access_token_hash = ? AND t.expires_at > ?",
+      "SELECT u.id, u.email, u.google_email, u.display_name, u.role FROM oauth_tokens t JOIN users u ON u.id = t.user_id WHERE t.access_token_hash = ? AND t.expires_at > ? AND u.disabled_at IS NULL",
       await hexDigest(accessToken),
       now(),
     );
@@ -261,7 +253,7 @@ async function userForRequest(request, env) {
   }
   const row = await first(
     env,
-    "SELECT u.id, u.email, u.display_name FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.session_hash = ? AND s.expires_at > ?",
+    "SELECT u.id, u.email, u.google_email, u.display_name, u.role FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.session_hash = ? AND s.expires_at > ? AND u.disabled_at IS NULL",
     await hexDigest(cookie),
     now(),
   );
@@ -391,6 +383,64 @@ async function saveReplay(env, ownerUserId, replay, official = false) {
   return { replayId, replay, result: replay.manifest.result, replayUrl: `/api/v1/replays/${replayId}` };
 }
 
+function page(url) {
+  const limit = Number(url.searchParams.get("limit") ?? 20);
+  const cursor = Number(url.searchParams.get("cursor") ?? 0);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 50 || !Number.isInteger(cursor) || cursor < 0 || cursor > 1_000_000) throw httpError("Invalid pagination.", 400);
+  return { limit, cursor };
+}
+
+async function listBots(env, user, url) {
+  const { limit, cursor } = page(url);
+  const rows = await all(env, "SELECT id, revision, payload_json, created_at, updated_at FROM bots WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?", user.id, limit + 1, cursor);
+  return { bots: rows.slice(0, limit).map(row => ({ botId: row.id, revision: row.revision, bot: JSON.parse(row.payload_json), createdAt: row.created_at, updatedAt: row.updated_at })), nextCursor: rows.length > limit ? cursor + limit : null };
+}
+
+async function adminUsers(env, url) {
+  const { limit, cursor } = page(url);
+  const q = (url.searchParams.get("q") ?? "").trim().slice(0, 100);
+  const rows = await all(env, `SELECT u.id, u.google_email, u.display_name, u.role, u.disabled_at, u.created_at,
+    (SELECT COUNT(*) FROM bots b WHERE b.user_id = u.id) AS bots,
+    (SELECT COUNT(*) FROM submissions s WHERE s.user_id = u.id) AS submissions,
+    (SELECT COUNT(*) FROM replays r WHERE r.owner_user_id = u.id) AS replays,
+    (SELECT COUNT(*) FROM waiting_submissions w WHERE w.user_id = u.id) AS queued
+    FROM users u WHERE u.google_sub IS NOT NULL AND (u.google_email LIKE ? OR u.display_name LIKE ? OR u.id LIKE ?)
+    ORDER BY u.created_at DESC, u.id DESC LIMIT ? OFFSET ?`, `%${q}%`, `%${q}%`, `%${q}%`, limit + 1, cursor);
+  return { users: rows.slice(0, limit).map(row => ({ id: row.id, email: row.google_email, displayName: row.display_name, role: row.role, disabled: row.disabled_at !== null, bots: row.bots, submissions: row.submissions, replays: row.replays, queued: row.queued, createdAt: row.created_at })), nextCursor: rows.length > limit ? cursor + limit : null };
+}
+
+async function adminAction(env, admin, targetId, action) {
+  if (!/^[A-Za-z][A-Za-z0-9_-]{0,127}$/.test(targetId)) throw httpError("Invalid user id.", 400);
+  const target = await first(env, "SELECT id FROM users WHERE id = ? AND google_sub IS NOT NULL", targetId);
+  if (!target) throw httpError("User not found.", 404);
+  if (targetId === admin.id && action === "lock") throw httpError("Cannot lock your own account.", 409);
+  if (!["lock", "unlock", "revoke-sessions", "cancel-queue"].includes(action)) throw httpError("Unknown admin action.", 404);
+  try {
+    if (action === "lock") await run(env, "UPDATE users SET disabled_at = ? WHERE id = ?", now(), targetId);
+    if (action === "unlock") await run(env, "UPDATE users SET disabled_at = NULL WHERE id = ?", targetId);
+    if (action === "lock" || action === "revoke-sessions") {
+      await run(env, "DELETE FROM sessions WHERE user_id = ?", targetId);
+      await run(env, "DELETE FROM oauth_tokens WHERE user_id = ?", targetId);
+      await run(env, "DELETE FROM oauth_codes WHERE user_id = ?", targetId);
+    }
+    if (action === "lock" || action === "cancel-queue") {
+      await env.MATCH_QUEUE.getByName("official").cancelUser(targetId);
+      await run(env, "UPDATE submissions SET status = 'cancelled' WHERE user_id = ? AND status = 'queued'", targetId);
+    }
+    await run(env, "INSERT INTO admin_audit (admin_user_id, target_user_id, action, result, created_at) VALUES (?, ?, ?, 'success', ?)", admin.id, targetId, action, now());
+  } catch (error) {
+    await run(env, "INSERT INTO admin_audit (admin_user_id, target_user_id, action, result, created_at) VALUES (?, ?, ?, 'failed', ?)", admin.id, targetId, action, now());
+    throw error;
+  }
+  return { ok: true };
+}
+
+async function requireAdmin(request, env) {
+  const user = await requireUser(request, env);
+  if (user.role !== "admin") throw httpError("Admin access required.", 403);
+  return user;
+}
+
 function simulationSummary(saved) {
   if (!saved.result) return saved;
   const { winner, reason, tick, scores } = saved.result;
@@ -449,14 +499,24 @@ async function submitBot(env, request, user, botId, revision) {
   const validation = await validateDefinition(current.bot);
   if (!validation.report.valid || !validation.package) throw httpError("Bot must pass validation before submit.", 422, { validation });
   const version = await insertOrUpdateVersion(env, user, current, validation);
-  const previous = await first(env, "SELECT id, status, match_id FROM submissions WHERE user_id = ? AND version_id = ? AND status IN ('queued', 'matched') ORDER BY created_at DESC LIMIT 1", user.id, version.id);
-  if (previous) return { status: previous.status, submissionId: previous.id, version, matchId: previous.match_id };
+  const previous = await first(env, "SELECT id, version_id FROM submissions WHERE user_id = ? AND status = 'queued' LIMIT 1", user.id);
+  if (previous) {
+    if (previous.version_id !== version.id) throw httpError("Already waiting with another bot version.", 409);
+    return { status: "queued", submissionId: previous.id, version };
+  }
 
   const submissionId = id("submission");
-  await run(env, "INSERT INTO submissions (id, user_id, version_id, status, created_at) VALUES (?, ?, ?, 'queued', ?)", submissionId, user.id, version.id, now());
+  try {
+    await run(env, "INSERT INTO submissions (id, user_id, version_id, status, created_at) VALUES (?, ?, ?, 'queued', ?)", submissionId, user.id, version.id, now());
+  } catch (error) {
+    if (String(error).includes("UNIQUE constraint failed: submissions.user_id")) throw httpError("Already waiting with another bot version.", 409);
+    throw error;
+  }
+  let pair;
   try {
     const queue = await env.MATCH_QUEUE.getByName("official").enqueue({ submissionId, userId: user.id, versionId: version.id, queuedAt: now() });
     if (queue.status !== "matched") return { status: "queued", submissionId, version, position: queue.position };
+    pair = queue.pair;
 
     const left = await first(env, "SELECT id, user_id, version_id FROM submissions WHERE id = ?", queue.pair.A.submission_id);
     const right = await first(env, "SELECT id, user_id, version_id FROM submissions WHERE id = ?", queue.pair.B.submission_id);
@@ -469,7 +529,8 @@ async function submitBot(env, request, user, botId, revision) {
     await run(env, "UPDATE submissions SET status = 'matched', match_id = ? WHERE id IN (?, ?)", saved.replayId, left.id, right.id);
     return { status: "matched", submissionId, version, matchId: saved.replayId, result: saved.result, replayUrl: saved.replayUrl };
   } catch (error) {
-    await run(env, "UPDATE submissions SET status = 'failed' WHERE id = ?", submissionId);
+    if (pair) await run(env, "UPDATE submissions SET status = 'failed' WHERE id IN (?, ?)", pair.A.submission_id, pair.B.submission_id);
+    else await run(env, "UPDATE submissions SET status = 'failed' WHERE id = ?", submissionId);
     throw error;
   }
 }
@@ -697,33 +758,33 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
 }
 
-async function register(env, request) {
+async function googleSignIn(env, request) {
+  checkOrigin(request, env);
   const body = objectBody(await bodyJson(request));
-  const email = String(body.email ?? "").trim().toLowerCase();
-  const password = String(body.password ?? "");
-  const inviteCode = String(body.inviteCode ?? request.headers.get("x-invite-code") ?? "");
-  if (!/^\S+@\S+\.\S+$/.test(email) || password.length < 8) throw httpError("A valid email and an 8+ character password are required.", 400);
-  if (!env.INVITE_CODE || inviteCode !== env.INVITE_CODE) throw httpError("A valid inviteCode is required.", 403);
-  if (await first(env, "SELECT id FROM users WHERE email = ?", email)) throw httpError("Email already exists.", 409);
+  let identity;
+  try {
+    identity = await verifyGoogleCredential(body.credential, env.GOOGLE_CLIENT_ID, env.GOOGLE_JWKS_URL);
+  } catch {
+    throw httpError("Invalid Google credential.", 401);
+  }
   const userId = id("user");
-  const salt = randomToken(16);
   const timestamp = now();
-  await run(env, "INSERT INTO users (id, email, display_name, password_salt, password_hash, created_at) VALUES (?, ?, ?, ?, ?, ?)", userId, email, email.split("@")[0], salt, await passwordHash(password, salt), timestamp);
+  await run(env, "INSERT OR IGNORE INTO users (id, email, display_name, password_salt, password_hash, created_at, google_sub, google_email) VALUES (?, ?, ?, '', '', ?, ?, ?)", userId, `google:${identity.sub}`, identity.name.slice(0, 120), timestamp, identity.sub, identity.email);
+  const row = await first(env, "SELECT id, email, google_email, display_name, role, disabled_at FROM users WHERE google_sub = ?", identity.sub);
+  if (!row || row.disabled_at !== null) throw httpError("Account is unavailable.", 403);
+  await run(env, "UPDATE users SET google_email = ?, display_name = ? WHERE id = ?", identity.email, identity.name.slice(0, 120), row.id);
+  row.google_email = identity.email;
+  row.display_name = identity.name.slice(0, 120);
   const token = randomToken();
-  await run(env, "INSERT INTO sessions (session_hash, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)", await hexDigest(token), userId, timestamp + SESSION_DAYS * 86400000, timestamp);
-  return json(request, env, { user: { id: userId, email, displayName: email.split("@")[0] } }, 201, { "set-cookie": sessionCookie(token, request) });
-}
-
-async function login(env, request) {
-  const body = objectBody(await bodyJson(request));
-  const email = String(body.email ?? "").trim().toLowerCase();
-  const password = String(body.password ?? "");
-  const row = await first(env, "SELECT id, email, display_name, password_salt, password_hash FROM users WHERE email = ?", email);
-  if (!row || !sameSecret(await passwordHash(password, row.password_salt), row.password_hash)) throw httpError("Invalid credentials.", 401);
-  const token = randomToken();
-  const timestamp = now();
   await run(env, "INSERT INTO sessions (session_hash, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)", await hexDigest(token), row.id, timestamp + SESSION_DAYS * 86400000, timestamp);
   return json(request, env, { user: publicUser(row) }, 200, { "set-cookie": sessionCookie(token, request) });
+}
+
+async function logout(env, request) {
+  checkOrigin(request, env);
+  const cookie = cookieValue(request, "pc_session");
+  if (cookie) await run(env, "DELETE FROM sessions WHERE session_hash = ?", await hexDigest(cookie));
+  return json(request, env, { ok: true }, 200, { "set-cookie": sessionCookie("", request, 0) });
 }
 
 function originOf(request) {
@@ -793,15 +854,17 @@ async function oauthAuthorize(env, request) {
   if (params.get("response_type") !== "code" || !clientId || !redirectUri || !challenge || method !== "S256") throw httpError("OAuth authorization requires code and S256 PKCE.", 400);
   await checkOAuthClient(env, clientId, redirectUri);
   if (request.method === "GET") {
+    const user = await userForRequest(request, env);
     const hidden = ["client_id", "redirect_uri", "response_type", "scope", "state", "code_challenge", "code_challenge_method"].map(key => `<input type="hidden" name="${key}" value="${escapeHtml(params.get(key) ?? "")}">`).join("");
-    return text(request, env, `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PROMPT Chiến</title></head><body><main style="font:16px system-ui;max-width:420px;margin:8vh auto"><h1>PROMPT Chiến</h1><p>Sign in to authorize this MCP client.</p><form method="post">${hidden}<label>Email<br><input name="email" type="email" required></label><br><label>Password<br><input name="password" type="password" required></label><br><button>Authorize</button></form></main></body></html>`, "text/html; charset=utf-8");
+    const content = user
+      ? `<p>Đăng nhập: ${escapeHtml(user.displayName)}</p><form method="post">${hidden}<button>Cho phép kết nối MCP</button></form>`
+      : `<p>Đăng nhập Google trước khi cấp quyền cho MCP.</p><div id="google"></div><p id="error" role="alert"></p><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.onload=()=>{if(!window.google){document.getElementById('error').textContent='Không tải được Google Sign-In.';return;}google.accounts.id.initialize({client_id:${JSON.stringify(env.GOOGLE_CLIENT_ID ?? "")},callback:async ({credential})=>{const response=await fetch('/api/auth/google',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({credential})});if(response.ok)location.reload();else document.getElementById('error').textContent='Đăng nhập Google thất bại.';}});google.accounts.id.renderButton(document.getElementById('google'),{theme:'outline',size:'large',text:'continue_with'});};</script>`;
+    return text(request, env, `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PROMPT Chiến</title></head><body><main style="font:16px system-ui;max-width:420px;margin:8vh auto"><h1>PROMPT Chiến</h1>${content}</main></body></html>`, "text/html; charset=utf-8", 200, { "content-security-policy": "default-src 'none'; script-src 'unsafe-inline' https://accounts.google.com; frame-src https://accounts.google.com; connect-src 'self' https://accounts.google.com; style-src 'unsafe-inline'" });
   }
-  const email = String(params.get("email") ?? "").trim().toLowerCase();
-  const password = String(params.get("password") ?? "");
-  const row = await first(env, "SELECT id, password_salt, password_hash FROM users WHERE email = ?", email);
-  if (!row || !sameSecret(await passwordHash(password, row.password_salt), row.password_hash)) throw httpError("Invalid credentials.", 401);
+  checkOrigin(request, env);
+  const user = await requireUser(request, env);
   const code = randomToken(32);
-  await run(env, "INSERT INTO oauth_codes (code_hash, client_id, redirect_uri, user_id, code_challenge, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)", await hexDigest(code), clientId, redirectUri, row.id, challenge, now() + OAUTH_CODE_MINUTES * 60_000, now());
+  await run(env, "INSERT INTO oauth_codes (code_hash, client_id, redirect_uri, user_id, code_challenge, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)", await hexDigest(code), clientId, redirectUri, user.id, challenge, now() + OAUTH_CODE_MINUTES * 60_000, now());
   const redirect = new URL(redirectUri);
   redirect.searchParams.set("code", code);
   if (params.get("state")) redirect.searchParams.set("state", params.get("state"));
@@ -872,6 +935,7 @@ function standaloneReplayHtml(saved, fallbackUrl) {
 }
 
 async function handleApi(request, env, url) {
+  if (request.method === "POST") checkOrigin(request, env);
   if (request.method === "GET" && url.pathname === "/api/references") return json(request, env, { bots: await referencePackages() });
   const replayPath = url.pathname.match(/^\/replays\/([^/]+)$/);
   if (request.method === "GET" && replayPath) {
@@ -885,9 +949,10 @@ async function handleApi(request, env, url) {
     const user = await userForRequest(request, env);
     return user ? json(request, env, { authenticated: true, user }) : json(request, env, { authenticated: false }, 401, { "www-authenticate": 'Bearer realm="promptchien"' });
   }
-  if (request.method === "POST" && url.pathname === "/api/auth/register") return register(env, request);
-  if (request.method === "POST" && url.pathname === "/api/auth/login") return login(env, request);
-  if (request.method === "POST" && url.pathname === "/api/auth/logout") return json(request, env, { ok: true }, 200, { "set-cookie": sessionCookie("", request, 0) });
+  if (request.method === "GET" && url.pathname === "/api/auth/google-config") return json(request, env, { clientId: env.GOOGLE_CLIENT_ID ?? "" });
+  if (request.method === "POST" && url.pathname === "/api/auth/google") return googleSignIn(env, request);
+  if (request.method === "POST" && ["/api/auth/register", "/api/auth/login"].includes(url.pathname)) throw httpError("Use Google Sign-In.", 410);
+  if (request.method === "POST" && url.pathname === "/api/auth/logout") return logout(env, request);
   if (request.method === "POST" && url.pathname === "/api/inspect") {
     const body = objectBody(await bodyJson(request));
     const inspection = inspectDefinition(body.bot);
@@ -900,8 +965,20 @@ async function handleApi(request, env, url) {
   if (request.method === "POST" && url.pathname === "/api/simulate") return json(request, env, await publicSimulate(objectBody(await bodyJson(request))));
 
   const parts = url.pathname.split("/").filter(Boolean);
+  if (parts[0] === "api" && parts[1] === "admin") {
+    const admin = await requireAdmin(request, env);
+    if (parts[2] === "users" && parts.length === 3 && request.method === "GET") return json(request, env, await adminUsers(env, url));
+    if (parts[2] === "audit" && parts.length === 3 && request.method === "GET") {
+      const { limit, cursor } = page(url);
+      const rows = await all(env, "SELECT admin_user_id, target_user_id, action, result, created_at FROM admin_audit ORDER BY id DESC LIMIT ? OFFSET ?", limit + 1, cursor);
+      return json(request, env, { items: rows.slice(0, limit).map(row => ({ adminUserId: row.admin_user_id, targetUserId: row.target_user_id, action: row.action, result: row.result, createdAt: row.created_at })), nextCursor: rows.length > limit ? cursor + limit : null });
+    }
+    if (parts[2] === "users" && parts.length === 5 && request.method === "POST") return json(request, env, await adminAction(env, admin, parts[3], parts[4]));
+    return null;
+  }
   if (parts[0] !== "api" || parts[1] !== "v1") return null;
   const user = await requireUser(request, env);
+  if (parts[2] === "bots" && parts.length === 3 && request.method === "GET") return json(request, env, await listBots(env, user, url));
   if (parts[2] === "bots" && parts.length === 3 && request.method === "POST") {
     const body = objectBody(await bodyJson(request));
     return json(request, env, await createBot(env, user, body.bot), 201);
@@ -928,6 +1005,13 @@ export default {
       const url = new URL(request.url);
       if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: { ...corsHeaders(request, env), "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "authorization,content-type,mcp-protocol-version,mcp-method,mcp-name", "access-control-max-age": "86400" } });
       if (url.pathname === "/healthz" && request.method === "GET") return json(request, env, { ok: true, service: "promptchien-api", mcpApi: VERSIONS.mcpApi });
+      if (url.pathname === "/admin" && request.method === "GET") {
+        const user = await userForRequest(request, env);
+        if (user && user.role !== "admin") throw httpError("Admin access required.", 403);
+        if (user) return text(request, env, ADMIN_PAGE, "text/html; charset=utf-8", 200, resourceHeaders());
+        const clientId = JSON.stringify(env.GOOGLE_CLIENT_ID ?? "");
+        return text(request, env, `<!doctype html><html lang="vi"><meta charset="utf-8"><title>Đăng nhập quản trị</title><main style="font:16px system-ui;max-width:420px;margin:8vh auto"><h1>Đăng nhập quản trị</h1><div id="google"></div><p id="error" role="alert"></p></main><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.onload=()=>{google.accounts.id.initialize({client_id:${clientId},callback:async ({credential})=>{const r=await fetch('/api/auth/google',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({credential})});if(r.ok)location.reload();else document.getElementById('error').textContent='Đăng nhập thất bại.';}});google.accounts.id.renderButton(document.getElementById('google'),{theme:'outline',size:'large'});};</script>`, "text/html; charset=utf-8", 200, resourceHeaders());
+      }
       if (url.pathname === "/.well-known/oauth-authorization-server" && request.method === "GET") return json(request, env, oauthMetadata(request));
       if (["/.well-known/oauth-protected-resource", "/.well-known/oauth-protected-resource/mcp", "/mcp/.well-known/oauth-protected-resource"].includes(url.pathname) && request.method === "GET") return json(request, env, { resource: `${originOf(request)}/mcp`, authorization_servers: [originOf(request)], scopes_supported: ["promptchien"], bearer_methods_supported: ["header"] });
       if (url.pathname === "/oauth/register" && request.method === "POST") return await oauthRegister(env, request);
