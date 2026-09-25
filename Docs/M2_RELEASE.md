@@ -2,9 +2,9 @@
 
 ## Phạm vi và hiện trạng ban đầu
 
-- Branch `real-play`, HEAD trước khi sửa `50ccd6e4494042e0b4cf6e7868c78be0e833505d`; working tree ban đầu sạch. Không clone lại, không thay engine deterministic. M2 được đóng bằng một commit riêng; không deploy, merge hoặc push trong tác vụ này.
+- Branch `real-play`, HEAD trước khi sửa `50ccd6e4494042e0b4cf6e7868c78be0e833505d`; working tree ban đầu sạch. Không clone lại, không thay engine deterministic. M2 được đóng bằng commit `d5c9a84a9b949f0f9eb4865344e3af769d6201b6`, sau đó được phát hành theo ủy quyền riêng của Khầy; không merge.
 - Runtime phát hành vẫn là VPS Node + SQLite; web Vercel gọi API VPS. Dữ liệu M1 trong SQLite được giữ. Worker/D1 là tuyến legacy để kiểm kê ở M3, không thuộc thay đổi M2.
-- Kiểm kê VPS trước khi sửa (chỉ đọc): `PRAGMA integrity_check=ok`, 18 submission `matched`, 1 `queued`, 1 `failed`, 1 row `waiting_submissions`, không có `matched` thiếu replay. Test migration thực hiện trên SQLite tạm, không chạy migration trên VPS.
+- Kiểm kê VPS trước khi sửa (chỉ đọc): `PRAGMA integrity_check=ok`, 18 submission `matched`, 1 `queued`, 1 `failed`, 1 row `waiting_submissions`, không có `matched` thiếu replay. Migration được thử trên bản sao SQLite trước khi chạy trên VPS.
 
 ## Tệp thay đổi
 
@@ -22,7 +22,7 @@
 - `/api/simulate` luôn tạo trận `test` kể cả khi client gửi `mode=official`. MCP `submit_bot`, `list_submissions`, `get_submission`, `cancel_submission`, `get_replay` dùng cùng SQLite và quyền với REST.
 - Khi worker nhận job, cả match và hai submission cùng chuyển `running`; khi lỗi còn lượt thử, chúng cùng trở lại `matched`. Giao dịch submit kiểm tra lại revision hiện tại sau bước đọc khóa idempotency, nên bot bị chỉnh đúng lúc nộp sẽ trả `409` nhưng lần gửi lại cùng khóa cũ vẫn nhận đúng lượt cũ.
 - Migration `0004` tạo `official_matches`, dùng `submissions` làm hàng chờ, thêm ràng buộc một lượt `queued|matched|running` mỗi user và giữ bảng chờ cũ dưới tên `waiting_submissions_m1_legacy`. Bảng cũ có `migration_status`/`migration_error` cho từng hàng: hàng hợp lệ ghi `restored`; thiếu user/version, version thuộc user khác hoặc xung đột dữ liệu ghi `rejected` cùng lý do, không tự tạo version giả. Nó đối chiếu participant, version và hash replay cũ trước khi ghi nhận trận hoàn tất; submission `matched` cũ không khôi phục hợp lệ chuyển `failed` có mã lý do, lịch sử gốc vẫn còn. Tạo cặp, snapshot, hủy và chốt replay/result dùng giao dịch SQLite. Job dở dang phục hồi từ snapshot/seed bất biến, chạy tối đa hai lần rồi kết thúc `failed` cho cả hai.
-- Trước khi áp lên VPS ở một tác vụ phát hành được phép: lấy backup SQLite nhất quán (cả WAL), lưu bản code/env tương ứng, kiểm tra counts và `integrity_check`, chạy thử migration trên bản sao, rồi mới khởi động mã M2. Rollback bằng cách dừng service và khôi phục backup DB cùng code/env; không có down migration xóa dữ liệu.
+- Trước khi áp lên VPS: lấy backup SQLite nhất quán (cả WAL), lưu bản code/env tương ứng, kiểm tra counts và `integrity_check`, chạy thử migration trên bản sao, rồi mới khởi động mã M2. Rollback bằng cách dừng service và khôi phục backup DB cùng code/env; không có down migration xóa dữ liệu.
 
 ## Kiểm tra đã chạy
 
@@ -40,8 +40,16 @@ Integration test bao gồm migration M1→M2 trên DB có dữ liệu, `integrit
 
 QA lượt hai cố ý gây lỗi giữa migration trên DB v3 tạm: Node thoát với lỗi nhưng `user_version` vẫn là 3, không có cột/bảng M2, tên bảng chờ và submission nguồn giữ nguyên. Đây là bằng chứng transaction rollback; không thử lỗi trên VPS. QA cũng kiểm tra hai tài khoản A/B local nhận cùng `matchId`/kết quả sau polling và mở được replay.
 
+## Phát hành production ngày 25/09/2026
+
+- Đã push commit `d5c9a84` lên `origin/real-play`. Vercel tự build preview `3FxzAkb7E6BAW1kAzMmpiwCrtBVN` từ đúng commit; sau khi VPS khỏe, promote preview thành production `67H64o4GmMhSFTLjq1qNwg3ybhSA` tại `https://prompt-battle-cty.vercel.app/`. Dự án là `sontaks-projects/prompt-battle-cty`.
+- Trên VPS, backup code/env trước cutover tại `/opt/promptchien-backups/m2-code-before-20260925T140052Z.tar.gz` và `m2-env-before-20260925T140052Z`; backup SQLite ngay sau khi dừng service tại `/opt/promptchien-backups/m2-cutover-20260925T142435Z.sqlite`. Bản sao DB chạy migration thử: schema 3→4, `integrity_check=ok`, giữ 36 users, 50 bots, 20 submissions, 61 replays, tạo 9 official matches từ lịch sử, còn 1 lượt queued legacy.
+- Mã M2 triển khai tại `/opt/promptchien`; `pnpm build`, `GET /healthz`, `node /tmp/promptchien-m2-inspect.mjs /opt/promptchien/data/promptchien.sqlite` và `systemctl is-active promptchien-api` đều đạt. Sau phép thử thật: schema 4, `integrity_check=ok`, 37 users, 51 bots, 23 submissions, 64 replays, 11 official matches; 22 lượt completed, 1 failed cũ, không có lượt active trùng hoặc submission mồ côi. Service active, log không có lỗi mới.
+- Web chính có giao diện hàng chờ M2; `curl.exe -fsS https://api.kythuatvang.com/healthz` trả `ok`, `curl.exe -sS -o NUL -w '%{http_code}' https://prompt-battle-cty.vercel.app/api/auth/google-config` trả `200`, `/api/v1/submissions` khi chưa đăng nhập trả `401`. Khầy kiểm tra bằng hai tài khoản Google trên hai thiết bị thật: cùng `matchId`, cả hai xem được replay.
+
 ## Nghiệm thu và rủi ro còn lại
 
-- **Đạt trên môi trường local:** API/Web/MCP cùng một queue SQLite; một tài khoản chỉ có một lượt active; ghép hai user; kết quả/replay cùng `matchId`; tài khoản thứ ba bị chặn; submit lặp không nhân đôi; cancel và restart không tạo lượt kẹt; trận test không tự nhận official; dữ liệu cũ được giữ hoặc đóng có lý do.
-- **Chưa đạt trên production:** chưa triển khai M2 và chưa thử hai tài khoản trên hai máy thật với cùng `matchId`/replay. Kế hoạch phát hành cấm tự deploy/merge; cần một tác vụ phát hành được ủy quyền và QA production sau backup/preflight. Không gọi M2 đã phát hành cho người chơi.
+- **Đạt:** API/Web/MCP cùng một queue SQLite; một tài khoản chỉ có một lượt active; ghép hai user; kết quả/replay cùng `matchId`; tài khoản thứ ba bị chặn trong integration test; submit lặp không nhân đôi; cancel và restart không tạo lượt kẹt; trận test không tự nhận official; dữ liệu cũ được giữ hoặc đóng có lý do. Production đã có trận hai tài khoản Google trên hai thiết bị với cùng `matchId` và replay.
+- **Giới hạn xác minh:** từ xa đã đối chiếu trạng thái DB sau phép thử và nhận kết quả trực tiếp từ Khầy; không tự điều khiển cả hai thiết bị. Kiểm tra tài khoản thứ ba, mất mạng và restart giữa trận vẫn là integration test local, chưa cố ý gây gián đoạn production.
 - **Rủi ro:** VPS hiện tại 1 vCPU; worker tuần tự một trận để bảo vệ API, nên hàng chờ có thể tăng khi nhiều người cùng nộp. M3 sẽ đo tải, giới hạn đầu vào và quyết định nâng VPS bằng số liệu; M3 cũng kiểm kê rồi mới dọn Worker/D1. M4 tiếp tục xác nhận đường dùng trên hai AI host.
+- Backup cutover nằm trên cùng VPS. Nếu khôi phục nguyên DB từ backup sau khi đã có trận M2 mới, các lượt mới sẽ mất; khi cần rollback phải dừng ghi và xử lý dữ liệu phát sinh sau cutover. M5 sẽ bổ sung backup ngoài VPS và diễn tập khôi phục.
