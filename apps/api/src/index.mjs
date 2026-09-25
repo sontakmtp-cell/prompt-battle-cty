@@ -85,10 +85,10 @@ function replayShareSecret(env) {
   return String(env.REPLAY_SHARE_SECRET ?? "");
 }
 
-async function issueReplayShare(env, replayId, ownerUserId) {
+async function issueReplayShare(env, replayId) {
   const secret = replayShareSecret(env);
   if (!secret) return null;
-  const payload = base64url(encoder.encode(JSON.stringify({ replayId, ownerUserId, expiresAt: now() + 86400000 })));
+  const payload = base64url(encoder.encode(JSON.stringify({ replayId, expiresAt: now() + 86400000 })));
   return `${payload}.${await hmacDigest(secret, payload)}`;
 }
 
@@ -101,7 +101,7 @@ async function verifyReplayShare(env, token, replayId) {
   if (!sameSecret(expected, signature)) return null;
   try {
     const value = JSON.parse(new TextDecoder().decode(fromBase64url(payload)));
-    if (value.replayId !== replayId || typeof value.ownerUserId !== "string" || !Number.isInteger(value.expiresAt) || value.expiresAt <= now()) return null;
+    if (value.replayId !== replayId || !Number.isInteger(value.expiresAt) || value.expiresAt <= now()) return null;
     return value;
   } catch {
     return null;
@@ -403,7 +403,7 @@ async function adminUsers(env, url) {
     (SELECT COUNT(*) FROM bots b WHERE b.user_id = u.id) AS bots,
     (SELECT COUNT(*) FROM submissions s WHERE s.user_id = u.id) AS submissions,
     (SELECT COUNT(*) FROM replays r WHERE r.owner_user_id = u.id) AS replays,
-    (SELECT COUNT(*) FROM waiting_submissions w WHERE w.user_id = u.id) AS queued
+    (SELECT COUNT(*) FROM submissions s WHERE s.user_id = u.id AND s.status = 'queued') AS queued
     FROM users u WHERE u.google_sub IS NOT NULL AND (u.google_email LIKE ? OR u.display_name LIKE ? OR u.id LIKE ?)
     ORDER BY u.created_at DESC, u.id DESC LIMIT ? OFFSET ?`, `%${q}%`, `%${q}%`, `%${q}%`, limit + 1, cursor);
   return { users: rows.slice(0, limit).map(row => ({ id: row.id, email: row.google_email, displayName: row.display_name, role: row.role, disabled: row.disabled_at !== null, bots: row.bots, submissions: row.submissions, replays: row.replays, queued: row.queued, createdAt: row.created_at })), nextCursor: rows.length > limit ? cursor + limit : null };
@@ -448,8 +448,9 @@ function simulationSummary(saved) {
 }
 
 async function getReplay(env, user, replayId) {
-  const row = await first(env, "SELECT id, status, seed, replay_json, result_json, official, created_at FROM replays WHERE id = ? AND (owner_user_id = ? OR official = 1)", replayId, user.id);
-  if (!row) throw httpError("Replay not found.", 404);
+  const row = await first(env, "SELECT id, status, seed, replay_json, result_json, official, owner_user_id, created_at FROM replays WHERE id = ?", replayId);
+  const authorized = row && (row.official ? env.MATCH_QUEUE?.isParticipant?.(user.id, replayId) : row.owner_user_id === user.id);
+  if (!authorized) throw httpError("Replay not found.", 404);
   return {
     replayId: row.id,
     status: row.status,
@@ -475,7 +476,7 @@ function replayViewerPayload(replay) {
 
 async function renderReplay(env, request, user, replayId) {
   const saved = await getReplay(env, user, replayId);
-  const share = await issueReplayShare(env, saved.replayId, user.id);
+  const share = await issueReplayShare(env, saved.replayId);
   const fallback = share
     ? new URL(`/replays/${encodeURIComponent(saved.replayId)}?share=${encodeURIComponent(share)}`, request.url).toString()
     : new URL(saved.replayUrl, request.url).toString();
@@ -493,46 +494,27 @@ async function renderReplay(env, request, user, replayId) {
   };
 }
 
-async function submitBot(env, request, user, botId, revision) {
+async function submitBot(env, user, botId, revision, idempotencyKey) {
+  if (typeof env.MATCH_QUEUE?.submit !== "function") throw httpError("Official submissions are available on the Node API only.", 503, { code: "OFFICIAL_QUEUE_UNAVAILABLE" });
+  if (typeof idempotencyKey !== "string" || !/^[A-Za-z0-9._~-]{8,128}$/.test(idempotencyKey)) throw httpError("Idempotency-Key must be 8-128 safe characters.", 400, { code: "INVALID_IDEMPOTENCY_KEY" });
+  const requestHash = JSON.stringify({ botId, revision });
+  const previous = env.MATCH_QUEUE.lookup(user.id, idempotencyKey, requestHash);
+  if (previous) return previous;
   const current = await ownedBot(env, user, botId);
   if (!Number.isInteger(revision) || revision !== current.revision) throw httpError(`Revision conflict: expected ${current.revision}.`, 409);
   const validation = await validateDefinition(current.bot);
   if (!validation.report.valid || !validation.package) throw httpError("Bot must pass validation before submit.", 422, { validation });
   const version = await insertOrUpdateVersion(env, user, current, validation);
-  const previous = await first(env, "SELECT id, version_id FROM submissions WHERE user_id = ? AND status = 'queued' LIMIT 1", user.id);
-  if (previous) {
-    if (previous.version_id !== version.id) throw httpError("Already waiting with another bot version.", 409);
-    return { status: "queued", submissionId: previous.id, version };
+  const testEnv = globalThis.process?.env;
+  if (testEnv?.NODE_ENV === "test" && testEnv.PROMPTCHIEN_TEST_SUBMIT_DELAY_KEY === idempotencyKey) {
+    const delayMs = Math.min(Number(testEnv.PROMPTCHIEN_TEST_SUBMIT_DELAY_MS) || 0, 5000);
+    if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs));
   }
-
-  const submissionId = id("submission");
-  try {
-    await run(env, "INSERT INTO submissions (id, user_id, version_id, status, created_at) VALUES (?, ?, ?, 'queued', ?)", submissionId, user.id, version.id, now());
-  } catch (error) {
-    if (String(error).includes("UNIQUE constraint failed: submissions.user_id")) throw httpError("Already waiting with another bot version.", 409);
-    throw error;
-  }
-  let pair;
-  try {
-    const queue = await env.MATCH_QUEUE.getByName("official").enqueue({ submissionId, userId: user.id, versionId: version.id, queuedAt: now() });
-    if (queue.status !== "matched") return { status: "queued", submissionId, version, position: queue.position };
-    pair = queue.pair;
-
-    const left = await first(env, "SELECT id, user_id, version_id FROM submissions WHERE id = ?", queue.pair.A.submission_id);
-    const right = await first(env, "SELECT id, user_id, version_id FROM submissions WHERE id = ?", queue.pair.B.submission_id);
-    const leftVersion = await first(env, "SELECT package_json FROM bot_versions WHERE id = ?", left.version_id);
-    const rightVersion = await first(env, "SELECT package_json FROM bot_versions WHERE id = ?", right.version_id);
-    const seedBytes = new Uint32Array(1);
-    crypto.getRandomValues(seedBytes);
-    const replay = await makeReplay(JSON.parse(leftVersion.package_json), JSON.parse(rightVersion.package_json), seedBytes[0], true);
-    const saved = await saveReplay(env, user.id, replay, true);
-    await run(env, "UPDATE submissions SET status = 'matched', match_id = ? WHERE id IN (?, ?)", saved.replayId, left.id, right.id);
-    return { status: "matched", submissionId, version, matchId: saved.replayId, result: saved.result, replayUrl: saved.replayUrl };
-  } catch (error) {
-    if (pair) await run(env, "UPDATE submissions SET status = 'failed' WHERE id IN (?, ?)", pair.A.submission_id, pair.B.submission_id);
-    else await run(env, "UPDATE submissions SET status = 'failed' WHERE id = ?", submissionId);
-    throw error;
-  }
+  return env.MATCH_QUEUE.submit({
+    userId: user.id, botId, revision, versionId: version.id,
+    submissionId: id("submission"), idempotencyKey,
+    requestHash, createdAt: now(),
+  });
 }
 
 async function withIdempotency(env, user, toolName, args, operation) {
@@ -582,7 +564,22 @@ async function callTool(name, args, env, request, user) {
     case "render_replay":
       return renderReplay(env, request, user, input.replayId);
     case "submit_bot":
-      return withIdempotency(env, user, name, input, () => submitBot(env, request, user, input.botId, input.revision));
+      return submitBot(env, user, input.botId, input.revision, input.idempotencyKey);
+    case "list_submissions": {
+      if (typeof env.MATCH_QUEUE?.list !== "function") throw httpError("Official submissions are available on the Node API only.", 503);
+      const limit = input.limit ?? 20, cursor = input.cursor ?? 0;
+      if (!Number.isInteger(limit) || limit < 1 || limit > 50 || !Number.isInteger(cursor) || cursor < 0 || cursor > 1_000_000) throw httpError("Invalid pagination.", 400);
+      return env.MATCH_QUEUE.list(user.id, cursor, limit);
+    }
+    case "get_submission": {
+      const value = env.MATCH_QUEUE?.submission?.(user.id, input.submissionId);
+      if (!value) throw httpError("Submission not found.", 404);
+      return value;
+    }
+    case "cancel_submission": {
+      if (typeof env.MATCH_QUEUE?.cancel !== "function") throw httpError("Official submissions are available on the Node API only.", 503);
+      return env.MATCH_QUEUE.cancel(user.id, input.submissionId);
+    }
     default:
       throw httpError(`Unknown tool: ${name}`, 404);
   }
@@ -806,6 +803,16 @@ function oauthMetadata(request) {
   };
 }
 
+async function getSharedReplay(env, replayId) {
+  const row = await first(env, "SELECT id, status, seed, replay_json, result_json, official, created_at FROM replays WHERE id = ?", replayId);
+  if (!row) throw httpError("Replay not found.", 404);
+  return {
+    replayId: row.id, status: row.status, seed: row.seed, official: Boolean(row.official),
+    replay: JSON.parse(row.replay_json), result: JSON.parse(row.result_json), createdAt: row.created_at,
+    replayUrl: `/api/v1/replays/${row.id}`,
+  };
+}
+
 function validRedirectUri(value) {
   try {
     const url = new URL(value);
@@ -916,7 +923,7 @@ async function publicSimulate(body) {
   const left = body.a ?? body.botA;
   const right = body.b ?? body.botB;
   const [botA, botB] = await Promise.all([packageFrom(left), packageFrom(right)]);
-  const replay = await makeReplay(botA, botB, body.seed ?? 1234, body.mode === "official");
+  const replay = await makeReplay(botA, botB, body.seed ?? 1234, false);
   return {
     replay,
     shapes: { A: shapeOf(botA.definition).triangles, B: shapeOf(botB.definition).triangles },
@@ -942,8 +949,8 @@ async function handleApi(request, env, url) {
     const replayId = decodeURIComponent(replayPath[1]);
     const share = await verifyReplayShare(env, url.searchParams.get("share"), replayId);
     if (!share) throw httpError("A valid replay share link is required.", 401);
-    const saved = await getReplay(env, { id: share.ownerUserId }, replayId);
-    return text(request, env, standaloneReplayHtml(saved, request.url), "text/html; charset=utf-8", 200, resourceHeaders());
+    const saved = await getSharedReplay(env, replayId);
+    return text(request, env, standaloneReplayHtml(saved, request.url), "text/html; charset=utf-8", 200, { ...resourceHeaders(), "referrer-policy": "no-referrer" });
   }
   if (request.method === "GET" && url.pathname === "/api/auth/me") {
     const user = await userForRequest(request, env);
@@ -989,9 +996,35 @@ async function handleApi(request, env, url) {
     if (parts[4] === "edit") return json(request, env, await editBot(env, user, parts[3], body.revision, body.bot));
     if (parts[4] === "validate") return json(request, env, await validateOwnedBot(env, user, parts[3]));
     if (parts[4] === "simulate") return json(request, env, await callTool("simulate_bot", { ...body, botId: parts[3] }, env, request, user));
-    if (parts[4] === "submit") return json(request, env, await submitBot(env, request, user, parts[3], body.revision));
+    if (parts[4] === "submit") return json(request, env, await submitBot(env, user, parts[3], body.revision, request.headers.get("idempotency-key")), 202);
+  }
+  if (parts[2] === "submissions" && parts.length === 3 && request.method === "GET") {
+    if (typeof env.MATCH_QUEUE?.list !== "function") throw httpError("Official submissions are available on the Node API only.", 503);
+    const { limit, cursor } = page(url);
+    return json(request, env, env.MATCH_QUEUE.list(user.id, cursor, limit));
+  }
+  if (parts[2] === "submissions" && parts.length === 4 && request.method === "GET") {
+    const submission = env.MATCH_QUEUE?.submission?.(user.id, parts[3]);
+    if (!submission) throw httpError("Submission not found.", 404);
+    return json(request, env, submission);
+  }
+  if (parts[2] === "submissions" && parts.length === 5 && parts[4] === "cancel" && request.method === "POST") {
+    if (typeof env.MATCH_QUEUE?.cancel !== "function") throw httpError("Official submissions are available on the Node API only.", 503);
+    return json(request, env, env.MATCH_QUEUE.cancel(user.id, parts[3]));
+  }
+  if (parts[2] === "matches" && parts.length === 4 && request.method === "GET") {
+    const match = env.MATCH_QUEUE?.match?.(user.id, parts[3]);
+    if (!match) throw httpError("Match not found.", 404);
+    return json(request, env, match);
   }
   if (parts[2] === "replays" && parts.length === 4 && request.method === "GET") return json(request, env, await getReplay(env, user, parts[3]));
+  if (parts[2] === "replays" && parts.length === 5 && parts[4] === "share" && request.method === "POST") {
+    const replay = await getReplay(env, user, parts[3]);
+    const share = await issueReplayShare(env, replay.replayId);
+    if (!share) throw httpError("Replay sharing is not configured.", 503, { code: "REPLAY_SHARING_UNAVAILABLE" });
+    const shareUrl = new URL(`/replays/${encodeURIComponent(replay.replayId)}?share=${encodeURIComponent(share)}`, request.url).toString();
+    return json(request, env, { replayId: replay.replayId, expiresAt: now() + 86400000, shareUrl }, 200, { "referrer-policy": "no-referrer" });
+  }
   return null;
 }
 
@@ -1003,7 +1036,7 @@ export default {
   async fetch(request, env) {
     try {
       const url = new URL(request.url);
-      if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: { ...corsHeaders(request, env), "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "authorization,content-type,mcp-protocol-version,mcp-method,mcp-name", "access-control-max-age": "86400" } });
+      if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: { ...corsHeaders(request, env), "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-headers": "authorization,content-type,idempotency-key,mcp-protocol-version,mcp-method,mcp-name", "access-control-max-age": "86400" } });
       if (url.pathname === "/healthz" && request.method === "GET") return json(request, env, { ok: true, service: "promptchien-api", mcpApi: VERSIONS.mcpApi });
       if (url.pathname === "/admin" && request.method === "GET") {
         const user = await userForRequest(request, env);

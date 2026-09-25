@@ -77,7 +77,22 @@ export const TOOL_DEFINITIONS = [
   {
     name: "submit_bot",
     description: "Lock the currently validated revision and enter FIFO official matchmaking.",
-    inputSchema: { type: "object", required: ["botId", "revision"], properties: { botId: id, revision: { type: "integer", minimum: 1 }, ...idempotency }, additionalProperties: false },
+    inputSchema: { type: "object", required: ["botId", "revision", "idempotencyKey"], properties: { botId: id, revision: { type: "integer", minimum: 1 }, ...idempotency }, additionalProperties: false },
+  },
+  {
+    name: "list_submissions",
+    description: "List the authenticated user's official submissions and their current server-side status.",
+    inputSchema: { type: "object", properties: { cursor: { type: "integer", minimum: 0 }, limit: { type: "integer", minimum: 1, maximum: 50 } }, additionalProperties: false },
+  },
+  {
+    name: "get_submission",
+    description: "Read one of the authenticated user's official submission statuses and result.",
+    inputSchema: { type: "object", required: ["submissionId"], properties: { submissionId: id }, additionalProperties: false },
+  },
+  {
+    name: "cancel_submission",
+    description: "Cancel an official submission that is still queued.",
+    inputSchema: { type: "object", required: ["submissionId"], properties: { submissionId: id }, additionalProperties: false },
   },
 ];
 
@@ -95,7 +110,8 @@ PROMPT Chiến is a deterministic geometric bot battle. The server is authoritat
 6. Call get_replay to inspect the result.
 7. Call render_replay with that replayId when the host supports MCP Apps.
 8. Call edit_bot with the returned revision, then validate and simulate again.
-9. Call submit_bot only after validation passes.
+9. Call submit_bot only after validation passes; reuse its idempotencyKey when retrying.
+10. Call list_submissions or get_submission to follow official queue status; call cancel_submission only while queued.
 
 Brain is declarative JSON: each rule returns one movement and one rotation action. It cannot run JavaScript, call a network, read the opponent Brain, or control an official match. Official matches use only Bot Package + Brain + Battle Engine + Ruleset + Seed.
 
@@ -125,7 +141,7 @@ export function rulesDocument() {
   return {
     versions: VERSIONS,
     ruleset: RULESET,
-    workflow: ["open_game", "create_bot", "validate_bot", "simulate_bot", "get_replay", "render_replay", "edit_bot", "validate_bot", "submit_bot"],
+    workflow: ["open_game", "create_bot", "validate_bot", "simulate_bot", "get_replay", "render_replay", "edit_bot", "validate_bot", "submit_bot", "list_submissions", "get_submission"],
     toolNames: TOOL_DEFINITIONS.map(tool => tool.name),
     resources: ["/agent.md", "/rules", "/schema/bot.json", "/schema/replay.json", M4_GAME_RESOURCE, M4_REPLAY_RESOURCE],
     botSchema: schemaFor("bot"),

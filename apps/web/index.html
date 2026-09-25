@@ -393,29 +393,48 @@
         <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 class="text-base font-extrabold text-slate-900">Hàng chờ & Ghép cặp FIFO</h2>
-              <p class="text-xs text-slate-500 mt-0.5">Mỗi tên người chơi có tối đa một lượt chờ. Hai tên khác nhau được ghép theo thứ tự đến trước.</p>
+              <h2 class="text-base font-extrabold text-slate-900">Hàng chờ official trên tài khoản</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Trận official được lưu trên máy chủ và theo tài khoản Google đang đăng nhập.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="official-submit" class="min-h-10 py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition shadow-sm">
+                Đăng nhập để nộp official
+              </button>
+              <button type="button" id="official-refresh" class="min-h-10 py-2 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition">
+                Làm mới
+              </button>
+            </div>
+          </div>
+          <p id="official-status" role="status" class="text-xs text-slate-600" aria-live="polite">Đăng nhập Google để xem lượt official.</p>
+          <ul id="official-list" class="space-y-2 font-mono text-xs" aria-live="polite"></ul>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 class="text-base font-extrabold text-slate-900">Thử trên thiết bị này</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Dữ liệu nằm trong trình duyệt hiện tại. Hàng này không phải lượt hay trận official.</p>
             </div>
             <div class="flex items-center gap-2">
               <button type="button" id="submit" class="py-2 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition shadow-sm">
-                Nộp bản đã kiểm tra
+                Nộp bot vào hàng thử
               </button>
               <button type="button" id="match" class="py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition shadow-sm">
-                Ghép cặp đang chờ
+                Chạy trận thử đang chờ
               </button>
             </div>
           </div>
 
           <div class="pt-3 border-t border-slate-100">
-            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold block mb-2">Thêm bot mẫu vào hàng chờ đối kháng:</span>
+            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold block mb-2">Thêm bot mẫu vào hàng thử trên thiết bị này:</span>
             <div class="flex flex-wrap gap-2" id="samples"></div>
           </div>
         </div>
 
         <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">Danh sách hàng chờ trực tiếp</span>
-            <span class="text-xs font-mono text-slate-400">FIFO</span>
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500">Danh sách hàng thử local</span>
+            <span class="text-xs font-mono text-slate-400">chỉ trên thiết bị</span>
           </div>
           <ul id="queue-list" class="space-y-2 font-mono text-xs"></ul>
         </div>

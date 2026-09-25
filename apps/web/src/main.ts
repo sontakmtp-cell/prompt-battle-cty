@@ -4,8 +4,8 @@ import { enqueueOpponent, finishPair, matchSeed, recordVersion, releasePair, ren
 import type { LabStore } from "@prompt-chien/application/lab";
 import { captionEvent, cellAt, cellsInView, cellVertices, drawViewer, TEAM_FILL, TEAM_INK, viewCheckpoint } from "@prompt-chien/ui";
 import type { DisplayTriangle, GridCell } from "@prompt-chien/ui";
-import { apiOrigin, authMe, createCloudBot, editCloudBot, getCloudBot, getCloudReplay, googleConfig, googleLogin, inspectBot, listCloudBots, logout, referenceBots, simulateCloudBot, simulateRequest, validateCloudBot, validateRequest } from "./api.js";
-import type { CloudBot, CloudUser, Inspection, ReferenceBot, ShapeReport } from "./api.js";
+import { apiOrigin, authMe, cancelCloudSubmission, createCloudBot, createCloudReplayShare, editCloudBot, getCloudBot, getCloudMatch, getCloudReplay, googleConfig, googleLogin, inspectBot, listCloudBots, listCloudSubmissions, logout, referenceBots, submitCloudBot, simulateCloudBot, simulateRequest, validateCloudBot, validateRequest } from "./api.js";
+import type { CloudBot, CloudSubmission, CloudUser, Inspection, ReferenceBot, ShapeReport } from "./api.js";
 import { starterDefinition } from "./starter.js";
 import { loadMeta, loadReplay, loadStore, ownerIdFromName, saveMeta, saveReplay, saveStore, listReplays } from "./store.js";
 import type { Meta, SavedReplay } from "./store.js";
@@ -14,6 +14,17 @@ import type { Tactic, TacticStyle } from "./tactics.js";
 
 type Tool = TriType | "core" | "erase";
 type Page = "editor" | "inspector" | "queue" | "replay";
+type PendingSubmission = { key: string; botId: string; revision: number; userId: string };
+
+const PENDING_SUBMIT_PREFIX = "prompt-chien.official-submit.v1.";
+const SUBMISSION_LABEL: Record<string, string> = {
+  queued: "Đang chờ ghép",
+  matched: "Đã ghép, đang chuẩn bị",
+  running: "Đang chạy trận official",
+  completed: "Đã hoàn tất",
+  failed: "Trận gặp lỗi",
+  cancelled: "Đã hủy",
+};
 
 const ISSUE: Record<string, string> = {
   GEOMETRY_BUDGET: "Thân bot phải có từ 1 đến 60 tam giác.",
@@ -64,6 +75,10 @@ const app = {
   cloudSaved: "",
   cloudBots: [] as CloudBot[],
   cloudVersions: [] as { packageHash: string; revision: number }[],
+  cloudSubmissions: [] as CloudSubmission[],
+  pendingSubmission: null as PendingSubmission | null,
+  officialQueueMessage: "",
+  officialQueueLoading: false,
 };
 
 const $ = <T extends Element>(selector: string) => {
@@ -157,6 +172,9 @@ function commit(): boolean {
 }
 
 let inspectTimer = 0;
+let officialPollTimer = 0;
+let officialPollFailures = 0;
+let officialPollBusy = false;
 function queueInspect(): void {
   window.clearTimeout(inspectTimer);
   inspectTimer = window.setTimeout(() => void refreshInspect(), 200);
@@ -368,7 +386,11 @@ function show(page: Page): void {
   }
   if (page === "replay" && app.replay) drawFrame();
   if (page === "inspector") renderInspector();
-  if (page === "queue") renderQueue();
+  if (page === "queue") {
+    renderQueue();
+    void refreshOfficialQueue();
+    scheduleOfficialPolling();
+  }
 }
 
 function renderInspector(): void {
@@ -421,6 +443,7 @@ function renderInspector(): void {
 }
 
 function renderQueue(): void {
+  renderOfficialQueue();
   const list = $("#queue-list");
   list.replaceChildren();
   const rows = [...app.store.queue].sort((a, b) => a.order - b.order);
@@ -444,7 +467,7 @@ function renderQueue(): void {
     `;
     list.append(row);
   }
-  if (!rows.length) list.append(item("Hàng đang trống.", ""));
+  if (!rows.length) list.append(item("Hàng thử trên thiết bị này đang trống.", ""));
   const samples = $("#samples");
   samples.replaceChildren();
   for (const bot of app.references) {
@@ -464,7 +487,6 @@ async function enqueueSample(bot: ReferenceBot): Promise<void> {
 }
 
 async function submitCurrent(): Promise<void> {
-  if (app.cloudUser) { toast("Hàng chờ chính thức sẽ được nối với tài khoản ở M2."); return; }
   if (!commit()) return;
   if (!app.package || canonicalJson(app.package.definition) !== canonicalJson(app.definition)) {
     toast("Hãy kiểm tra và đạt trên đúng hình đang sửa trước khi nộp.");
@@ -752,6 +774,282 @@ function loop(now: number): void {
   requestAnimationFrame(loop);
 }
 
+function pendingStorageKey(userId: string): string { return `${PENDING_SUBMIT_PREFIX}${userId}`; }
+
+function readPendingSubmission(userId: string): PendingSubmission | null {
+  try {
+    const value = JSON.parse(localStorage.getItem(pendingStorageKey(userId)) ?? "") as PendingSubmission;
+    if (value.userId === userId && /^[A-Za-z0-9._~-]{8,128}$/.test(value.key) && value.botId && Number.isInteger(value.revision)) return value;
+  } catch { /* no pending request is normal */ }
+  return null;
+}
+
+function clearPendingSubmission(): void {
+  if (app.pendingSubmission) localStorage.removeItem(pendingStorageKey(app.pendingSubmission.userId));
+  app.pendingSubmission = null;
+}
+
+function localizeOfficialError(error: unknown): string {
+  if (typeof error === "object" && error !== null && "status" in error) {
+    const status = Number((error as { status: unknown }).status);
+    if (status === 401) return "Phiên đăng nhập đã hết hạn. Đăng nhập lại rồi thử tiếp.";
+    if (status === 403 || status === 404) return "Không tìm thấy lượt trong tài khoản này.";
+    if (status === 409) return "Tài khoản đang có lượt official khác hoặc yêu cầu bị trùng. Tải lại danh sách để xem trạng thái.";
+    if (status === 422) return "Bot chưa đạt kiểm tra. Mở bot, sửa lỗi rồi kiểm tra lại trước khi nộp.";
+    if (status >= 500) return "Máy chủ đang gặp lỗi. Thử tải lại; yêu cầu nộp sẽ giữ nguyên mã để không tạo lượt trùng.";
+  }
+  return error instanceof TypeError
+    ? "Mất kết nối với máy chủ. Bạn có thể thử lại; yêu cầu sẽ dùng cùng mã để tránh nộp trùng."
+    : error instanceof Error ? error.message : "Không tải được trạng thái official.";
+}
+
+function submissionId(entry: CloudSubmission): string {
+  return entry.submissionId || (entry as CloudSubmission & { id?: string }).id || "";
+}
+
+function formatSubmissionDate(value: number | string): string {
+  const number = typeof value === "string" ? Number(value) : value;
+  const date = Number.isFinite(number) ? new Date(number) : new Date(value);
+  return Number.isNaN(date.getTime()) ? "thời điểm không rõ" : new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(date);
+}
+
+function officialResultLabel(result?: CloudSubmission["result"]): string {
+  if (!result) return "";
+  const winner = result.winner === "draw" ? "Hòa" : `Đội ${result.winner} thắng`;
+  const reason: Record<string, string> = { core: "phá lõi", incap: "mất khả năng chiến đấu", timeout: "hết giờ", brainBudget: "hết ngân sách chiến thuật" };
+  return `${winner} · ${reason[result.reason] ?? result.reason}`;
+}
+
+function renderOfficialQueue(): void {
+  const list = $("#official-list");
+  list.replaceChildren();
+  const hint = $("#official-status");
+  if (!app.cloudUser) {
+    hint.textContent = "Đăng nhập Google để xem và nộp lượt official trên tài khoản. Hàng local bên dưới chỉ là thử trên thiết bị này.";
+    list.append(item("Chưa đăng nhập tài khoản.", ""));
+    return;
+  }
+  if (app.pendingSubmission) {
+    hint.textContent = `Đang xác nhận yêu cầu nộp bot ${app.pendingSubmission.botId}, bản ${app.pendingSubmission.revision}. Bấm nút nộp để gửi lại an toàn nếu mất mạng.`;
+  } else if (app.officialQueueMessage) hint.textContent = app.officialQueueMessage;
+  else hint.textContent = "Lượt official được lưu trên VPS và gắn với tài khoản Google này.";
+  if (app.officialQueueLoading && !app.cloudSubmissions.length) {
+    list.append(item("Đang tải trạng thái official…", ""));
+    return;
+  }
+  for (const entry of app.cloudSubmissions) {
+    const id = submissionId(entry);
+    const row = document.createElement("li");
+    row.className = "p-4 rounded-xl bg-white border border-slate-200 shadow-sm space-y-2";
+    const heading = document.createElement("div");
+    heading.className = "flex flex-wrap items-center justify-between gap-2";
+    const title = document.createElement("strong");
+    title.className = "text-slate-900";
+    title.textContent = SUBMISSION_LABEL[entry.status] ?? `Trạng thái: ${entry.status}`;
+    const badge = document.createElement("span");
+    const badgeStyle = entry.status === "completed" ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      : entry.status === "failed" ? "bg-rose-50 text-rose-700 border-rose-200"
+        : entry.status === "cancelled" ? "bg-slate-100 text-slate-600 border-slate-200"
+          : "bg-amber-50 text-amber-700 border-amber-200";
+    badge.className = `text-[10px] px-2 py-0.5 rounded-full border font-semibold ${badgeStyle}`;
+    badge.textContent = entry.status.toUpperCase();
+    heading.append(title, badge);
+    const details = document.createElement("p");
+    details.className = "text-[11px] text-slate-500 break-all";
+    details.textContent = `Nộp ${formatSubmissionDate(entry.createdAt)} · ID ${id || "không rõ"}${entry.position ? ` · vị trí ${entry.position}` : ""}${entry.matchId ? ` · trận ${entry.matchId}` : ""}`;
+    row.append(heading, details);
+    const result = officialResultLabel(entry.result);
+    if (result) {
+      const summary = document.createElement("p");
+      summary.className = "text-xs font-semibold text-slate-800";
+      summary.textContent = result;
+      row.append(summary);
+    }
+    if (entry.errorMessage) {
+      const error = document.createElement("p");
+      error.className = "text-xs text-rose-700";
+      error.textContent = entry.errorMessage;
+      row.append(error);
+    } else if (entry.errorCode) {
+      const error = document.createElement("p");
+      error.className = "text-xs text-rose-700";
+      error.textContent = `Mã lỗi ${entry.errorCode}. Có thể nộp lượt mới sau khi trạng thái này kết thúc.`;
+      row.append(error);
+    }
+    const actions = document.createElement("div");
+    actions.className = "flex flex-wrap gap-2 pt-1";
+    if (entry.matchId) {
+      let matchDetails: HTMLElement | null = null;
+      const detail = button("Chi tiết trận", () => {
+        if (matchDetails) { matchDetails.remove(); matchDetails = null; return; }
+        matchDetails = document.createElement("p");
+        matchDetails.className = "basis-full text-[11px] text-slate-600 break-all";
+        matchDetails.textContent = "Đang tải chi tiết trận official…";
+        row.append(matchDetails);
+        void getCloudMatch(entry.matchId!).then(match => {
+          if (!matchDetails?.isConnected) return;
+          const result = officialResultLabel(match.result);
+          matchDetails.textContent = `Seed ${match.seed} · engine ${match.engineVersion} · luật ${match.rulesetVersion}${result ? ` · ${result}` : ""} · hash A ${match.packageHashes.A.slice(0, 12)} · hash B ${match.packageHashes.B.slice(0, 12)}`;
+        }).catch(error => {
+          if (matchDetails?.isConnected) matchDetails.textContent = localizeOfficialError(error);
+        });
+      });
+      detail.className = "min-h-9 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200";
+      actions.append(detail);
+    }
+    if (entry.status === "queued" && id) {
+      const cancel = button("Hủy lượt đang chờ", () => void cancelOfficialSubmission(id));
+      cancel.className = "min-h-9 px-3 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold border border-rose-200";
+      actions.append(cancel);
+    }
+    if (entry.status === "completed") {
+      const replay = button("Xem replay", () => void openOfficialReplay(entry));
+      replay.className = "min-h-9 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold";
+      actions.append(replay);
+      if (entry.replayId || entry.matchId || entry.replayUrl) {
+        const share = button("Chia sẻ replay 24 giờ", () => void shareOfficialReplay(entry));
+        share.className = "min-h-9 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200";
+        actions.append(share);
+      }
+    }
+    if (actions.childElementCount) row.append(actions);
+    list.append(row);
+  }
+  if (!app.cloudSubmissions.length) list.append(item("Tài khoản này chưa có lượt official nào.", ""));
+}
+
+async function refreshOfficialQueue(): Promise<void> {
+  if (!app.cloudUser || officialPollBusy) return;
+  officialPollBusy = true;
+  app.officialQueueLoading = true;
+  renderOfficialQueue();
+  try {
+    const result = await listCloudSubmissions(0, 50);
+    app.cloudSubmissions = result.items;
+    app.officialQueueMessage = "";
+    officialPollFailures = 0;
+  } catch (error) {
+    app.officialQueueMessage = localizeOfficialError(error);
+    officialPollFailures = Math.min(officialPollFailures + 1, 4);
+  } finally {
+    app.officialQueueLoading = false;
+    officialPollBusy = false;
+    renderOfficialQueue();
+    scheduleOfficialPolling();
+  }
+}
+
+function scheduleOfficialPolling(): void {
+  window.clearInterval(officialPollTimer);
+  officialPollTimer = window.setInterval(() => {
+    if (app.page === "queue" && document.visibilityState === "visible") void refreshOfficialQueue();
+  }, Math.min(15000, 2500 * (2 ** officialPollFailures)));
+}
+
+async function transmitPendingSubmission(): Promise<void> {
+  const pending = app.pendingSubmission;
+  if (!app.cloudUser || !pending || pending.userId !== app.cloudUser.id) return;
+  try {
+    const result = await submitCloudBot(pending.botId, pending.revision, pending.key);
+    clearPendingSubmission();
+    const existing = app.cloudSubmissions.filter(item => submissionId(item) !== result.submissionId);
+    app.cloudSubmissions = [result, ...existing].slice(0, 50);
+    app.officialQueueMessage = "";
+    toast(`Đã nhận lượt official ${result.submissionId}.`);
+    renderQueue();
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "status" in error && Number((error as { status: unknown }).status) >= 400 && Number((error as { status: unknown }).status) < 500 && Number((error as { status: unknown }).status) !== 401) {
+      clearPendingSubmission();
+    }
+    app.officialQueueMessage = localizeOfficialError(error);
+    await refreshOfficialQueue();
+    renderQueue();
+    toast(localizeOfficialError(error));
+  }
+}
+
+async function submitOfficialCurrent(): Promise<void> {
+  if (!app.cloudUser) { toast("Đăng nhập Google trước khi nộp lượt official."); return; }
+  if (app.pendingSubmission) { await transmitPendingSubmission(); return; }
+  if (!commit() || !(await saveCloud())) return;
+  if (!app.cloudBotId) { toast("Hãy lưu bot lên tài khoản trước khi nộp."); return; }
+  try {
+    const saved = await getCloudBot(app.cloudBotId);
+    if (saved.revision !== app.cloudRevision || canonicalJson(saved.bot) !== canonicalJson(app.definition)) {
+      toast("Bot đã đổi ở thẻ hoặc máy khác. Tải lại bản trên tài khoản, kiểm tra rồi nộp lại.");
+      return;
+    }
+    const validation = await validateCloudBot(app.cloudBotId);
+    if (!validation.report.valid || !validation.package) {
+      app.package = null;
+      app.report = validation.report;
+      renderIssues(validation.report.errors, validation.report.warnings);
+      toast("Bot chưa đạt kiểm tra. Sửa các lỗi rồi kiểm tra lại trước khi nộp.");
+      return;
+    }
+    app.package = validation.package;
+    app.cloudVersions = (await getCloudBot(app.cloudBotId)).versions;
+    const pending: PendingSubmission = { key: `sub_${crypto.randomUUID()}`, botId: app.cloudBotId, revision: app.cloudRevision, userId: app.cloudUser.id };
+    localStorage.setItem(pendingStorageKey(pending.userId), JSON.stringify(pending));
+    app.pendingSubmission = pending;
+    renderOfficialQueue();
+    await transmitPendingSubmission();
+  } catch (error) {
+    toast(localizeOfficialError(error));
+  }
+}
+
+async function cancelOfficialSubmission(id: string): Promise<void> {
+  try {
+    await cancelCloudSubmission(id);
+    toast("Đã hủy lượt official đang chờ.");
+    await refreshOfficialQueue();
+  } catch (error) {
+    toast(localizeOfficialError(error));
+    await refreshOfficialQueue();
+  }
+}
+
+async function officialReplayId(entry: CloudSubmission): Promise<string> {
+  if (entry.replayId) return entry.replayId;
+  if (entry.matchId) return (await getCloudMatch(entry.matchId)).replayId || entry.matchId;
+  const fromUrl = entry.replayUrl?.match(/\/replays\/([^/?#]+)/)?.[1];
+  if (fromUrl) return decodeURIComponent(fromUrl);
+  throw new Error("Trận đã xong nhưng chưa có mã replay. Tải lại hàng chờ rồi thử lại.");
+}
+
+async function loadOfficialReplay(entry: CloudSubmission): Promise<{ replay: SavedReplay["replay"]; shapes: SavedReplay["shapes"]; seed: number; title: string; replayId: string }> {
+  const replayId = await officialReplayId(entry);
+  if (!replayId) throw new Error("Trận đã xong nhưng chưa có mã replay. Tải lại hàng chờ rồi thử lại.");
+  const saved = await getCloudReplay(replayId);
+  const packages = saved.replay.manifest.packages;
+  const [left, right] = await Promise.all([inspectBot(packages.A.definition), inspectBot(packages.B.definition)]);
+  if (!left.shape || !right.shape) throw new Error("Không dựng được hình của replay official.");
+  const title = `${packages.A.definition.name} với ${packages.B.definition.name}`;
+  return { replay: saved.replay, shapes: { A: left.shape.triangles, B: right.shape.triangles }, seed: saved.replay.manifest.seed, title, replayId };
+}
+
+async function openOfficialReplay(entry: CloudSubmission): Promise<void> {
+  try {
+    const loaded = await loadOfficialReplay(entry);
+    await openReplay(loaded, loaded.title, loaded.seed, "official");
+  } catch (error) { toast(localizeOfficialError(error)); }
+}
+
+async function shareOfficialReplay(entry: CloudSubmission): Promise<void> {
+  try {
+    const response = await createCloudReplayShare(await officialReplayId(entry));
+    const url = response.shareUrl || response.url;
+    if (!url) throw new Error("Máy chủ chưa trả đường dẫn chia sẻ.");
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Đã sao chép link replay, link dùng được 24 giờ.");
+    } catch {
+      window.prompt("Sao chép link replay (hết hạn sau 24 giờ):", url);
+    }
+  } catch (error) { toast(localizeOfficialError(error)); }
+}
+
 async function refreshCloudBots(): Promise<void> {
   if (!app.cloudUser) return;
   const bots: CloudBot[] = [];
@@ -837,6 +1135,7 @@ function renderAccount(): void {
   $<HTMLAnchorElement>("#admin-link").href = `${apiOrigin()}/admin`;
   $<HTMLInputElement>("#player").disabled = signedIn;
   if (signedIn) $<HTMLInputElement>("#player").value = app.cloudUser?.displayName ?? "";
+  $<HTMLButtonElement>("#official-submit").textContent = signedIn ? "Nộp lượt official" : "Đăng nhập để nộp official";
 }
 
 async function setupAccount(): Promise<void> {
@@ -846,6 +1145,7 @@ async function setupAccount(): Promise<void> {
     app.cloudBotId = null;
     app.definition = starterDefinition();
     app.package = null;
+    app.pendingSubmission = readPendingSubmission(app.cloudUser.id);
     renderAccount();
     try { await refreshCloudBots(); }
     catch (error) { toast(error instanceof Error ? error.message : "Không tải được bot từ tài khoản."); }
@@ -932,6 +1232,8 @@ function bind(): void {
   });
   $("#fresh").addEventListener("click", () => { createDraft(starterDefinition()); showTactic(); paintEditor(); void refreshInspect(); });
   $("#submit").addEventListener("click", () => void submitCurrent());
+  $("#official-submit").addEventListener("click", () => void submitOfficialCurrent());
+  $("#official-refresh").addEventListener("click", () => void refreshOfficialQueue());
   $("#match").addEventListener("click", () => void maybeMatch());
   $("#play").addEventListener("click", () => {
     if (!app.replay) return;
@@ -1131,6 +1433,18 @@ async function boot(): Promise<void> {
     toast(error instanceof Error ? error.message : "Không tải được bot mẫu.");
   }
   await setupAccount();
+  if (app.cloudUser) {
+    await refreshOfficialQueue();
+    if (app.pendingSubmission) void transmitPendingSubmission();
+  }
+  scheduleOfficialPolling();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && app.page === "queue") {
+      officialPollFailures = 0;
+      void refreshOfficialQueue();
+      scheduleOfficialPolling();
+    }
+  });
   app.replays = await listReplays().catch(() => []);
   renderReplayList();
   renderQueue();

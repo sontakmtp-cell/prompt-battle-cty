@@ -44,7 +44,7 @@ assert(health.value.ok && health.value.mcpApi === "1.0.0", "healthz did not repo
 const agent = await fetch(`${base}/agent.md`).then(response => response.text());
 assert(agent.includes("validate_bot") && agent.includes("S256 PKCE"), "agent onboarding resource is incomplete");
 const rules = await request("/rules");
-assert(rules.value.toolNames.length === 10 && rules.value.toolNames.includes("open_game") && rules.value.toolNames.includes("render_replay") && rules.value.versions.mcpApi === "1.0.0", "rules resource does not expose the M3 tools and M4 apps");
+assert(rules.value.toolNames.length === 13 && rules.value.toolNames.includes("open_game") && rules.value.toolNames.includes("render_replay") && rules.value.versions.mcpApi === "1.0.0", "rules resource does not expose the M3/M2 tools and M4 apps");
 assert(!rules.value.tools && !rules.value.botSchema.$defs.ReplayData, "rules resource contains unrelated schema or duplicate tool definitions");
 const schema = await request("/schema/bot.json");
 assert(schema.value.$ref === "#/$defs/BotDefinition" && schema.value.$defs.BotDefinition, "bot schema is not self-contained");
@@ -96,7 +96,7 @@ const batchResponse = await fetch(`${base}/mcp`, {
   ]),
 });
 const batch = await batchResponse.json();
-assert(batchResponse.ok && Array.isArray(batch) && batch.length === 2 && batch[1].result.tools.length === 10, "ChatGPT-style MCP batch discovery failed");
+assert(batchResponse.ok && Array.isArray(batch) && batch.length === 2 && batch[1].result.tools.length === 13, "ChatGPT-style MCP batch discovery failed");
 
 const unauthorizedInitialize = await fetch(`${base}/mcp`, {
   method: "POST",
@@ -119,7 +119,7 @@ async function publicMcp(method, params = {}) {
 const publicDiscovery = await publicMcp("server/discover");
 assert(publicDiscovery.supportedVersions.includes("2026-07-28"), "public MCP discovery used the wrong protocol version");
 const publicTools = await publicMcp("tools/list");
-assert(publicTools.tools.length === 10 && publicTools.tools.every(tool => tool.inputSchema), "public MCP tools/list is incomplete");
+assert(publicTools.tools.length === 13 && publicTools.tools.every(tool => tool.inputSchema), "public MCP tools/list is incomplete");
 const unauthorizedCall = await fetch(`${base}/mcp`, {
   method: "POST",
   headers: { "content-type": "application/json", "MCP-Protocol-Version": "2026-07-28", "Mcp-Method": "tools/call", "Mcp-Name": "get_rules" },
@@ -143,7 +143,7 @@ async function mcp(method, params = {}) {
 const discover = await mcp("server/discover");
 assert(discover.supportedVersions.includes("2026-07-28"), "MCP modern discovery used the wrong protocol version");
 const toolList = await mcp("tools/list");
-assert(toolList.tools.length === 10 && toolList.tools.every(tool => tool.inputSchema), "MCP tools/list is incomplete");
+assert(toolList.tools.length === 13 && toolList.tools.every(tool => tool.inputSchema), "MCP tools/list is incomplete");
 const openGame = toolList.tools.find(tool => tool.name === "open_game");
 assert(openGame?._meta?.ui?.resourceUri === "ui://promptchien/game/v6.html", "open_game does not reference the game UI resource");
 const listedResources = await mcp("resources/list");
@@ -176,9 +176,22 @@ assert(submitted.structuredContent.status === "queued", "first MCP submit should
 
 const secondBot = await request("/api/v1/bots", { method: "POST", headers: { "content-type": "application/json", cookie: second.cookie }, body: JSON.stringify({ bot: opponent }) });
 await request(`/api/v1/bots/${secondBot.value.botId}/validate`, { method: "POST", headers: { cookie: second.cookie } });
-const matched = await request(`/api/v1/bots/${secondBot.value.botId}/submit`, { method: "POST", headers: { "content-type": "application/json", cookie: second.cookie }, body: JSON.stringify({ revision: 1 }) });
-assert(matched.value.status === "matched" && matched.value.matchId, "Durable Object FIFO matchmaking did not pair two accounts");
-const official = await mcp("tools/call", { name: "get_replay", arguments: { replayId: matched.value.matchId } });
+const matched = await request(`/api/v1/bots/${secondBot.value.botId}/submit`, { method: "POST", headers: { "content-type": "application/json", cookie: second.cookie, "idempotency-key": "m3-second-submit-key" }, body: JSON.stringify({ revision: 1 }) });
+assert(matched.response.status === 202 && matched.value.submissionId, "second account submit did not return an accepted submission");
+let officialState;
+let firstOfficialState;
+for (let i = 0; i < 600; i += 1) {
+  const [firstState, secondState] = await Promise.all([
+    request(`/api/v1/submissions/${submitted.structuredContent.submissionId}`, { headers: { cookie: first.cookie } }),
+    request(`/api/v1/submissions/${matched.value.submissionId}`, { headers: { cookie: second.cookie } }),
+  ]);
+  if (secondState.value.status === "completed") { officialState = secondState.value; firstOfficialState = firstState.value; break; }
+  if (secondState.value.status === "failed") throw new Error(`official match failed: ${JSON.stringify(secondState.value)}`);
+  await new Promise(resolve => setTimeout(resolve, 100));
+}
+assert(officialState?.matchId, "official match did not complete within 60 seconds");
+assert(firstOfficialState?.status === "completed" && firstOfficialState.matchId === officialState.matchId, "both participants did not receive the same completed match");
+const official = await mcp("tools/call", { name: "get_replay", arguments: { replayId: officialState.matchId } });
 assert(official.structuredContent.official && official.structuredContent.replay.manifest.mode === "official", "official replay was not visible to the first account");
 
 console.log("M3 SMOKE PASSED: resources, account, OAuth PKCE, modern MCP, CRUD, validation, replay and two-account FIFO matchmaking");
