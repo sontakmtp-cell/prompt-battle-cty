@@ -96,7 +96,7 @@ const html = resource.contents[0]?.text ?? "";
 assert(resource.contents[0]?.mimeType === "text/html;profile=mcp-app" && html.includes("globalThis.ExtApps") && html.includes("PromptChienReplayViewer") && html.includes("viewCheckpoint"), "MCP Apps HTML resource is incomplete");
 const gameResource = await mcp("resources/read", { uri: gameTool._meta.ui.resourceUri });
 assert(gameResource.ttlMs === 0 && gameResource.cacheScope === "private", "modern resources/read cache hints are missing");
-assert(gameResource.contents[0]?.text.includes("https://api.kythuatvang.com/panel/app/main.js") && !gameResource.contents[0].text.includes("<iframe") && gameResource.contents[0]?._meta?.ui?.csp?.resourceDomains?.includes("https://api.kythuatvang.com"), "game MCP App resource is incomplete or still nests an iframe");
+assert(gameResource.contents[0]?.text.includes("https://promptchien-api.kythuatvang.com/panel/app/main.js") && !gameResource.contents[0].text.includes("<iframe") && gameResource.contents[0]?._meta?.ui?.csp?.resourceDomains?.includes("https://promptchien-api.kythuatvang.com"), "game MCP App resource is incomplete or still nests an iframe");
 const openedGame = await mcp("tools/call", { name: "open_game", arguments: {} });
 assert(openedGame.structuredContent.webAppUrl === `${base}/panel/`, "open_game did not return the hosted frontend URL");
 

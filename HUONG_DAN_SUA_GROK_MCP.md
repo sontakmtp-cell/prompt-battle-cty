@@ -1,5 +1,7 @@
 # Sửa lỗi Grok web không hiện trang đăng nhập MCP
 
+Từ 2026-09-27, URL kết nối hiện tại là `https://promptchien-api.kythuatvang.com/mcp`. Các địa chỉ `api.kythuatvang.com` bên dưới ghi lại lần điều tra trước khi chuyển tên miền.
+
 Ngày ghi: 2026-09-22. Production đang chạy tại `https://api.kythuatvang.com`. File này mô tả lỗi đã đo trên host đó và các sửa trong `apps/api/src/index.mjs`.
 
 ## Triệu chứng
